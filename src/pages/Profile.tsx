@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 const Profile = () => {
 	const [isEditing, setIsEditing] = React.useState(false);
 	const [profile, setProfile] = React.useState({
-		username: 'John',
-		email: 'john@example.com',
-		date_of_birth: '1990-01-01',
-		gender: 'Male',
+		username: "John",
+		email: "john@example.com",
+		date_of_birth: "1990-01-01",
+		gender: "Male",
 		height: 175,
 		weight: 70,
 		daily_calorie_goal: 2000,
@@ -14,7 +14,7 @@ const Profile = () => {
 	const handleSave = () => {
 		setProfile({ ...editProfile });
 		setIsEditing(false);
-		alert('个人资料已更新！');
+		alert("个人资料已更新！");
 	};
 	const handleCancel = () => {
 		setEditProfile({ ...profile });
@@ -26,10 +26,10 @@ const Profile = () => {
 		return bmi.toFixed(1);
 	};
 	const getBMICategory = (bmi: number) => {
-		if (bmi < 18.5) return { category: '偏瘦', color: '#3498db' };
-		if (bmi < 25) return { category: '正常', color: '#2ecc71' };
-		if (bmi < 30) return { category: '超重', color: '#f39d12' };
-		return { category: '肥胖', color: '#e74c3c' };
+		if (bmi < 18.5) return { category: "偏瘦", color: "#3498db" };
+		if (bmi < 25) return { category: "正常", color: "#2ecc71" };
+		if (bmi < 30) return { category: "超重", color: "#f39d12" };
+		return { category: "肥胖", color: "#e74c3c" };
 	};
 	const calculateAge = () => {
 		const today = new Date();
@@ -48,8 +48,8 @@ const Profile = () => {
 		<div className="profile">
 			<div className="profile-header">
 				<h1>个人资料</h1>
-				<button onClick={() => setIsEditing(!isEditing)} className={`btn ${isEditing ? 'btn-secondary' : 'btn-primary'}`}>
-					{isEditing ? '取消编辑' : '编辑资料'}
+				<button onClick={() => setIsEditing(!isEditing)} className={`btn ${isEditing ? "btn-secondary" : "btn-primary"}`}>
+					{isEditing ? "取消编辑" : "编辑资料"}
 				</button>
 			</div>
 			<div className="profile-grid">
@@ -107,7 +107,7 @@ const Profile = () => {
 							</div>
 							<div className="info-item">
 								<span className="info-label">性别</span>
-								<span className="info-value">{profile.gender === 'Male' ? '男' : profile.gender === 'Female' ? '女' : '其他'}</span>
+								<span className="info-value">{profile.gender === "Male" ? "男" : profile.gender === "Female" ? "女" : "其他"}</span>
 							</div>
 						</div>
 					)}
@@ -183,19 +183,19 @@ const Profile = () => {
 
 						<div className="bmi-scale">
 							<div className="scale-item">
-								<div className="scale-color" style={{ backgroundColor: '#3498db' }}></div>
+								<div className="scale-color" style={{ backgroundColor: "#3498db" }}></div>
 								<span>偏瘦 (&lt;18.5)</span>
 							</div>
 							<div className="scale-item">
-								<div className="scale-color" style={{ backgroundColor: '#2ecc71' }}></div>
+								<div className="scale-color" style={{ backgroundColor: "#2ecc71" }}></div>
 								<span>正常 (18.5-24.9)</span>
 							</div>
 							<div className="scale-item">
-								<div className="scale-color" style={{ backgroundColor: '#f39c12' }}></div>
+								<div className="scale-color" style={{ backgroundColor: "#f39c12" }}></div>
 								<span>超重 (25-29.9)</span>
 							</div>
 							<div className="scale-item">
-								<div className="scale-color" style={{ backgroundColor: '#e74c3c' }}></div>
+								<div className="scale-color" style={{ backgroundColor: "#e74c3c" }}></div>
 								<span>肥胖 (≥30)</span>
 							</div>
 						</div>
