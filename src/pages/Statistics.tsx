@@ -1,40 +1,40 @@
-import React from 'react';
+import React from "react";
 const Statistics = () => {
-	const [selectedPeriod, setSelectedPeriod] = React.useState<'week' | 'month' | 'year'>('week');
+	const [selectedPeriod, setSelectedPeriod] = React.useState<"week" | "month" | "year">("week");
 	const [currentDate, setCurrentDate] = React.useState(new Date());
 	const weeklyData = [
-		{ date: '2024-01-15', calories: 1800, weight: 70.5, goal: 2000 },
-		{ date: '2024-01-16', calories: 2100, weight: 70.3, goal: 2000 },
-		{ date: '2024-01-17', calories: 1950, weight: 70.1, goal: 2000 },
-		{ date: '2024-01-18', calories: 1750, weight: 69.9, goal: 2000 },
-		{ date: '2024-01-19', calories: 2200, weight: 70.0, goal: 2000 },
-		{ date: '2024-01-20', calories: 1900, weight: 69.8, goal: 2000 },
-		{ date: '2024-01-21', calories: 2050, weight: 69.6, goal: 2000 },
+		{ date: "2024-01-15", calories: 1800, weight: 70.5, goal: 2000 },
+		{ date: "2024-01-16", calories: 2100, weight: 70.3, goal: 2000 },
+		{ date: "2024-01-17", calories: 1950, weight: 70.1, goal: 2000 },
+		{ date: "2024-01-18", calories: 1750, weight: 69.9, goal: 2000 },
+		{ date: "2024-01-19", calories: 2200, weight: 70.0, goal: 2000 },
+		{ date: "2024-01-20", calories: 1900, weight: 69.8, goal: 2000 },
+		{ date: "2024-01-21", calories: 2050, weight: 69.6, goal: 2000 },
 	];
 	const nutritionTrends = {
-		protein: { current: 85, previous: 78, trend: 'up' },
-		fat: { current: 65, previous: 70, trend: 'down' },
-		carbs: { current: 180, previous: 190, trend: 'down' },
-		fiber: { current: 25, previous: 22, trend: 'up' },
+		protein: { current: 85, previous: 78, trend: "up" },
+		fat: { current: 65, previous: 70, trend: "down" },
+		carbs: { current: 180, previous: 190, trend: "down" },
+		fiber: { current: 25, previous: 22, trend: "up" },
 	};
 	const achievements = [
-		{ id: 1, title: '连续记录7天', description: '坚持记录饮食7天', achieved: true, icon: '🏆' },
-		{ id: 2, title: '达到卡路里目标', description: '单日卡路里摄入达标', achieved: true, icon: '🎯' },
-		{ id: 3, title: '蛋白质达标', description: '单日蛋白质摄入达标', achieved: true, icon: '💪' },
-		{ id: 4, title: '体重下降', description: '相比上周体重下降', achieved: true, icon: '📉' },
-		{ id: 5, title: '连续记录30天', description: '坚持记录饮食30天', achieved: false, icon: '🔥' },
-		{ id: 6, title: '完美一周', description: '一周内每天都达到目标', achieved: false, icon: '⭐' },
+		{ id: 1, title: "连续记录7天", description: "坚持记录饮食7天", achieved: true, icon: "🏆" },
+		{ id: 2, title: "达到卡路里目标", description: "单日卡路里摄入达标", achieved: true, icon: "🎯" },
+		{ id: 3, title: "蛋白质达标", description: "单日蛋白质摄入达标", achieved: true, icon: "💪" },
+		{ id: 4, title: "体重下降", description: "相比上周体重下降", achieved: true, icon: "📉" },
+		{ id: 5, title: "连续记录30天", description: "坚持记录饮食30天", achieved: false, icon: "🔥" },
+		{ id: 6, title: "完美一周", description: "一周内每天都达到目标", achieved: false, icon: "⭐" },
 	];
 	const getDateRange = () => {
 		const formatDate = (date: Date) => {
-			return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+			return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
 		};
-		if (selectedPeriod === 'week') {
+		if (selectedPeriod === "week") {
 			const startDate = new Date(currentDate);
 			startDate.setDate(currentDate.getDate() - 6);
 			return `${formatDate(startDate)} - ${formatDate(currentDate)}`;
-		} else if (selectedPeriod === 'month') {
-			return currentDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
+		} else if (selectedPeriod === "month") {
+			return currentDate.toLocaleDateString("zh-CN", { year: "numeric", month: "long" });
 		} else {
 			return currentDate.getFullYear().toString();
 		}
@@ -54,14 +54,14 @@ const Statistics = () => {
 		};
 	};
 	const stats = calculateStats();
-	const navigateDate = (direction: 'prev' | 'next') => {
+	const navigateDate = (direction: "prev" | "next") => {
 		const newDate = new Date(currentDate);
-		if (selectedPeriod === 'week') {
-			newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7));
-		} else if (selectedPeriod === 'month') {
-			newDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1));
+		if (selectedPeriod === "week") {
+			newDate.setDate(currentDate.getDate() + (direction === "next" ? 7 : -7));
+		} else if (selectedPeriod === "month") {
+			newDate.setMonth(currentDate.getMonth() + (direction === "next" ? 1 : -1));
 		} else {
-			newDate.setFullYear(currentDate.getFullYear() + (direction === 'next' ? 1 : -1));
+			newDate.setFullYear(currentDate.getFullYear() + (direction === "next" ? 1 : -1));
 		}
 		setCurrentDate(newDate);
 	};
@@ -71,24 +71,24 @@ const Statistics = () => {
 				<h1>数据统计</h1>
 
 				<div className="period-selector">
-					<button className={`period-btn ${selectedPeriod === 'week' ? 'active' : ''}`} onClick={() => setSelectedPeriod('week')}>
+					<button className={`period-btn ${selectedPeriod === "week" ? "active" : ""}`} onClick={() => setSelectedPeriod("week")}>
 						周
 					</button>
-					<button className={`period-btn ${selectedPeriod === 'month' ? 'active' : ''}`} onClick={() => setSelectedPeriod('month')}>
+					<button className={`period-btn ${selectedPeriod === "month" ? "active" : ""}`} onClick={() => setSelectedPeriod("month")}>
 						月
 					</button>
-					<button className={`period-btn ${selectedPeriod === 'year' ? 'active' : ''}`} onClick={() => setSelectedPeriod('year')}>
+					<button className={`period-btn ${selectedPeriod === "year" ? "active" : ""}`} onClick={() => setSelectedPeriod("year")}>
 						年
 					</button>
 				</div>
 			</div>
 			<div className="date-navigation">
-				<button onClick={() => navigateDate('prev')} className="nav-btn">
-					← 上一{selectedPeriod === 'week' ? '周' : selectedPeriod === 'month' ? '月' : '年'}
+				<button onClick={() => navigateDate("prev")} className="nav-btn">
+					← 上一{selectedPeriod === "week" ? "周" : selectedPeriod === "month" ? "月" : "年"}
 				</button>
 				<h2 className="current-period">{getDateRange()}</h2>
-				<button onClick={() => navigateDate('next')} className="nav-btn">
-					下一{selectedPeriod === 'week' ? '周' : selectedPeriod === 'month' ? '月' : '年'} →
+				<button onClick={() => navigateDate("next")} className="nav-btn">
+					下一{selectedPeriod === "week" ? "周" : selectedPeriod === "month" ? "月" : "年"} →
 				</button>
 			</div>
 			<div className="stats-grid">
@@ -126,8 +126,8 @@ const Statistics = () => {
 						<div className="overview-item">
 							<div className="overview-icon">📈</div>
 							<div className="overview-info">
-								<span className={`overview-value ${stats.weightChange < 0 ? 'negative' : 'positive'}`}>
-									{stats.weightChange > 0 ? '+' : ''}
+								<span className={`overview-value ${stats.weightChange < 0 ? "negative" : "positive"}`}>
+									{stats.weightChange > 0 ? "+" : ""}
 									{stats.weightChange}
 								</span>
 								<span className="overview-label">体重变化 (kg)</span>
@@ -149,8 +149,8 @@ const Statistics = () => {
 									const isAboveGoal = day.calories > day.goal;
 									return (
 										<div key={index} className="chart-bar-container">
-											<div className={`chart-bar ${isAboveGoal ? 'above-goal' : 'below-goal'}`} style={{ height: `${height}%` }} title={`${day.calories} kcal`}></div>
-											<div className="chart-label">{new Date(day.date).toLocaleDateString('zh-CN', { weekday: 'short' })}</div>
+											<div className={`chart-bar ${isAboveGoal ? "above-goal" : "below-goal"}`} style={{ height: `${height}%` }} title={`${day.calories} kcal`}></div>
+											<div className="chart-label">{new Date(day.date).toLocaleDateString("zh-CN", { weekday: "short" })}</div>
 										</div>
 									);
 								})}
@@ -177,17 +177,17 @@ const Statistics = () => {
 					<div className="nutrition-trends-grid">
 						{Object.entries(nutritionTrends).map(([key, data]) => {
 							const labels: Record<string, string> = {
-								protein: '蛋白质',
-								fat: '脂肪',
-								carbs: '碳水化合物',
-								fiber: '纤维',
+								protein: "蛋白质",
+								fat: "脂肪",
+								carbs: "碳水化合物",
+								fiber: "纤维",
 							};
 
 							return (
 								<div key={key} className="trend-item">
 									<div className="trend-header">
 										<span className="trend-label">{labels[key]}</span>
-										<span className={`trend-indicator ${data.trend}`}>{data.trend === 'up' ? '↗️' : '↘️'}</span>
+										<span className={`trend-indicator ${data.trend}`}>{data.trend === "up" ? "↗️" : "↘️"}</span>
 									</div>
 									<div className="trend-values">
 										<span className="trend-current">{data.current}g</span>
@@ -206,7 +206,7 @@ const Statistics = () => {
 
 					<div className="achievements-grid">
 						{achievements.map((achievement) => (
-							<div key={achievement.id} className={`achievement-item ${achievement.achieved ? 'achieved' : 'locked'}`}>
+							<div key={achievement.id} className={`achievement-item ${achievement.achieved ? "achieved" : "locked"}`}>
 								<div className="achievement-icon">{achievement.icon}</div>
 								<div className="achievement-info">
 									<h4 className="achievement-title">{achievement.title}</h4>

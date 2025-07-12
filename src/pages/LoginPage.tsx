@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 interface LoginPageProps {
 	onLogin: () => void;
 }
 const LoginPage = ({ onLogin }: LoginPageProps) => {
 	const [isLogin, setIsLogin] = React.useState(true);
 	const [formData, setFormData] = React.useState({
-		username: '',
-		password: '',
-		confirmPassword: '',
+		username: "",
+		password: "",
+		confirmPassword: "",
 	});
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -19,7 +19,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 
-		console.log('Form submitted:', formData);
+		console.log("Form submitted:", formData);
 		onLogin();
 	};
 	return (
@@ -31,10 +31,10 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 				</div>
 
 				<div className="login-tabs">
-					<button className={`tab-btn ${isLogin ? 'active' : ''}`} onClick={() => setIsLogin(true)}>
+					<button className={`tab-btn ${isLogin ? "active" : ""}`} onClick={() => setIsLogin(true)}>
 						登录
 					</button>
-					<button className={`tab-btn ${!isLogin ? 'active' : ''}`} onClick={() => setIsLogin(false)}>
+					<button className={`tab-btn ${!isLogin ? "active" : ""}`} onClick={() => setIsLogin(false)}>
 						注册
 					</button>
 				</div>
@@ -58,7 +58,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 					)}
 
 					<button type="submit" className="btn btn-primary login-submit">
-						{isLogin ? '登录' : '注册'}
+						{isLogin ? "登录" : "注册"}
 					</button>
 				</form>
 

@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 
 const Dashboard = () => {
-	const todayDate = new Date().toLocaleDateString('zh-CN');
+	const todayDate = new Date().toLocaleDateString("zh-CN");
 
 	// 模拟数据
 	const dailyStats = {
@@ -15,23 +15,23 @@ const Dashboard = () => {
 	const recentMeals = [
 		{
 			id: 1,
-			type: '早餐',
-			time: '08:30',
-			items: ['燕麦粥', '香蕉', '牛奶'],
+			type: "早餐",
+			time: "08:30",
+			items: ["燕麦粥", "香蕉", "牛奶"],
 			calories: 320,
 		},
 		{
 			id: 2,
-			type: '午餐',
-			time: '12:45',
-			items: ['鸡胸肉沙拉', '全麦面包'],
+			type: "午餐",
+			time: "12:45",
+			items: ["鸡胸肉沙拉", "全麦面包"],
 			calories: 480,
 		},
 		{
 			id: 3,
-			type: '晚餐',
-			time: '18:20',
-			items: ['蒸蛋', '青菜', '米饭'],
+			type: "晚餐",
+			time: "18:20",
+			items: ["蒸蛋", "青菜", "米饭"],
 			calories: 650,
 		},
 	];
@@ -63,7 +63,7 @@ const Dashboard = () => {
 					<div className="calorie-stats">
 						<div className="stat-item">
 							<span className="stat-label">剩余</span>
-							<span className={`stat-value ${remainingCalories < 0 ? 'negative' : ''}`}>{remainingCalories > 0 ? remainingCalories : Math.abs(remainingCalories)} kcal</span>
+							<span className={`stat-value ${remainingCalories < 0 ? "negative" : ""}`}>{remainingCalories > 0 ? remainingCalories : Math.abs(remainingCalories)} kcal</span>
 						</div>
 						<div className="stat-item">
 							<span className="stat-label">进度</span>
@@ -119,7 +119,7 @@ const Dashboard = () => {
 								<div className="meal-info">
 									<div className="meal-type">{meal.type}</div>
 									<div className="meal-time">{meal.time}</div>
-									<div className="meal-foods">{meal.items.join(', ')}</div>
+									<div className="meal-foods">{meal.items.join(", ")}</div>
 								</div>
 								<div className="meal-calories">
 									<span className="calories-value">{meal.calories}</span>

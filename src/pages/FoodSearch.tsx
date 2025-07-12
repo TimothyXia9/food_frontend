@@ -1,46 +1,46 @@
-import React from 'react';
+import React from "react";
 const FoodSearch = () => {
-	const [searchQuery, setSearchQuery] = React.useState('');
+	const [searchQuery, setSearchQuery] = React.useState("");
 	const [searchResults, setSearchResults] = React.useState<any[]>([]);
-	const [selectedMeal, setSelectedMeal] = React.useState('breakfast');
+	const [selectedMeal, setSelectedMeal] = React.useState("breakfast");
 	const [showAddFoodForm, setShowAddFoodForm] = React.useState(false);
 	const [customFood, setCustomFood] = React.useState({
-		name: '',
-		calories: '',
-		protein: '',
-		fat: '',
-		carbs: '',
-		serving_size: '100',
+		name: "",
+		calories: "",
+		protein: "",
+		fat: "",
+		carbs: "",
+		serving_size: "100",
 	});
 	const mockSearchResults = [
 		{
 			id: 1,
-			name: '苹果',
+			name: "苹果",
 			calories_per_100g: 52,
 			protein_per_100g: 0.3,
 			fat_per_100g: 0.2,
 			carbs_per_100g: 14,
-			category: '水果',
+			category: "水果",
 			is_custom: false,
 		},
 		{
 			id: 2,
-			name: '鸡胸肉',
+			name: "鸡胸肉",
 			calories_per_100g: 165,
 			protein_per_100g: 31,
 			fat_per_100g: 3.6,
 			carbs_per_100g: 0,
-			category: '肉类',
+			category: "肉类",
 			is_custom: false,
 		},
 		{
 			id: 3,
-			name: '我的自制沙拉',
+			name: "我的自制沙拉",
 			calories_per_100g: 120,
 			protein_per_100g: 8.5,
 			fat_per_100g: 6.0,
 			carbs_per_100g: 15,
-			category: '自定义',
+			category: "自定义",
 			is_custom: true,
 		},
 	];
@@ -59,25 +59,25 @@ const FoodSearch = () => {
 	};
 	const handleCustomFoodSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		console.log('Creating custom food:', customFood);
+		console.log("Creating custom food:", customFood);
 
-		alert('自定义食物已创建！');
+		alert("自定义食物已创建！");
 		setShowAddFoodForm(false);
 		setCustomFood({
-			name: '',
-			calories: '',
-			protein: '',
-			fat: '',
-			carbs: '',
-			serving_size: '100',
+			name: "",
+			calories: "",
+			protein: "",
+			fat: "",
+			carbs: "",
+			serving_size: "100",
 		});
 	};
 	const getMealName = (mealType: string) => {
 		const mealNames: Record<string, string> = {
-			breakfast: '早餐',
-			lunch: '午餐',
-			dinner: '晚餐',
-			snack: '零食',
+			breakfast: "早餐",
+			lunch: "午餐",
+			dinner: "晚餐",
+			snack: "零食",
 		};
 		return mealNames[mealType] || mealType;
 	};
@@ -97,7 +97,7 @@ const FoodSearch = () => {
 			</div>
 			<div className="search-section">
 				<div className="search-bar">
-					<input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="搜索食物..." className="search-input" onKeyPress={(e) => e.key === 'Enter' && handleSearch()} />
+					<input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="搜索食物..." className="search-input" onKeyPress={(e) => e.key === "Enter" && handleSearch()} />
 					<button onClick={handleSearch} className="btn btn-primary search-btn">
 						搜索
 					</button>
@@ -326,14 +326,14 @@ const FoodItem = ({ food, onAdd }: { food: any; onAdd: (food: any, quantity: num
 		<div className="food-item">
 			<div className="food-header">
 				<h4 className="food-name">{food.name}</h4>
-				<span className={`food-category ${food.is_custom ? 'custom' : ''}`}>{food.category}</span>
+				<span className={`food-category ${food.is_custom ? "custom" : ""}`}>{food.category}</span>
 			</div>
 
 			<div className="food-nutrition">
 				<div className="nutrition-summary">
 					<span className="calories">{food.calories_per_100g} kcal/100g</span>
 					<button onClick={() => setShowDetails(!showDetails)} className="details-btn">
-						{showDetails ? '收起' : '详情'}
+						{showDetails ? "收起" : "详情"}
 					</button>
 				</div>
 

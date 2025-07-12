@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
-import './App.css';
-import Navigation from './components/Navigation';
-import LoginPage from './pages/LoginPage';
-import Dashboard from './pages/Dashboard';
-import FoodSearch from './pages/FoodSearch';
-import Profile from './pages/Profile';
-import Statistics from './pages/Statistics';
+import React, { useState } from "react";
+import "./App.css";
+import Navigation from "./components/Navigation";
+import LoginPage from "./pages/LoginPage";
+import Dashboard from "./pages/Dashboard";
+import FoodSearch from "./pages/FoodSearch";
+import Profile from "./pages/Profile";
+import Statistics from "./pages/Statistics";
 
 function App() {
-	const [currentPage, setCurrentPage] = useState('login');
+	const [currentPage, setCurrentPage] = useState("login");
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 	const handleLogin = () => {
 		setIsAuthenticated(true);
-		setCurrentPage('dashboard');
+		setCurrentPage("dashboard");
 	};
 
 	const handleLogout = () => {
 		setIsAuthenticated(false);
-		setCurrentPage('login');
+		setCurrentPage("login");
 	};
 
 	const renderPage = () => {
@@ -27,13 +27,13 @@ function App() {
 		}
 
 		switch (currentPage) {
-		case 'dashboard':
+		case "dashboard":
 			return <Dashboard />;
-		case 'food-search':
+		case "food-search":
 			return <FoodSearch />;
-		case 'profile':
+		case "profile":
 			return <Profile />;
-		case 'statistics':
+		case "statistics":
 			return <Statistics />;
 		default:
 			return <Dashboard />;
