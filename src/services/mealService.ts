@@ -15,7 +15,7 @@ interface MealParams {
 
 class MealService {
 	async getMealsByDate(params: MealParams = {}): Promise<ApiResponse<MealsByDate>> {
-		return apiClient.get<MealsByDate>("/meals", params);
+		return apiClient.get<MealsByDate>("/meals", params as unknown as Record<string, unknown>);
 	}
 
 	async createMeal(data: CreateMealRequest): Promise<ApiResponse<Meal>> {

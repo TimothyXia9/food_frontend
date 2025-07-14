@@ -1,76 +1,115 @@
 import React from "react";
+import { foodService } from "../services/foodService";
+import { Food, FoodCategory } from "../types/api";
 const FoodSearch = () => {
 	const [searchQuery, setSearchQuery] = React.useState("");
-	const [searchResults, setSearchResults] = React.useState<any[]>([]);
+	const [searchResults, setSearchResults] = React.useState<Food[]>([]);
 	const [selectedMeal, setSelectedMeal] = React.useState("breakfast");
 	const [showAddFoodForm, setShowAddFoodForm] = React.useState(false);
+	const [loading, setLoading] = React.useState(false);
+	const [error, setError] = React.useState<string | null>(null);
+	const [categories, setCategories] = React.useState<FoodCategory[]>([]);
 	const [customFood, setCustomFood] = React.useState({
 		name: "",
 		calories: "",
 		protein: "",
 		fat: "",
 		carbs: "",
+		fiber: "",
+		sugar: "",
+		sodium: "",
 		serving_size: "100",
+		category_id: 1,
 	});
-	const mockSearchResults = [
-		{
-			id: 1,
-			name: "苹果",
-			calories_per_100g: 52,
-			protein_per_100g: 0.3,
-			fat_per_100g: 0.2,
-			carbs_per_100g: 14,
-			category: "水果",
-			is_custom: false,
-		},
-		{
-			id: 2,
-			name: "鸡胸肉",
-			calories_per_100g: 165,
-			protein_per_100g: 31,
-			fat_per_100g: 3.6,
-			carbs_per_100g: 0,
-			category: "肉类",
-			is_custom: false,
-		},
-		{
-			id: 3,
-			name: "我的自制沙拉",
-			calories_per_100g: 120,
-			protein_per_100g: 8.5,
-			fat_per_100g: 6.0,
-			carbs_per_100g: 15,
-			category: "自定义",
-			is_custom: true,
-		},
-	];
-	const handleSearch = () => {
-		if (searchQuery.trim()) {
-			const filtered = mockSearchResults.filter((food) => food.name.toLowerCase().includes(searchQuery.toLowerCase()));
-			setSearchResults(filtered);
-		} else {
+	// Load categories on component mount
+	React.useEffect(() => {
+		const loadCategories = async () => {
+			try {
+				const response = await foodService.getFoodCategories();
+				if (response.success && response.data) {
+					setCategories(response.data);
+					if (response.data.length > 0) {
+						setCustomFood(prev => ({ ...prev, category_id: response.data![0].id }));
+					}
+				}
+			} catch (error) {
+				console.error("Failed to load categories:", error);
+			}
+		};
+		loadCategories();
+	}, []);
+	const handleSearch = async () => {
+		if (!searchQuery.trim()) {
 			setSearchResults([]);
+			return;
+		}
+
+		setLoading(true);
+		setError(null);
+
+		try {
+			const response = await foodService.searchFoods({ q: searchQuery });
+			if (response.success && response.data) {
+				setSearchResults(response.data.foods);
+			} else {
+				setError(response.error?.message || "搜索失败");
+			}
+		} catch (error) {
+			setError("搜索时发生错误");
+			console.error("Search error:", error);
+		} finally {
+			setLoading(false);
 		}
 	};
-	const handleAddFood = (food: any, quantity: number) => {
+	const handleAddFood = (food: Food, quantity: number) => {
 		console.log(`Adding ${quantity}g of ${food.name} to ${selectedMeal}`);
-
+		// TODO: Implement meal service integration
 		alert(`已添加 ${quantity}g ${food.name} 到${getMealName(selectedMeal)}`);
 	};
-	const handleCustomFoodSubmit = (e: React.FormEvent) => {
+	const handleCustomFoodSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		console.log("Creating custom food:", customFood);
+		setLoading(true);
+		setError(null);
 
-		alert("自定义食物已创建！");
-		setShowAddFoodForm(false);
-		setCustomFood({
-			name: "",
-			calories: "",
-			protein: "",
-			fat: "",
-			carbs: "",
-			serving_size: "100",
-		});
+		try {
+			const foodData = {
+				name: customFood.name,
+				category_id: customFood.category_id,
+				serving_size: parseInt(customFood.serving_size),
+				calories_per_100g: parseFloat(customFood.calories),
+				protein_per_100g: parseFloat(customFood.protein) || 0,
+				fat_per_100g: parseFloat(customFood.fat) || 0,
+				carbs_per_100g: parseFloat(customFood.carbs) || 0,
+				fiber_per_100g: parseFloat(customFood.fiber) || 0,
+				sugar_per_100g: parseFloat(customFood.sugar) || 0,
+				sodium_per_100g: parseFloat(customFood.sodium) || 0,
+			};
+
+			const response = await foodService.createCustomFood(foodData);
+			if (response.success) {
+				alert("自定义食物已创建！");
+				setShowAddFoodForm(false);
+				setCustomFood({
+					name: "",
+					calories: "",
+					protein: "",
+					fat: "",
+					carbs: "",
+					fiber: "",
+					sugar: "",
+					sodium: "",
+					serving_size: "100",
+					category_id: categories[0]?.id || 1,
+				});
+			} else {
+				setError(response.error?.message || "创建失败");
+			}
+		} catch (error) {
+			setError("创建时发生错误");
+			console.error("Create food error:", error);
+		} finally {
+			setLoading(false);
+		}
 	};
 	const getMealName = (mealType: string) => {
 		const mealNames: Record<string, string> = {
@@ -97,9 +136,17 @@ const FoodSearch = () => {
 			</div>
 			<div className="search-section">
 				<div className="search-bar">
-					<input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="搜索食物..." className="search-input" onKeyPress={(e) => e.key === "Enter" && handleSearch()} />
-					<button onClick={handleSearch} className="btn btn-primary search-btn">
-						搜索
+					<input 
+						type="text" 
+						value={searchQuery} 
+						onChange={(e) => setSearchQuery(e.target.value)} 
+						placeholder="搜索食物..." 
+						className="search-input" 
+						onKeyPress={(e) => e.key === "Enter" && handleSearch()} 
+						disabled={loading}
+					/>
+					<button onClick={handleSearch} className="btn btn-primary search-btn" disabled={loading}>
+						{loading ? "搜索中..." : "搜索"}
 					</button>
 				</div>
 				<div className="search-actions">
@@ -109,11 +156,16 @@ const FoodSearch = () => {
 					<button className="btn btn-warning">📸 拍照识别</button>
 				</div>
 			</div>
+			{error && (
+				<div className="error-message">
+					<p>{error}</p>
+				</div>
+			)}
 			{searchResults.length > 0 && (
 				<div className="search-results">
 					<h3>搜索结果</h3>
 					<div className="results-grid">
-						{searchResults.map((food: any) => (
+						{searchResults.map((food: Food) => (
 							<FoodItem key={food.id} food={food} onAdd={handleAddFood} />
 						))}
 					</div>
@@ -128,40 +180,143 @@ const FoodSearch = () => {
 								×
 							</button>
 						</div>
+						{error && (
+							<div className="error-message">
+								<p>{error}</p>
+							</div>
+						)}
 						<form onSubmit={handleCustomFoodSubmit} className="custom-food-form">
 							<div className="form-group">
 								<label className="form-label">食物名称</label>
-								<input type="text" value={customFood.name} onChange={(e) => setCustomFood({ ...customFood, name: e.target.value })} className="form-input" required />
+								<input 
+									type="text" 
+									value={customFood.name} 
+									onChange={(e) => setCustomFood({ ...customFood, name: e.target.value })} 
+									className="form-input" 
+									required 
+									disabled={loading}
+								/>
+							</div>
+
+							<div className="form-group">
+								<label className="form-label">分类</label>
+								<select 
+									value={customFood.category_id} 
+									onChange={(e) => setCustomFood({ ...customFood, category_id: parseInt(e.target.value) })} 
+									className="form-input"
+									disabled={loading}
+								>
+									{categories.map((category) => (
+										<option key={category.id} value={category.id}>{category.name}</option>
+									))}
+								</select>
 							</div>
 
 							<div className="form-row">
 								<div className="form-group">
 									<label className="form-label">卡路里 (每100g)</label>
-									<input type="number" value={customFood.calories} onChange={(e) => setCustomFood({ ...customFood, calories: e.target.value })} className="form-input" required />
+									<input 
+										type="number" 
+										value={customFood.calories} 
+										onChange={(e) => setCustomFood({ ...customFood, calories: e.target.value })} 
+										className="form-input" 
+										required 
+										disabled={loading}
+									/>
 								</div>
 								<div className="form-group">
 									<label className="form-label">蛋白质 (g)</label>
-									<input type="number" step="0.1" value={customFood.protein} onChange={(e) => setCustomFood({ ...customFood, protein: e.target.value })} className="form-input" />
+									<input 
+										type="number" 
+										step="0.1" 
+										value={customFood.protein} 
+										onChange={(e) => setCustomFood({ ...customFood, protein: e.target.value })} 
+										className="form-input" 
+										disabled={loading}
+									/>
 								</div>
 							</div>
 
 							<div className="form-row">
 								<div className="form-group">
 									<label className="form-label">脂肪 (g)</label>
-									<input type="number" step="0.1" value={customFood.fat} onChange={(e) => setCustomFood({ ...customFood, fat: e.target.value })} className="form-input" />
+									<input 
+										type="number" 
+										step="0.1" 
+										value={customFood.fat} 
+										onChange={(e) => setCustomFood({ ...customFood, fat: e.target.value })} 
+										className="form-input" 
+										disabled={loading}
+									/>
 								</div>
 								<div className="form-group">
 									<label className="form-label">碳水化合物 (g)</label>
-									<input type="number" step="0.1" value={customFood.carbs} onChange={(e) => setCustomFood({ ...customFood, carbs: e.target.value })} className="form-input" />
+									<input 
+										type="number" 
+										step="0.1" 
+										value={customFood.carbs} 
+										onChange={(e) => setCustomFood({ ...customFood, carbs: e.target.value })} 
+										className="form-input" 
+										disabled={loading}
+									/>
+								</div>
+							</div>
+
+							<div className="form-row">
+								<div className="form-group">
+									<label className="form-label">纤维 (g)</label>
+									<input 
+										type="number" 
+										step="0.1" 
+										value={customFood.fiber} 
+										onChange={(e) => setCustomFood({ ...customFood, fiber: e.target.value })} 
+										className="form-input" 
+										disabled={loading}
+									/>
+								</div>
+								<div className="form-group">
+									<label className="form-label">糖 (g)</label>
+									<input 
+										type="number" 
+										step="0.1" 
+										value={customFood.sugar} 
+										onChange={(e) => setCustomFood({ ...customFood, sugar: e.target.value })} 
+										className="form-input" 
+										disabled={loading}
+									/>
+								</div>
+							</div>
+
+							<div className="form-row">
+								<div className="form-group">
+									<label className="form-label">钠 (mg)</label>
+									<input 
+										type="number" 
+										step="0.1" 
+										value={customFood.sodium} 
+										onChange={(e) => setCustomFood({ ...customFood, sodium: e.target.value })} 
+										className="form-input" 
+										disabled={loading}
+									/>
+								</div>
+								<div className="form-group">
+									<label className="form-label">分量 (g)</label>
+									<input 
+										type="number" 
+										value={customFood.serving_size} 
+										onChange={(e) => setCustomFood({ ...customFood, serving_size: e.target.value })} 
+										className="form-input" 
+										disabled={loading}
+									/>
 								</div>
 							</div>
 
 							<div className="form-actions">
-								<button type="button" onClick={() => setShowAddFoodForm(false)} className="btn btn-secondary">
+								<button type="button" onClick={() => setShowAddFoodForm(false)} className="btn btn-secondary" disabled={loading}>
 									取消
 								</button>
-								<button type="submit" className="btn btn-primary">
-									创建
+								<button type="submit" className="btn btn-primary" disabled={loading}>
+									{loading ? "创建中..." : "创建"}
 								</button>
 							</div>
 						</form>
@@ -226,6 +381,19 @@ const FoodSearch = () => {
 				.search-actions {
 					display: flex;
 					gap: 1rem;
+				}
+
+				.error-message {
+					background: #f8d7da;
+					color: #721c24;
+					padding: 1rem;
+					border-radius: 4px;
+					margin: 1rem 0;
+					border: 1px solid #f5c6cb;
+				}
+
+				.error-message p {
+					margin: 0;
 				}
 
 				.results-grid {
@@ -314,7 +482,12 @@ const FoodSearch = () => {
 	);
 };
 
-const FoodItem = ({ food, onAdd }: { food: any; onAdd: (food: any, quantity: number) => void }) => {
+interface FoodItemProps {
+	food: Food;
+	onAdd: (food: Food, quantity: number) => void;
+}
+
+const FoodItem = ({ food, onAdd }: FoodItemProps) => {
 	const [quantity, setQuantity] = React.useState(100);
 	const [showDetails, setShowDetails] = React.useState(false);
 
@@ -326,7 +499,7 @@ const FoodItem = ({ food, onAdd }: { food: any; onAdd: (food: any, quantity: num
 		<div className="food-item">
 			<div className="food-header">
 				<h4 className="food-name">{food.name}</h4>
-				<span className={`food-category ${food.is_custom ? "custom" : ""}`}>{food.category}</span>
+				<span className={`food-category ${food.is_custom ? "custom" : ""}`}>{food.category.name}</span>
 			</div>
 
 			<div className="food-nutrition">

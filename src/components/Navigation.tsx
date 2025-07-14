@@ -11,6 +11,7 @@ const Navigation = ({ currentPage, onNavigate, onLogout }: NavigationProps) => {
 		{ key: "food-search", label: "添加食物", icon: "🍎" },
 		{ key: "statistics", label: "统计", icon: "📊" },
 		{ key: "profile", label: "个人资料", icon: "👤" },
+		{ key: "api-test", label: "API测试", icon: "🧪" },
 	];
 	return (
 		<nav className="navigation">

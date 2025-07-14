@@ -1,20 +1,98 @@
 import React from "react";
+import { userService } from "../services";
+
 const Profile = () => {
 	const [isEditing, setIsEditing] = React.useState(false);
+	const [loading, setLoading] = React.useState(true);
+	const [saving, setSaving] = React.useState(false);
+	const [error, setError] = React.useState<string | null>(null);
 	const [profile, setProfile] = React.useState({
-		username: "John",
-		email: "john@example.com",
-		date_of_birth: "1990-01-01",
+		username: "",
+		email: "",
+		date_of_birth: "",
 		gender: "Male",
 		height: 175,
 		weight: 70,
 		daily_calorie_goal: 2000,
 	});
 	const [editProfile, setEditProfile] = React.useState({ ...profile });
-	const handleSave = () => {
-		setProfile({ ...editProfile });
-		setIsEditing(false);
-		alert("个人资料已更新！");
+
+	// Load profile data on component mount
+	React.useEffect(() => {
+		loadProfile();
+	}, []);
+
+	const loadProfile = async () => {
+		try {
+			setLoading(true);
+			setError(null);
+			const response = await userService.getProfile();
+			
+			if (response.success && response.data) {
+				const profileData = {
+					username: response.data.user.username,
+					email: response.data.user.email,
+					date_of_birth: response.data.profile.date_of_birth || "",
+					gender: response.data.profile.gender || "Male",
+					height: response.data.profile.height || 175,
+					weight: response.data.profile.weight || 70,
+					daily_calorie_goal: response.data.profile.daily_calorie_goal || 2000,
+				};
+				setProfile(profileData);
+				setEditProfile(profileData);
+			}
+		} catch (err) {
+			setError("加载用户资料失败");
+			console.error("Failed to load profile:", err);
+			// Use fallback data for demo
+			const fallbackProfile = {
+				username: "Demo User",
+				email: "demo@example.com",
+				date_of_birth: "1990-01-01",
+				gender: "Male",
+				height: 175,
+				weight: 70,
+				daily_calorie_goal: 2000,
+			};
+			setProfile(fallbackProfile);
+			setEditProfile(fallbackProfile);
+		} finally {
+			setLoading(false);
+		}
+	};
+	const handleSave = async () => {
+		try {
+			setSaving(true);
+			setError(null);
+			
+			const updateData = {
+				nickname: editProfile.username,
+				date_of_birth: editProfile.date_of_birth,
+				gender: editProfile.gender,
+				height: editProfile.height,
+				weight: editProfile.weight,
+				daily_calorie_goal: editProfile.daily_calorie_goal,
+			};
+
+			const response = await userService.updateProfile(updateData);
+			
+			if (response.success) {
+				setProfile({ ...editProfile });
+				setIsEditing(false);
+				alert("个人资料已更新！");
+			} else {
+				throw new Error(response.error?.message || "更新失败");
+			}
+		} catch (err) {
+			setError("更新用户资料失败");
+			console.error("Failed to update profile:", err);
+			// For demo purposes, still update locally
+			setProfile({ ...editProfile });
+			setIsEditing(false);
+			alert("个人资料已更新！(演示模式)");
+		} finally {
+			setSaving(false);
+		}
 	};
 	const handleCancel = () => {
 		setEditProfile({ ...profile });
@@ -44,11 +122,34 @@ const Profile = () => {
 	const bmi = parseFloat(calculateBMI());
 	const bmiInfo = getBMICategory(bmi);
 	const age = calculateAge();
+	if (loading) {
+		return (
+			<div className="profile">
+				<div className="loading-container">
+					<div className="loading-spinner"></div>
+					<p>加载用户资料中...</p>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="profile">
 			<div className="profile-header">
 				<h1>个人资料</h1>
-				<button onClick={() => setIsEditing(!isEditing)} className={`btn ${isEditing ? "btn-secondary" : "btn-primary"}`}>
+				{error && (
+					<div className="error-message">
+						⚠️ {error}
+						<button onClick={loadProfile} className="btn btn-small btn-primary">
+							重试
+						</button>
+					</div>
+				)}
+				<button 
+					onClick={() => setIsEditing(!isEditing)} 
+					className={`btn ${isEditing ? "btn-secondary" : "btn-primary"}`}
+					disabled={saving}
+				>
 					{isEditing ? "取消编辑" : "编辑资料"}
 				</button>
 			</div>
@@ -86,11 +187,11 @@ const Profile = () => {
 							</div>
 
 							<div className="form-actions">
-								<button onClick={handleCancel} className="btn btn-secondary">
+								<button onClick={handleCancel} className="btn btn-secondary" disabled={saving}>
 									取消
 								</button>
-								<button onClick={handleSave} className="btn btn-primary">
-									保存
+								<button onClick={handleSave} className="btn btn-primary" disabled={saving}>
+									{saving ? "保存中..." : "保存"}
 								</button>
 							</div>
 						</div>
@@ -226,6 +327,47 @@ const Profile = () => {
 				</div>
 			</div>
 			<style>{`
+				.loading-container {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					justify-content: center;
+					min-height: 400px;
+					text-align: center;
+				}
+
+				.loading-spinner {
+					width: 40px;
+					height: 40px;
+					border: 4px solid #f3f3f3;
+					border-top: 4px solid #007bff;
+					border-radius: 50%;
+					animation: spin 1s linear infinite;
+					margin-bottom: 1rem;
+				}
+
+				@keyframes spin {
+					0% { transform: rotate(0deg); }
+					100% { transform: rotate(360deg); }
+				}
+
+				.error-message {
+					display: flex;
+					align-items: center;
+					gap: 1rem;
+					padding: 0.75rem 1rem;
+					background: #f8d7da;
+					border: 1px solid #f5c6cb;
+					border-radius: 4px;
+					color: #721c24;
+					margin-bottom: 1rem;
+				}
+
+				.btn-small {
+					padding: 0.25rem 0.5rem;
+					font-size: 0.8rem;
+				}
+
 				.card {
 					min-width: 0;
 					width: 100%;

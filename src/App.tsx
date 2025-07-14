@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import FoodSearch from "./pages/FoodSearch";
 import Profile from "./pages/Profile";
 import Statistics from "./pages/Statistics";
+import ApiTest from "./pages/ApiTest";
 
 function App() {
 	const [currentPage, setCurrentPage] = useState("login");
@@ -35,6 +36,8 @@ function App() {
 			return <Profile />;
 		case "statistics":
 			return <Statistics />;
+		case "api-test":
+			return <ApiTest />;
 		default:
 			return <Dashboard />;
 		}

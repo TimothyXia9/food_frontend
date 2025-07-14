@@ -249,3 +249,40 @@ export interface NutritionTrends {
     carbs: { date: string; value: number; }[];
   };
 }
+
+// USDA API related types
+export interface USDAFoodSearchParams {
+  query: string;
+  page_size?: number;
+}
+
+export interface USDAFoodItem {
+  fdc_id: number;
+  description: string;
+  data_type: string;
+  brand_owner: string;
+  ingredients: string;
+}
+
+export interface USDAFoodSearchResult {
+  total_results: number;
+  foods: USDAFoodItem[];
+}
+
+export interface USDANutritionData {
+  food_description: string;
+  fdc_id: number;
+  nutrients: {
+    calories: number;
+    protein: number;
+    fat: number;
+    carbs: number;
+    fiber: number;
+    sugar: number;
+    sodium: number;
+  };
+}
+
+export interface CreateFoodFromUSDARequest {
+  fdc_id: number;
+}

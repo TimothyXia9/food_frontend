@@ -28,7 +28,7 @@ interface NutritionTrendsParams {
 
 class StatisticsService {
 	async getDailySummary(params: DailySummaryParams = {}): Promise<ApiResponse<DailySummary>> {
-		return apiClient.get<DailySummary>("/summary/daily", params);
+		return apiClient.get<DailySummary>("/summary/daily", params as unknown as Record<string, unknown>);
 	}
 
 	async updateDailyWeight(data: UpdateWeightRequest): Promise<ApiResponse<void>> {
@@ -36,15 +36,15 @@ class StatisticsService {
 	}
 
 	async getWeeklySummary(params: WeeklySummaryParams = {}): Promise<ApiResponse<WeeklySummary>> {
-		return apiClient.get<WeeklySummary>("/statistics/weekly", params);
+		return apiClient.get<WeeklySummary>("/statistics/weekly", params as unknown as Record<string, unknown>);
 	}
 
 	async getMonthlySummary(params: MonthlySummaryParams = {}): Promise<ApiResponse<MonthlySummary>> {
-		return apiClient.get<MonthlySummary>("/statistics/monthly", params);
+		return apiClient.get<MonthlySummary>("/statistics/monthly", params as unknown as Record<string, unknown>);
 	}
 
 	async getNutritionTrends(params: NutritionTrendsParams): Promise<ApiResponse<NutritionTrends>> {
-		return apiClient.get<NutritionTrends>("/statistics/nutrition-trends", params);
+		return apiClient.get<NutritionTrends>("/statistics/nutrition-trends", params as unknown as Record<string, unknown>);
 	}
 }
 
