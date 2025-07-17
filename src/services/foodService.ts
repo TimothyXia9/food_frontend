@@ -46,6 +46,13 @@ class FoodService {
 		return apiClient.post<Food>("/foods/usda/create/", data);
 	}
 
+	async getUserFoods(page?: number, page_size?: number): Promise<ApiResponse<FoodSearchResult>> {
+		const params: Record<string, unknown> = {};
+		if (page) params.page = page;
+		if (page_size) params.page_size = page_size;
+		return apiClient.get<FoodSearchResult>("/foods/user/", params);
+	}
+
 	async getSearchHistory(limit?: number): Promise<ApiResponse<{ searches: any[] }>> {
 		const params = limit ? { limit } : {};
 		return apiClient.get<{ searches: any[] }>("/foods/search/history/", params);

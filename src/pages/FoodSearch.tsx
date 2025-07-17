@@ -17,6 +17,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const [error, setError] = React.useState<string | null>(null);
 	const [customFood, setCustomFood] = React.useState({
 		name: "",
+		brand: "",
 		calories: "",
 		protein: "",
 		fat: "",
@@ -26,6 +27,10 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		sodium: "",
 		serving_size: "100",
 	});
+	const [editingFood, setEditingFood] = React.useState<Food | null>(null);
+	const [viewMode, setViewMode] = React.useState<"search" | "user">("search");
+	const [userFoods, setUserFoods] = React.useState<Food[]>([]);
+	const [userFoodsLoading, setUserFoodsLoading] = React.useState(false);
 	const handleSearch = async () => {
 		if (!searchQuery.trim()) {
 			setSearchResults([]);
@@ -49,6 +54,42 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			setLoading(false);
 		}
 	};
+
+	const handleLoadUserFoods = async () => {
+		if (!isAuthenticated) {
+			onLoginRequired();
+			return;
+		}
+
+		setUserFoodsLoading(true);
+		setError(null);
+
+		try {
+			const response = await foodService.getUserFoods();
+			if (response.success && response.data) {
+				setUserFoods(response.data.foods);
+			} else {
+				setError(response.error?.message || "获取用户食物失败");
+			}
+		} catch (error) {
+			setError("获取用户食物时发生错误");
+			console.error("Load user foods error:", error);
+		} finally {
+			setUserFoodsLoading(false);
+		}
+	};
+
+	const handleViewModeChange = (mode: "search" | "user") => {
+		setViewMode(mode);
+		setError(null);
+		
+		if (mode === "user") {
+			handleLoadUserFoods();
+		} else {
+			setSearchResults([]);
+			setSearchQuery("");
+		}
+	};
 	const handleAddFood = (food: Food, quantity: number) => {
 		console.log(`Adding ${quantity}g of ${food.name} to ${selectedMeal}`);
 		// TODO: Implement meal service integration
@@ -62,6 +103,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		try {
 			const foodData = {
 				name: customFood.name,
+				brand: customFood.brand,
 				serving_size: parseInt(customFood.serving_size),
 				calories_per_100g: parseFloat(customFood.calories),
 				protein_per_100g: parseFloat(customFood.protein) || 0,
@@ -76,8 +118,10 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			if (response.success) {
 				alert("自定义食物已创建！");
 				setShowAddFoodForm(false);
+				setEditingFood(null);
 				setCustomFood({
 					name: "",
+					brand: "",
 					calories: "",
 					protein: "",
 					fat: "",
@@ -87,6 +131,11 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					sodium: "",
 					serving_size: "100",
 				});
+				
+				// Refresh user foods list if we're in user mode
+				if (viewMode === "user") {
+					handleLoadUserFoods();
+				}
 			} else {
 				setError(response.error?.message || "创建失败");
 			}
@@ -97,6 +146,26 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			setLoading(false);
 		}
 	};
+
+	const handleCopyFood = (food: Food) => {
+		// 复制食物数据到表单
+		setCustomFood({
+			name: food.name,
+			brand: food.brand || "",
+			calories: food.calories_per_100g.toString(),
+			protein: food.protein_per_100g?.toString() || "0",
+			fat: food.fat_per_100g?.toString() || "0",
+			carbs: food.carbs_per_100g?.toString() || "0",
+			fiber: food.fiber_per_100g?.toString() || "0",
+			sugar: food.sugar_per_100g?.toString() || "0",
+			sodium: food.sodium_per_100g?.toString() || "0",
+			serving_size: food.serving_size.toString(),
+		});
+		setEditingFood(food);
+		setShowAddFoodForm(true);
+		setError(null);
+	};
+
 	const getMealName = (mealType: string) => {
 		const mealNames: Record<string, string> = {
 			breakfast: "早餐",
@@ -120,47 +189,93 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					</select>
 				</div>
 			</div>
-			<div className="search-section">
-				<div className="search-bar">
-					<input 
-						type="text" 
-						value={searchQuery} 
-						onChange={(e) => setSearchQuery(e.target.value)} 
-						placeholder="搜索食物..." 
-						className="search-input" 
-						onKeyPress={(e) => e.key === "Enter" && handleSearch()} 
-						disabled={loading}
-					/>
-					<button onClick={handleSearch} className="btn btn-primary search-btn" disabled={loading}>
-						{loading ? "搜索中..." : "搜索"}
-					</button>
-				</div>
-				<div className="search-actions">
-					<button 
-						onClick={() => isAuthenticated ? setShowAddFoodForm(true) : onLoginRequired()} 
-						className="btn btn-success"
-					>
-						+ 创建自定义食物
-					</button>
-					<button 
-						className="btn btn-warning"
-						onClick={() => isAuthenticated ? console.log("Camera") : onLoginRequired()}
-					>
-						📸 拍照识别
-					</button>
-				</div>
+			
+			<div className="view-mode-selector">
+				<button 
+					onClick={() => handleViewModeChange("search")}
+					className={`view-mode-btn ${viewMode === "search" ? "active" : ""}`}
+				>
+					搜索食物
+				</button>
+				<button 
+					onClick={() => handleViewModeChange("user")}
+					className={`view-mode-btn ${viewMode === "user" ? "active" : ""}`}
+					disabled={!isAuthenticated}
+				>
+					我的食物
+				</button>
 			</div>
+			{viewMode === "search" && (
+				<div className="search-section">
+					<div className="search-bar">
+						<input 
+							type="text" 
+							value={searchQuery} 
+							onChange={(e) => setSearchQuery(e.target.value)} 
+							placeholder="搜索食物..." 
+							className="search-input" 
+							onKeyPress={(e) => e.key === "Enter" && handleSearch()} 
+							disabled={loading}
+						/>
+						<button onClick={handleSearch} className="btn btn-primary search-btn" disabled={loading}>
+							{loading ? "搜索中..." : "搜索"}
+						</button>
+					</div>
+					<div className="search-actions">
+						<button 
+							onClick={() => isAuthenticated ? setShowAddFoodForm(true) : onLoginRequired()} 
+							className="btn btn-success"
+						>
+							+ 创建自定义食物
+						</button>
+						<button 
+							className="btn btn-warning"
+							onClick={() => isAuthenticated ? console.log("Camera") : onLoginRequired()}
+						>
+							📸 拍照识别
+						</button>
+					</div>
+				</div>
+			)}
+			
+			{viewMode === "user" && (
+				<div className="user-foods-section">
+					<div className="user-foods-header">
+						<h3>我的自定义食物</h3>
+						<button 
+							onClick={() => isAuthenticated ? setShowAddFoodForm(true) : onLoginRequired()} 
+							className="btn btn-success"
+						>
+							+ 创建自定义食物
+						</button>
+					</div>
+					{userFoodsLoading && <p>加载中...</p>}
+					{!userFoodsLoading && userFoods.length === 0 && (
+						<p className="no-foods-message">您还没有创建任何自定义食物。点击上方按钮创建您的第一个自定义食物！</p>
+					)}
+				</div>
+			)}
 			{error && (
 				<div className="error-message">
 					<p>{error}</p>
 				</div>
 			)}
-			{searchResults.length > 0 && (
+			{viewMode === "search" && searchResults.length > 0 && (
 				<div className="search-results">
 					<h3>搜索结果</h3>
 					<div className="results-grid">
 						{searchResults.map((food: Food) => (
-							<FoodItem key={food.id} food={food} onAdd={handleAddFood} onLoginRequired={onLoginRequired} />
+							<FoodItem key={food.id} food={food} onAdd={handleAddFood} onLoginRequired={onLoginRequired} onCopy={handleCopyFood} />
+						))}
+					</div>
+				</div>
+			)}
+			
+			{viewMode === "user" && userFoods.length > 0 && (
+				<div className="user-foods-results">
+					<div className="results-grid">
+						{userFoods.map((food: Food) => (
+							<FoodItem key={food.id} food={food} onAdd={handleAddFood} onLoginRequired={onLoginRequired} onCopy={handleCopyFood} />
 						))}
 					</div>
 				</div>
@@ -169,8 +284,11 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				<div className="modal-overlay">
 					<div className="modal">
 						<div className="modal-header">
-							<h3>创建自定义食物</h3>
-							<button onClick={() => setShowAddFoodForm(false)} className="close-btn">
+							<h3>{editingFood ? `复制并编辑: ${editingFood.name}` : "创建自定义食物"}</h3>
+							<button onClick={() => {
+								setShowAddFoodForm(false);
+								setEditingFood(null);
+							}} className="close-btn">
 								×
 							</button>
 						</div>
@@ -189,6 +307,19 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									className="form-input" 
 									required 
 									disabled={loading}
+									placeholder="输入食物名称"
+								/>
+							</div>
+							
+							<div className="form-group">
+								<label className="form-label">品牌</label>
+								<input 
+									type="text" 
+									value={customFood.brand} 
+									onChange={(e) => setCustomFood({ ...customFood, brand: e.target.value })} 
+									className="form-input" 
+									disabled={loading}
+									placeholder="输入品牌名称（可选）"
 								/>
 							</div>
 
@@ -314,7 +445,43 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					display: flex;
 					justify-content: space-between;
 					align-items: center;
+					margin-bottom: 1rem;
+				}
+				
+				.view-mode-selector {
+					display: flex;
+					gap: 0.5rem;
 					margin-bottom: 2rem;
+					border-radius: 8px;
+					background: #f8f9fa;
+					padding: 0.5rem;
+				}
+				
+				.view-mode-btn {
+					flex: 1;
+					padding: 0.75rem 1.5rem;
+					border: none;
+					border-radius: 6px;
+					background: transparent;
+					color: #6c757d;
+					cursor: pointer;
+					transition: all 0.3s;
+					font-weight: 500;
+				}
+				
+				.view-mode-btn:hover:not(:disabled) {
+					background: #e9ecef;
+					color: #495057;
+				}
+				
+				.view-mode-btn.active {
+					background: #007bff;
+					color: white;
+				}
+				
+				.view-mode-btn:disabled {
+					opacity: 0.6;
+					cursor: not-allowed;
 				}
 
 				.meal-selector {
@@ -332,12 +499,31 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
   margin-bottom: 0; 
 }
 
-				.search-section {
+				.search-section, .user-foods-section {
 					background: white;
 					border-radius: 8px;
 					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 					padding: 1.5rem;
 					margin-bottom: 2rem;
+				}
+				
+				.user-foods-header {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					margin-bottom: 1rem;
+				}
+				
+				.user-foods-header h3 {
+					margin: 0;
+					color: #2c3e50;
+				}
+				
+				.no-foods-message {
+					text-align: center;
+					color: #6c757d;
+					font-style: italic;
+					margin: 2rem 0;
 				}
 
 				.search-bar {
@@ -467,9 +653,10 @@ interface FoodItemProps {
 	food: Food;
 	onAdd: (food: Food, quantity: number) => void;
 	onLoginRequired: () => void;
+	onCopy: (food: Food) => void;
 }
 
-const FoodItem = ({ food, onAdd, onLoginRequired }: FoodItemProps) => {
+const FoodItem = ({ food, onAdd, onLoginRequired, onCopy }: FoodItemProps) => {
 	const [quantity, setQuantity] = React.useState(100);
 	const [showDetails, setShowDetails] = React.useState(false);
 	const [nutritionData, setNutritionData] = React.useState<Food | null>(null);
@@ -581,12 +768,21 @@ const FoodItem = ({ food, onAdd, onLoginRequired }: FoodItemProps) => {
 					</div>
 				</div>
 
-				<button 
-					onClick={() => isAuthenticated ? onAdd(food, quantity) : onLoginRequired()} 
-					className="btn btn-primary add-btn"
-				>
-					添加
-				</button>
+				<div className="food-actions">
+					<button 
+						onClick={() => isAuthenticated ? onAdd(food, quantity) : onLoginRequired()} 
+						className="btn btn-primary add-btn"
+					>
+						添加
+					</button>
+					<button 
+						onClick={() => isAuthenticated ? onCopy(food) : onLoginRequired()} 
+						className="btn btn-secondary copy-btn"
+						title="复制为自定义食物"
+					>
+						复制
+					</button>
+				</div>
 			</div>
 			<style>{`
 				.food-item {
@@ -748,8 +944,19 @@ const FoodItem = ({ food, onAdd, onLoginRequired }: FoodItemProps) => {
 					color: #6c757d;
 				}
 
+				.food-actions {
+					display: flex;
+					gap: 0.5rem;
+					margin-top: 0.5rem;
+				}
+
 				.add-btn {
-					width: 100%;
+					flex: 1;
+					padding: 0.75rem;
+				}
+
+				.copy-btn {
+					flex: 1;
 					padding: 0.75rem;
 				}
 			`}</style>
