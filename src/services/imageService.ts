@@ -1,27 +1,37 @@
 import { apiClient } from "../utils/api";
-import { ApiResponse, ImageUpload, ImageRecognition, ConfirmRecognitionRequest, AddRecognitionToMealRequest, SearchHistory } from "../types/api";
+import { ApiResponse, ImageUpload, ImageRecognition } from "../types/api";
 
 class ImageService {
-	async uploadImage(file: File, mealId?: number): Promise<ApiResponse<{ image: ImageUpload }>> {
-		const additionalData = mealId ? { meal_id: mealId.toString() } : undefined;
-		return apiClient.uploadFile<{ image: ImageUpload }>("/images/upload", file, additionalData);
+	async uploadImage(file: File, notes?: string): Promise<ApiResponse<ImageUpload>> {
+		const additionalData = notes ? { notes } : undefined;
+		return apiClient.uploadFile<ImageUpload>("/images/upload/", file, additionalData);
 	}
 
-	async getRecognitionResults(imageId: number): Promise<ApiResponse<ImageRecognition>> {
-		return apiClient.get<ImageRecognition>(`/images/${imageId}/recognition`);
+	async analyzeImage(imageId: number, analysisType: "full" | "quick" = "full"): Promise<ApiResponse<{ analysis_id: number; status: string; estimated_completion: string }>> {
+		return apiClient.post<{ analysis_id: number; status: string; estimated_completion: string }>("/images/analyze/", {
+			image_id: imageId,
+			analysis_type: analysisType,
+		});
 	}
 
-	async confirmRecognitionResult(imageId: number, resultId: number, data: ConfirmRecognitionRequest): Promise<ApiResponse<void>> {
-		return apiClient.post<void>(`/images/${imageId}/recognition/${resultId}/confirm`, data);
+	async getImageResults(imageId: number): Promise<ApiResponse<ImageRecognition>> {
+		return apiClient.get<ImageRecognition>(`/images/${imageId}/results/`);
 	}
 
-	async addRecognitionResultToMeal(imageId: number, resultId: number, data: AddRecognitionToMealRequest): Promise<ApiResponse<void>> {
-		return apiClient.post<void>(`/images/${imageId}/recognition/${resultId}/add-to-meal`, data);
+	async confirmRecognitionResults(data: { result_id: number; is_confirmed: boolean; corrections?: any[] }): Promise<ApiResponse<{ result_id: number; confirmed: boolean; corrections_applied: number }>> {
+		return apiClient.post<{ result_id: number; confirmed: boolean; corrections_applied: number }>("/images/confirm/", data);
 	}
 
-	async getSearchHistory(limit?: number): Promise<ApiResponse<SearchHistory[]>> {
-		const params = limit ? { limit } : {};
-		return apiClient.get<SearchHistory[]>("/search/history", params);
+	async createMealFromImage(data: { image_id: number; meal_type: string; date?: string; meal_name?: string }): Promise<ApiResponse<{ meal_id: number; image_id: number; foods_added: number; total_calories: number }>> {
+		return apiClient.post<{ meal_id: number; image_id: number; foods_added: number; total_calories: number }>("/images/create-meal/", data);
+	}
+
+	async deleteImage(imageId: number): Promise<ApiResponse<void>> {
+		return apiClient.delete<void>(`/images/${imageId}/delete/`);
+	}
+
+	async getUserImages(params?: { page?: number; page_size?: number; status?: string }): Promise<ApiResponse<{ images: ImageUpload[]; total_count: number; page: number; page_size: number; total_pages: number }>> {
+		return apiClient.get<{ images: ImageUpload[]; total_count: number; page: number; page_size: number; total_pages: number }>("/images/list/", params as unknown as Record<string, unknown>);
 	}
 }
 

@@ -9,8 +9,14 @@ import {
 	LoginRequest,
 	RegisterRequest,
 } from "../services";
+import { useAuth } from "../contexts/AuthContext";
 
-const ApiTest = () => {
+interface ApiTestProps {
+	onLoginRequired: () => void;
+}
+
+const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
+	const { isAuthenticated } = useAuth();
 	const [results, setResults] = useState<any[]>([]);
 	const [loading, setLoading] = useState(false);
 
@@ -86,17 +92,17 @@ const ApiTest = () => {
 
 	// Food Service Tests
 	const testSearchFoods = () => {
-		return runTest("搜索食物", () => foodService.searchFoods({ q: "apple", limit: 10 }));
+		return runTest("搜索食物 (GET /foods/search/)", () => foodService.searchFoods({ query: "apple", page_size: 10 }));
 	};
 
 	const testGetFoodDetails = () => {
-		return runTest("获取食物详情", () => foodService.getFoodDetails(1));
+		return runTest("获取食物详情 (GET /foods/{id}/)", () => foodService.getFoodDetails(1));
 	};
 
 	const testCreateCustomFood = () => {
 		const foodData = {
 			name: `Test Food ${Date.now()}`,
-			category_id: 1,
+			brand: "Test Brand",
 			serving_size: 100,
 			calories_per_100g: 150,
 			protein_per_100g: 10,
@@ -106,16 +112,59 @@ const ApiTest = () => {
 			sugar_per_100g: 2,
 			sodium_per_100g: 100,
 		};
-		return runTest("创建自定义食物", () => foodService.createCustomFood(foodData));
+		return runTest("创建自定义食物 (POST /foods/create/)", () => foodService.createCustomFood(foodData));
 	};
 
-	const testGetFoodCategories = () => {
-		return runTest("获取食物分类", () => foodService.getFoodCategories());
+	// USDA API Tests
+	const testSearchUSDAFoods = () => {
+		return runTest("搜索USDA食物 (GET /foods/usda/search/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/foods/usda/search/?query=apple&page_size=5", {
+				method: "GET",
+				headers: {
+					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					"Content-Type": "application/json",
+				},
+			});
+			return response.json();
+		});
+	};
+
+	const testGetUSDANutrition = () => {
+		return runTest("获取USDA营养信息 (GET /foods/usda/nutrition/{fdc_id}/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/foods/usda/nutrition/1102702/", {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+			return response.json();
+		});
+	};
+
+	const testCreateFoodFromUSDA = () => {
+		return runTest("从USDA创建食物 (POST /foods/usda/create/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/foods/usda/create/", {
+				method: "POST",
+				headers: {
+					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					fdc_id: "1102702",
+					custom_name: "Test Apple from USDA"
+				}),
+			});
+			return response.json();
+		});
+	};
+
+	const testGetSearchHistory = () => {
+		return runTest("获取搜索历史 (GET /foods/search/history/)", () => foodService.getSearchHistory(10));
 	};
 
 	// Meal Service Tests
 	const testGetMealsByDate = () => {
-		return runTest("获取日期餐食", () => mealService.getMealsByDate({ date: "2024-01-15" }));
+		return runTest("获取用户餐食 (GET /meals/list/)", () => mealService.getUserMeals({ date: "2024-01-15" }));
 	};
 
 	const testCreateMeal = () => {
@@ -126,29 +175,208 @@ const ApiTest = () => {
 			notes: "Test meal",
 			foods: [{ food_id: 1, quantity: 150 }],
 		};
-		return runTest("创建餐食", () => mealService.createMeal(mealData));
+		return runTest("创建餐食 (POST /meals/create/)", () => mealService.createMeal(mealData));
+	};
+
+	const testGetMealDetails = () => {
+		return runTest("获取餐食详情 (GET /meals/{id}/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/meals/1/", {
+				method: "GET",
+				headers: {
+					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					"Content-Type": "application/json",
+				},
+			});
+			return response.json();
+		});
+	};
+
+	const testGetRecentMeals = () => {
+		return runTest("获取最近餐食 (GET /meals/recent/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/meals/recent/?limit=5", {
+				method: "GET",
+				headers: {
+					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					"Content-Type": "application/json",
+				},
+			});
+			return response.json();
+		});
+	};
+
+	const testAddFoodToMeal = () => {
+		return runTest("添加食物到餐食 (POST /meals/{id}/add-food/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/meals/1/add-food/", {
+				method: "POST",
+				headers: {
+					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					food_id: 2,
+					quantity: 100
+				}),
+			});
+			return response.json();
+		});
+	};
+
+	const testCreateMealPlan = () => {
+		return runTest("创建餐食计划 (POST /meals/plan/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/meals/plan/", {
+				method: "POST",
+				headers: {
+					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					start_date: "2024-01-15",
+					end_date: "2024-01-21",
+					meal_template: {
+						breakfast: [{ food_id: 1, quantity: 150 }],
+						lunch: [{ food_id: 2, quantity: 200 }],
+						dinner: [{ food_id: 3, quantity: 180 }]
+					}
+				}),
+			});
+			return response.json();
+		});
 	};
 
 	// Statistics Service Tests
 	const testGetDailySummary = () => {
-		return runTest("获取每日汇总", () => statisticsService.getDailySummary({ date: "2024-01-15" }));
+		return runTest("获取每日汇总 (GET /meals/daily-summary/)", () => statisticsService.getDailySummary({ date: "2024-01-15" }));
 	};
 
-	const testGetWeeklySummary = () => {
-		return runTest("获取每周汇总", () => statisticsService.getWeeklySummary({ start_date: "2024-01-15" }));
+	const testGetNutritionStats = () => {
+		return runTest("获取营养统计 (GET /meals/nutrition-stats/)", () => statisticsService.getNutritionStats({ start_date: "2024-01-15", period: "weekly" }));
 	};
 
-	const testUpdateDailyWeight = () => {
+	const testRecordWeight = () => {
 		const weightData = {
 			date: "2024-01-15",
 			weight: 70.5,
+			notes: "Morning weight"
 		};
-		return runTest("更新每日体重", () => statisticsService.updateDailyWeight(weightData));
+		return runTest("记录体重 (POST /meals/record-weight/)", () => statisticsService.recordWeight(weightData));
 	};
 
 	// Image Service Tests  
-	const testGetSearchHistory = () => {
-		return runTest("获取搜索历史", () => imageService.getSearchHistory(10));
+	const testUploadImage = () => {
+		return runTest("上传图片 (POST /images/upload/)", async () => {
+			// Create a mock image file
+			const canvas = document.createElement("canvas");
+			canvas.width = 100;
+			canvas.height = 100;
+			const ctx = canvas.getContext("2d");
+			if (ctx) {
+				ctx.fillStyle = "#FF0000";
+				ctx.fillRect(0, 0, 100, 100);
+			}
+			
+			return new Promise((resolve) => {
+				canvas.toBlob((blob) => {
+					if (blob) {
+						const formData = new FormData();
+						formData.append("image", blob, "test-image.jpg");
+						formData.append("notes", "Test image upload");
+						
+						fetch("http://localhost:8000/api/v1/images/upload/", {
+							method: "POST",
+							headers: {
+								"Authorization": `Bearer ${authService.getCurrentToken()}`,
+							},
+							body: formData,
+						})
+							.then(response => response.json())
+							.then(resolve)
+							.catch(resolve);
+					} else {
+						resolve({ error: "Failed to create blob" });
+					}
+				}, "image/jpeg");
+			});
+		});
+	};
+
+	const testAnalyzeImage = () => {
+		return runTest("分析图片 (POST /images/analyze/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/images/analyze/", {
+				method: "POST",
+				headers: {
+					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					image_id: 1,
+					analysis_type: "full"
+				}),
+			});
+			return response.json();
+		});
+	};
+
+	const testGetImageResults = () => {
+		return runTest("获取图片分析结果 (GET /images/{id}/results/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/images/1/results/", {
+				method: "GET",
+				headers: {
+					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					"Content-Type": "application/json",
+				},
+			});
+			return response.json();
+		});
+	};
+
+	const testGetUserImages = () => {
+		return runTest("获取用户图片 (GET /images/list/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/images/list/?page=1&page_size=10", {
+				method: "GET",
+				headers: {
+					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					"Content-Type": "application/json",
+				},
+			});
+			return response.json();
+		});
+	};
+
+	const testConfirmFoodRecognition = () => {
+		return runTest("确认食物识别 (POST /images/confirm/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/images/confirm/", {
+				method: "POST",
+				headers: {
+					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					result_id: 1,
+					is_confirmed: true,
+					corrections: []
+				}),
+			});
+			return response.json();
+		});
+	};
+
+	const testCreateMealFromImage = () => {
+		return runTest("从图片创建餐食 (POST /images/create-meal/)", async () => {
+			const response = await fetch("http://localhost:8000/api/v1/images/create-meal/", {
+				method: "POST",
+				headers: {
+					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					image_id: 1,
+					meal_type: "breakfast",
+					date: "2024-01-15",
+					meal_name: "Test Breakfast from Image"
+				}),
+			});
+			return response.json();
+		});
 	};
 
 	// Auth Status Tests
@@ -163,6 +391,11 @@ const ApiTest = () => {
 			<div className="test-header">
 				<h1>API 服务测试</h1>
 				<div className="test-controls">
+					{!isAuthenticated && (
+						<button onClick={onLoginRequired} className="btn btn-primary">
+							登录以测试API
+						</button>
+					)}
 					<button onClick={clearResults} className="btn btn-secondary">
 						清空结果
 					</button>
@@ -218,11 +451,27 @@ const ApiTest = () => {
 						<button onClick={testGetFoodDetails} className="btn btn-primary" disabled={loading}>
 							获取食物详情
 						</button>
-						<button onClick={testGetFoodCategories} className="btn btn-primary" disabled={loading}>
-							获取食物分类
-						</button>
 						<button onClick={testCreateCustomFood} className="btn btn-success" disabled={loading}>
 							创建自定义食物
+						</button>
+						<button onClick={testGetSearchHistory} className="btn btn-info" disabled={loading}>
+							获取搜索历史
+						</button>
+					</div>
+				</div>
+
+				{/* USDA Integration Tests */}
+				<div className="test-section">
+					<h3>USDA集成服务 (USDA Integration)</h3>
+					<div className="test-buttons">
+						<button onClick={testSearchUSDAFoods} className="btn btn-primary" disabled={loading}>
+							搜索USDA食物
+						</button>
+						<button onClick={testGetUSDANutrition} className="btn btn-primary" disabled={loading}>
+							获取USDA营养信息
+						</button>
+						<button onClick={testCreateFoodFromUSDA} className="btn btn-success" disabled={loading}>
+							从USDA创建食物
 						</button>
 					</div>
 				</div>
@@ -237,6 +486,18 @@ const ApiTest = () => {
 						<button onClick={testCreateMeal} className="btn btn-success" disabled={loading}>
 							创建餐食
 						</button>
+						<button onClick={testGetMealDetails} className="btn btn-primary" disabled={loading}>
+							获取餐食详情
+						</button>
+						<button onClick={testGetRecentMeals} className="btn btn-info" disabled={loading}>
+							获取最近餐食
+						</button>
+						<button onClick={testAddFoodToMeal} className="btn btn-warning" disabled={loading}>
+							添加食物到餐食
+						</button>
+						<button onClick={testCreateMealPlan} className="btn btn-success" disabled={loading}>
+							创建餐食计划
+						</button>
 					</div>
 				</div>
 
@@ -247,11 +508,11 @@ const ApiTest = () => {
 						<button onClick={testGetDailySummary} className="btn btn-primary" disabled={loading}>
 							获取每日汇总
 						</button>
-						<button onClick={testGetWeeklySummary} className="btn btn-primary" disabled={loading}>
-							获取每周汇总
+						<button onClick={testGetNutritionStats} className="btn btn-primary" disabled={loading}>
+							获取营养统计
 						</button>
-						<button onClick={testUpdateDailyWeight} className="btn btn-success" disabled={loading}>
-							更新每日体重
+						<button onClick={testRecordWeight} className="btn btn-success" disabled={loading}>
+							记录体重
 						</button>
 					</div>
 				</div>
@@ -260,8 +521,23 @@ const ApiTest = () => {
 				<div className="test-section">
 					<h3>图片服务 (Image Service)</h3>
 					<div className="test-buttons">
-						<button onClick={testGetSearchHistory} className="btn btn-primary" disabled={loading}>
-							获取搜索历史
+						<button onClick={testUploadImage} className="btn btn-primary" disabled={loading}>
+							上传图片
+						</button>
+						<button onClick={testAnalyzeImage} className="btn btn-warning" disabled={loading}>
+							分析图片
+						</button>
+						<button onClick={testGetImageResults} className="btn btn-info" disabled={loading}>
+							获取图片分析结果
+						</button>
+						<button onClick={testGetUserImages} className="btn btn-primary" disabled={loading}>
+							获取用户图片
+						</button>
+						<button onClick={testConfirmFoodRecognition} className="btn btn-success" disabled={loading}>
+							确认食物识别
+						</button>
+						<button onClick={testCreateMealFromImage} className="btn btn-success" disabled={loading}>
+							从图片创建餐食
 						</button>
 					</div>
 				</div>

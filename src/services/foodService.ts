@@ -2,7 +2,6 @@ import { apiClient } from "../utils/api";
 import {
 	ApiResponse,
 	Food,
-	FoodCategory,
 	FoodSearchParams,
 	FoodSearchResult,
 	CreateFoodRequest,
@@ -14,40 +13,42 @@ import {
 
 class FoodService {
 	async searchFoods(params: FoodSearchParams): Promise<ApiResponse<FoodSearchResult>> {
-		return apiClient.get<FoodSearchResult>("/foods/search", params as unknown as Record<string, unknown>);
+		return apiClient.get<FoodSearchResult>("/foods/search/", params as unknown as Record<string, unknown>);
 	}
 
 	async getFoodDetails(foodId: number): Promise<ApiResponse<Food>> {
-		return apiClient.get<Food>(`/foods/${foodId}`);
+		return apiClient.get<Food>(`/foods/${foodId}/`);
 	}
 
 	async createCustomFood(data: CreateFoodRequest): Promise<ApiResponse<Food>> {
-		return apiClient.post<Food>("/foods/custom", data);
+		return apiClient.post<Food>("/foods/create/", data);
 	}
 
 	async updateCustomFood(foodId: number, data: CreateFoodRequest): Promise<ApiResponse<Food>> {
-		return apiClient.put<Food>(`/foods/${foodId}`, data);
+		return apiClient.put<Food>(`/foods/${foodId}/update/`, data);
 	}
 
 	async deleteCustomFood(foodId: number): Promise<ApiResponse<void>> {
-		return apiClient.delete<void>(`/foods/${foodId}`);
+		return apiClient.delete<void>(`/foods/${foodId}/delete/`);
 	}
 
-	async getFoodCategories(): Promise<ApiResponse<FoodCategory[]>> {
-		return apiClient.get<FoodCategory[]>("/foods/categories");
-	}
 
 	// USDA API methods
 	async searchUSDAFoods(params: USDAFoodSearchParams): Promise<ApiResponse<USDAFoodSearchResult>> {
-		return apiClient.get<USDAFoodSearchResult>("/foods/usda/search", params as unknown as Record<string, unknown>);
+		return apiClient.get<USDAFoodSearchResult>("/foods/usda/search/", params as unknown as Record<string, unknown>);
 	}
 
-	async getUSDANutrition(fdcId: number): Promise<ApiResponse<USDANutritionData>> {
-		return apiClient.get<USDANutritionData>(`/foods/usda/nutrition/${fdcId}`);
+	async getUSDANutrition(fdcId: string): Promise<ApiResponse<USDANutritionData>> {
+		return apiClient.get<USDANutritionData>(`/foods/usda/nutrition/${fdcId}/`);
 	}
 
 	async createFoodFromUSDA(data: CreateFoodFromUSDARequest): Promise<ApiResponse<Food>> {
-		return apiClient.post<Food>("/foods/usda/create", data);
+		return apiClient.post<Food>("/foods/usda/create/", data);
+	}
+
+	async getSearchHistory(limit?: number): Promise<ApiResponse<{ searches: any[] }>> {
+		const params = limit ? { limit } : {};
+		return apiClient.get<{ searches: any[] }>("/foods/search/history/", params);
 	}
 }
 

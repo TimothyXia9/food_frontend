@@ -21,11 +21,11 @@ interface UpdateProfileRequest {
 
 class UserService {
 	async getProfile(): Promise<ApiResponse<UserProfileResponse>> {
-		return apiClient.get<UserProfileResponse>("/users/profile");
+		return apiClient.get<UserProfileResponse>("/users/profile/");
 	}
 
 	async updateProfile(data: UpdateProfileRequest): Promise<ApiResponse<UserProfileResponse>> {
-		return apiClient.put<UserProfileResponse>("/users/profile", data);
+		return apiClient.put<UserProfileResponse>("/users/profile/", data);
 	}
 }
 

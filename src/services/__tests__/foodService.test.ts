@@ -47,10 +47,10 @@ describe("FoodService", () => {
 
 			mockedApiClient.get.mockResolvedValue(mockResponse);
 
-			const searchParams = { q: "apple", limit: 10 };
+			const searchParams = { query: "apple", page_size: 10 };
 			const result = await foodService.searchFoods(searchParams);
 
-			expect(mockedApiClient.get).toHaveBeenCalledWith("/foods/search", searchParams);
+			expect(mockedApiClient.get).toHaveBeenCalledWith("/foods/search/", searchParams);
 			expect(result).toEqual(mockResponse);
 		});
 	});
@@ -185,23 +185,24 @@ describe("FoodService", () => {
 		});
 	});
 
-	describe("getFoodCategories", () => {
-		it("should get food categories successfully", async () => {
-			const mockResponse = {
-				success: true,
-				data: [
-					{ id: 1, name: "Fruits", description: "Fresh and dried fruits" },
-					{ id: 2, name: "Vegetables", description: "Fresh and cooked vegetables" },
-					{ id: 3, name: "Grains", description: "Rice, bread, pasta, etc." },
-				],
-			};
+	// Note: Categories feature was removed from backend
+	// describe("getFoodCategories", () => {
+	// 	it("should get food categories successfully", async () => {
+	// 		const mockResponse = {
+	// 			success: true,
+	// 			data: [
+	// 				{ id: 1, name: "Fruits", description: "Fresh and dried fruits" },
+	// 				{ id: 2, name: "Vegetables", description: "Fresh and cooked vegetables" },
+	// 				{ id: 3, name: "Grains", description: "Rice, bread, pasta, etc." },
+	// 			],
+	// 		};
 
-			mockedApiClient.get.mockResolvedValue(mockResponse);
+	// 		mockedApiClient.get.mockResolvedValue(mockResponse);
 
-			const result = await foodService.getFoodCategories();
+	// 		const result = await foodService.getFoodCategories();
 
-			expect(mockedApiClient.get).toHaveBeenCalledWith("/foods/categories");
-			expect(result).toEqual(mockResponse);
-		});
-	});
+	// 		expect(mockedApiClient.get).toHaveBeenCalledWith("/foods/categories");
+	// 		expect(result).toEqual(mockResponse);
+	// 	});
+	// });
 });

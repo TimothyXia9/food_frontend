@@ -26,8 +26,8 @@ export interface UserProfile {
 
 export interface AuthData {
   user: User;
-  token: string;
-  refresh_token: string;
+  access: string;
+  refresh: string;
 }
 
 export interface LoginRequest {
@@ -43,19 +43,13 @@ export interface RegisterRequest {
 }
 
 export interface RefreshTokenRequest {
-  refresh_token: string;
+  refresh: string;
 }
 
-export interface FoodCategory {
-  id: number;
-  name: string;
-  description: string;
-}
 
 export interface Food {
   id: number;
   name: string;
-  category: FoodCategory;
   brand?: string;
   barcode?: string;
   serving_size: number;
@@ -69,24 +63,27 @@ export interface Food {
   is_custom: boolean;
   created_by?: number;
   aliases?: string[];
+  is_usda?: boolean;
+  fdc_id?: string | number;
 }
 
 export interface FoodSearchParams {
-  q: string;
-  category?: number;
-  limit?: number;
-  offset?: number;
+  query: string;
+  page?: number;
+  page_size?: number;
 }
 
 export interface FoodSearchResult {
   foods: Food[];
-  total: number;
-  has_next: boolean;
+  total_count: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  query: string;
 }
 
 export interface CreateFoodRequest {
   name: string;
-  category_id: number;
   brand?: string;
   serving_size: number;
   calories_per_100g: number;
@@ -253,6 +250,7 @@ export interface NutritionTrends {
 // USDA API related types
 export interface USDAFoodSearchParams {
   query: string;
+  page?: number;
   page_size?: number;
 }
 
@@ -272,6 +270,7 @@ export interface USDAFoodSearchResult {
 export interface USDANutritionData {
   food_description: string;
   fdc_id: number;
+  brand_owner?: string;
   nutrients: {
     calories: number;
     protein: number;

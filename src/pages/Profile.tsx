@@ -1,7 +1,13 @@
 import React from "react";
 import { userService } from "../services";
+import { useAuth } from "../contexts/AuthContext";
 
-const Profile = () => {
+interface ProfileProps {
+	onLoginRequired: () => void;
+}
+
+const Profile = ({ onLoginRequired }: ProfileProps) => {
+	const { isAuthenticated } = useAuth();
 	const [isEditing, setIsEditing] = React.useState(false);
 	const [loading, setLoading] = React.useState(true);
 	const [saving, setSaving] = React.useState(false);
@@ -19,8 +25,12 @@ const Profile = () => {
 
 	// Load profile data on component mount
 	React.useEffect(() => {
-		loadProfile();
-	}, []);
+		if (isAuthenticated) {
+			loadProfile();
+		} else {
+			setLoading(false);
+		}
+	}, [isAuthenticated]);
 
 	const loadProfile = async () => {
 		try {
@@ -128,6 +138,20 @@ const Profile = () => {
 				<div className="loading-container">
 					<div className="loading-spinner"></div>
 					<p>加载用户资料中...</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (!isAuthenticated) {
+		return (
+			<div className="profile">
+				<div className="not-authenticated">
+					<h2>查看个人资料</h2>
+					<p>请先登录以查看和编辑您的个人资料</p>
+					<button onClick={onLoginRequired} className="btn btn-primary">
+						登录
+					</button>
 				</div>
 			</div>
 		);
@@ -327,6 +351,24 @@ const Profile = () => {
 				</div>
 			</div>
 			<style>{`
+				.not-authenticated {
+					text-align: center;
+					padding: 3rem;
+					background: white;
+					border-radius: 8px;
+					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+				}
+
+				.not-authenticated h2 {
+					margin-bottom: 1rem;
+					color: #2c3e50;
+				}
+
+				.not-authenticated p {
+					margin-bottom: 2rem;
+					color: #7f8c8d;
+				}
+
 				.loading-container {
 					display: flex;
 					flex-direction: column;

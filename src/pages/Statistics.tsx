@@ -1,5 +1,12 @@
 import React from "react";
-const Statistics = () => {
+import { useAuth } from "../contexts/AuthContext";
+
+interface StatisticsProps {
+	onLoginRequired: () => void;
+}
+
+const Statistics = ({ onLoginRequired }: StatisticsProps) => {
+	const { isAuthenticated } = useAuth();
 	const [selectedPeriod, setSelectedPeriod] = React.useState<"week" | "month" | "year">("week");
 	const [currentDate, setCurrentDate] = React.useState(new Date());
 	const weeklyData = [
@@ -65,6 +72,21 @@ const Statistics = () => {
 		}
 		setCurrentDate(newDate);
 	};
+
+	if (!isAuthenticated) {
+		return (
+			<div className="statistics">
+				<div className="not-authenticated">
+					<h2>查看数据统计</h2>
+					<p>请先登录以查看您的饮食和健康数据统计</p>
+					<button onClick={onLoginRequired} className="btn btn-primary">
+						登录
+					</button>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="statistics">
 			<div className="stats-header">
@@ -219,6 +241,24 @@ const Statistics = () => {
 				</div>
 			</div>
 			<style>{`
+				.not-authenticated {
+					text-align: center;
+					padding: 3rem;
+					background: white;
+					border-radius: 8px;
+					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+				}
+
+				.not-authenticated h2 {
+					margin-bottom: 1rem;
+					color: #2c3e50;
+				}
+
+				.not-authenticated p {
+					margin-bottom: 2rem;
+					color: #7f8c8d;
+				}
+
 				.statistics {
 					max-width: 1200px;
 					margin: 0 auto;

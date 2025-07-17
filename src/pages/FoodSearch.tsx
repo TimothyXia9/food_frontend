@@ -1,14 +1,20 @@
 import React from "react";
 import { foodService } from "../services/foodService";
-import { Food, FoodCategory } from "../types/api";
-const FoodSearch = () => {
+import { Food } from "../types/api";
+import { useAuth } from "../contexts/AuthContext";
+
+interface FoodSearchProps {
+	onLoginRequired: () => void;
+}
+
+const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
+	const { isAuthenticated } = useAuth();
 	const [searchQuery, setSearchQuery] = React.useState("");
 	const [searchResults, setSearchResults] = React.useState<Food[]>([]);
 	const [selectedMeal, setSelectedMeal] = React.useState("breakfast");
 	const [showAddFoodForm, setShowAddFoodForm] = React.useState(false);
 	const [loading, setLoading] = React.useState(false);
 	const [error, setError] = React.useState<string | null>(null);
-	const [categories, setCategories] = React.useState<FoodCategory[]>([]);
 	const [customFood, setCustomFood] = React.useState({
 		name: "",
 		calories: "",
@@ -19,25 +25,7 @@ const FoodSearch = () => {
 		sugar: "",
 		sodium: "",
 		serving_size: "100",
-		category_id: 1,
 	});
-	// Load categories on component mount
-	React.useEffect(() => {
-		const loadCategories = async () => {
-			try {
-				const response = await foodService.getFoodCategories();
-				if (response.success && response.data) {
-					setCategories(response.data);
-					if (response.data.length > 0) {
-						setCustomFood(prev => ({ ...prev, category_id: response.data![0].id }));
-					}
-				}
-			} catch (error) {
-				console.error("Failed to load categories:", error);
-			}
-		};
-		loadCategories();
-	}, []);
 	const handleSearch = async () => {
 		if (!searchQuery.trim()) {
 			setSearchResults([]);
@@ -48,7 +36,7 @@ const FoodSearch = () => {
 		setError(null);
 
 		try {
-			const response = await foodService.searchFoods({ q: searchQuery });
+			const response = await foodService.searchFoods({ query: searchQuery });
 			if (response.success && response.data) {
 				setSearchResults(response.data.foods);
 			} else {
@@ -74,7 +62,6 @@ const FoodSearch = () => {
 		try {
 			const foodData = {
 				name: customFood.name,
-				category_id: customFood.category_id,
 				serving_size: parseInt(customFood.serving_size),
 				calories_per_100g: parseFloat(customFood.calories),
 				protein_per_100g: parseFloat(customFood.protein) || 0,
@@ -99,7 +86,6 @@ const FoodSearch = () => {
 					sugar: "",
 					sodium: "",
 					serving_size: "100",
-					category_id: categories[0]?.id || 1,
 				});
 			} else {
 				setError(response.error?.message || "创建失败");
@@ -150,10 +136,18 @@ const FoodSearch = () => {
 					</button>
 				</div>
 				<div className="search-actions">
-					<button onClick={() => setShowAddFoodForm(true)} className="btn btn-success">
+					<button 
+						onClick={() => isAuthenticated ? setShowAddFoodForm(true) : onLoginRequired()} 
+						className="btn btn-success"
+					>
 						+ 创建自定义食物
 					</button>
-					<button className="btn btn-warning">📸 拍照识别</button>
+					<button 
+						className="btn btn-warning"
+						onClick={() => isAuthenticated ? console.log("Camera") : onLoginRequired()}
+					>
+						📸 拍照识别
+					</button>
 				</div>
 			</div>
 			{error && (
@@ -166,7 +160,7 @@ const FoodSearch = () => {
 					<h3>搜索结果</h3>
 					<div className="results-grid">
 						{searchResults.map((food: Food) => (
-							<FoodItem key={food.id} food={food} onAdd={handleAddFood} />
+							<FoodItem key={food.id} food={food} onAdd={handleAddFood} onLoginRequired={onLoginRequired} />
 						))}
 					</div>
 				</div>
@@ -198,19 +192,6 @@ const FoodSearch = () => {
 								/>
 							</div>
 
-							<div className="form-group">
-								<label className="form-label">分类</label>
-								<select 
-									value={customFood.category_id} 
-									onChange={(e) => setCustomFood({ ...customFood, category_id: parseInt(e.target.value) })} 
-									className="form-input"
-									disabled={loading}
-								>
-									{categories.map((category) => (
-										<option key={category.id} value={category.id}>{category.name}</option>
-									))}
-								</select>
-							</div>
 
 							<div className="form-row">
 								<div className="form-group">
@@ -485,38 +466,101 @@ const FoodSearch = () => {
 interface FoodItemProps {
 	food: Food;
 	onAdd: (food: Food, quantity: number) => void;
+	onLoginRequired: () => void;
 }
 
-const FoodItem = ({ food, onAdd }: FoodItemProps) => {
+const FoodItem = ({ food, onAdd, onLoginRequired }: FoodItemProps) => {
 	const [quantity, setQuantity] = React.useState(100);
 	const [showDetails, setShowDetails] = React.useState(false);
+	const [nutritionData, setNutritionData] = React.useState<Food | null>(null);
+	const [loadingNutrition, setLoadingNutrition] = React.useState(false);
+	const { isAuthenticated } = useAuth();
 
-	const calculatedCalories = Math.round((food.calories_per_100g * quantity) / 100);
-	const calculatedProtein = Math.round(((food.protein_per_100g * quantity) / 100) * 10) / 10;
-	const calculatedFat = Math.round(((food.fat_per_100g * quantity) / 100) * 10) / 10;
-	const calculatedCarbs = Math.round(((food.carbs_per_100g * quantity) / 100) * 10) / 10;
+	// Use nutrition data if available, otherwise use food data
+	const activeFood = nutritionData || food;
+	const calculatedCalories = Math.round((activeFood.calories_per_100g * quantity) / 100);
+	const calculatedProtein = Math.round(((activeFood.protein_per_100g * quantity) / 100) * 10) / 10;
+	const calculatedFat = Math.round(((activeFood.fat_per_100g * quantity) / 100) * 10) / 10;
+	const calculatedCarbs = Math.round(((activeFood.carbs_per_100g * quantity) / 100) * 10) / 10;
+
+	const handleGetNutrition = async () => {
+		if (!food.is_usda || !food.fdc_id) return;
+		
+		setLoadingNutrition(true);
+		try {
+			const response = await foodService.getUSDANutrition(food.fdc_id.toString());
+			if (response.success && response.data) {
+				// Convert USDANutritionData to Food interface
+				const nutritionFood: Food = {
+					id: response.data.fdc_id,
+					name: response.data.food_description,
+					brand: response.data.brand_owner || "",
+					serving_size: 100,
+					calories_per_100g: response.data.nutrients.calories,
+					protein_per_100g: response.data.nutrients.protein,
+					fat_per_100g: response.data.nutrients.fat,
+					carbs_per_100g: response.data.nutrients.carbs,
+					fiber_per_100g: response.data.nutrients.fiber,
+					sugar_per_100g: response.data.nutrients.sugar,
+					sodium_per_100g: response.data.nutrients.sodium,
+					is_custom: false,
+					is_usda: true,
+					fdc_id: response.data.fdc_id
+				};
+				setNutritionData(nutritionFood);
+			}
+		} catch (error) {
+			console.error("Error fetching nutrition:", error);
+		} finally {
+			setLoadingNutrition(false);
+		}
+	};
 	return (
 		<div className="food-item">
 			<div className="food-header">
 				<h4 className="food-name">{food.name}</h4>
-				<span className={`food-category ${food.is_custom ? "custom" : ""}`}>{food.category.name}</span>
+				<div className="food-badges">
+					{food.is_usda && <span className="usda-badge">USDA</span>}
+					{food.brand && <span className="brand-badge">{food.brand}</span>}
+					{food.is_custom && <span className="custom-badge">自定义</span>}
+				</div>
 			</div>
 
 			<div className="food-nutrition">
 				<div className="nutrition-summary">
-					<span className="calories">{food.calories_per_100g} kcal/100g</span>
-					<button onClick={() => setShowDetails(!showDetails)} className="details-btn">
-						{showDetails ? "收起" : "详情"}
-					</button>
+					<span className="calories">
+						{activeFood.calories_per_100g || 0} kcal/100g
+					</span>
+					<div className="nutrition-actions">
+						{food.is_usda && activeFood.calories_per_100g === 0 && (
+							<button 
+								onClick={handleGetNutrition} 
+								className="get-nutrition-btn"
+								disabled={loadingNutrition}
+							>
+								{loadingNutrition ? "获取中..." : "获取营养"}
+							</button>
+						)}
+						<button onClick={() => setShowDetails(!showDetails)} className="details-btn">
+							{showDetails ? "收起" : "详情"}
+						</button>
+					</div>
 				</div>
 
 				{showDetails && (
 					<div className="nutrition-details">
 						<div className="nutrition-row">
-							<span>蛋白质: {food.protein_per_100g}g</span>
-							<span>脂肪: {food.fat_per_100g}g</span>
-							<span>碳水: {food.carbs_per_100g}g</span>
+							<span>蛋白质: {activeFood.protein_per_100g || 0}g</span>
+							<span>脂肪: {activeFood.fat_per_100g || 0}g</span>
+							<span>碳水: {activeFood.carbs_per_100g || 0}g</span>
 						</div>
+						{activeFood.fiber_per_100g > 0 && (
+							<div className="nutrition-row">
+								<span>纤维: {activeFood.fiber_per_100g}g</span>
+								<span>糖: {activeFood.sugar_per_100g || 0}g</span>
+								<span>钠: {activeFood.sodium_per_100g || 0}mg</span>
+							</div>
+						)}
 					</div>
 				)}
 			</div>
@@ -537,7 +581,10 @@ const FoodItem = ({ food, onAdd }: FoodItemProps) => {
 					</div>
 				</div>
 
-				<button onClick={() => onAdd(food, quantity)} className="btn btn-primary add-btn">
+				<button 
+					onClick={() => isAuthenticated ? onAdd(food, quantity) : onLoginRequired()} 
+					className="btn btn-primary add-btn"
+				>
 					添加
 				</button>
 			</div>
@@ -557,26 +604,45 @@ const FoodItem = ({ food, onAdd }: FoodItemProps) => {
 				.food-header {
 					display: flex;
 					justify-content: space-between;
-					align-items: center;
+					align-items: flex-start;
 					margin-bottom: 0.75rem;
 				}
 
 				.food-name {
 					margin: 0;
 					color: #2c3e50;
+					flex: 1;
 				}
 
-				.food-category {
-					background: #e9ecef;
-					color: #6c757d;
+				.food-badges {
+					display: flex;
+					gap: 0.5rem;
+					flex-wrap: wrap;
+				}
+
+				.usda-badge {
+					background: #28a745;
+					color: white;
+					padding: 0.25rem 0.5rem;
+					border-radius: 4px;
+					font-size: 0.75rem;
+					font-weight: bold;
+				}
+
+				.brand-badge {
+					background: #17a2b8;
+					color: white;
+					padding: 0.25rem 0.5rem;
+					border-radius: 4px;
+					font-size: 0.75rem;
+				}
+
+				.custom-badge {
+					background: #d4edda;
+					color: #155724;
 					padding: 0.25rem 0.5rem;
 					border-radius: 4px;
 					font-size: 0.8rem;
-				}
-
-				.food-category.custom {
-					background: #d4edda;
-					color: #155724;
 				}
 
 				.nutrition-summary {
@@ -584,6 +650,30 @@ const FoodItem = ({ food, onAdd }: FoodItemProps) => {
 					justify-content: space-between;
 					align-items: center;
 					margin-bottom: 0.5rem;
+				}
+
+				.nutrition-actions {
+					display: flex;
+					gap: 0.5rem;
+				}
+
+				.get-nutrition-btn {
+					background: #28a745;
+					color: white;
+					border: none;
+					padding: 0.25rem 0.5rem;
+					border-radius: 4px;
+					cursor: pointer;
+					font-size: 0.8rem;
+				}
+
+				.get-nutrition-btn:hover {
+					background: #218838;
+				}
+
+				.get-nutrition-btn:disabled {
+					background: #6c757d;
+					cursor: not-allowed;
 				}
 
 				.calories {

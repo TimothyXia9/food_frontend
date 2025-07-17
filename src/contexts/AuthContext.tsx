@@ -1,0 +1,99 @@
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { authService } from "../services/authService";
+import { User } from "../types/api";
+
+interface AuthContextType {
+	user: User | null;
+	isAuthenticated: boolean;
+	loading: boolean;
+	login: (credentials: { username: string; password: string }) => Promise<boolean>;
+	register: (data: { username: string; email: string; password: string; nickname: string }) => Promise<boolean>;
+	logout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const useAuth = () => {
+	const context = useContext(AuthContext);
+	if (context === undefined) {
+		throw new Error("useAuth must be used within an AuthProvider");
+	}
+	return context;
+};
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+	const [user, setUser] = useState<User | null>(null);
+	const [loading, setLoading] = useState(true);
+
+	const isAuthenticated = !!user && authService.isAuthenticated();
+
+	// Check if user is already logged in on app start
+	useEffect(() => {
+		const checkAuthStatus = async () => {
+			try {
+				const token = authService.getCurrentToken();
+				if (token) {
+					// TODO: Add a method to verify token and get user info
+					// For now, we'll consider the user authenticated if token exists
+					// In a real app, you'd want to validate the token with the server
+					console.log("User has existing token");
+				}
+			} catch (error) {
+				console.error("Auth check failed:", error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		checkAuthStatus();
+	}, []);
+
+	const login = async (credentials: { username: string; password: string }): Promise<boolean> => {
+		try {
+			const response = await authService.login(credentials);
+			if (response.success && response.data) {
+				setUser(response.data.user);
+				return true;
+			}
+			return false;
+		} catch (error) {
+			console.error("Login failed:", error);
+			return false;
+		}
+	};
+
+	const register = async (data: { username: string; email: string; password: string; nickname: string }): Promise<boolean> => {
+		try {
+			const response = await authService.register(data);
+			if (response.success && response.data) {
+				setUser(response.data.user);
+				return true;
+			}
+			return false;
+		} catch (error) {
+			console.error("Registration failed:", error);
+			return false;
+		}
+	};
+
+	const logout = async (): Promise<void> => {
+		try {
+			await authService.logout();
+		} catch (error) {
+			console.error("Logout failed:", error);
+		} finally {
+			setUser(null);
+		}
+	};
+
+	const value: AuthContextType = {
+		user,
+		isAuthenticated,
+		loading,
+		login,
+		register,
+		logout,
+	};
+
+	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};

@@ -51,6 +51,34 @@
   background-color: #3498db;
 }
 
+.nav-item.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.nav-item.disabled:hover {
+  background-color: transparent;
+}
+
+.auth-required {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.login-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-btn:hover {
+  background: #2980b9;
+}
+
 .nav-user {
   display: flex;
   align-items: center;
@@ -206,4 +234,29 @@
   .grid-4 {
     grid-template-columns: 1fr;
   }
+}
+
+/* Loading styles */
+.loading-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.loading-spinner {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem 3rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  font-size: 1.2rem;
+  color: #2c3e50;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
 }

@@ -12,7 +12,8 @@ class AuthService {
 		const response = await apiClient.post<AuthData>("/auth/register", data);
     
 		if (response.success && response.data) {
-			apiClient.setToken(response.data.token);
+			apiClient.setToken(response.data.access);
+			localStorage.setItem("refresh_token", response.data.refresh);
 		}
     
 		return response;
@@ -22,8 +23,8 @@ class AuthService {
 		const response = await apiClient.post<AuthData>("/auth/login", data);
     
 		if (response.success && response.data) {
-			apiClient.setToken(response.data.token);
-			localStorage.setItem("refresh_token", response.data.refresh_token);
+			apiClient.setToken(response.data.access);
+			localStorage.setItem("refresh_token", response.data.refresh);
 		}
     
 		return response;
@@ -36,12 +37,12 @@ class AuthService {
 			throw new Error("No refresh token available");
 		}
 
-		const data: RefreshTokenRequest = { refresh_token: refreshToken };
+		const data: RefreshTokenRequest = { refresh: refreshToken };
 		const response = await apiClient.post<AuthData>("/auth/refresh", data);
     
 		if (response.success && response.data) {
-			apiClient.setToken(response.data.token);
-			localStorage.setItem("refresh_token", response.data.refresh_token);
+			apiClient.setToken(response.data.access);
+			localStorage.setItem("refresh_token", response.data.refresh);
 		}
     
 		return response;
@@ -49,7 +50,10 @@ class AuthService {
 
 	async logout(): Promise<ApiResponse<void>> {
 		try {
-			const response = await apiClient.post<void>("/auth/logout");
+			const refreshToken = localStorage.getItem("refresh_token");
+			const response = await apiClient.post<void>("/auth/logout", {
+				refresh_token: refreshToken
+			});
 			return response;
 		} finally {
 			apiClient.setToken(null);

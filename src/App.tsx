@@ -1,61 +1,79 @@
 import React, { useState } from "react";
 import "./App.css";
 import Navigation from "./components/Navigation";
-import LoginPage from "./pages/LoginPage";
+import LoginModal from "./components/LoginModal";
 import Dashboard from "./pages/Dashboard";
 import FoodSearch from "./pages/FoodSearch";
 import Profile from "./pages/Profile";
 import Statistics from "./pages/Statistics";
 import ApiTest from "./pages/ApiTest";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
-function App() {
-	const [currentPage, setCurrentPage] = useState("login");
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
+function AppContent() {
+	const [currentPage, setCurrentPage] = useState("food-search");
+	const [showLoginModal, setShowLoginModal] = useState(false);
+	const { isAuthenticated, loading, logout } = useAuth();
 
-	const handleLogin = () => {
-		setIsAuthenticated(true);
-		setCurrentPage("dashboard");
+	const handleLogout = async () => {
+		await logout();
+		setCurrentPage("food-search");
 	};
 
-	const handleLogout = () => {
-		setIsAuthenticated(false);
-		setCurrentPage("login");
+	const handleLoginRequired = () => {
+		setShowLoginModal(true);
 	};
+
+	if (loading) {
+		return (
+			<div className="loading-container">
+				<div className="loading-spinner">加载中...</div>
+			</div>
+		);
+	}
 
 	const renderPage = () => {
-		if (!isAuthenticated) {
-			return <LoginPage onLogin={handleLogin} />;
-		}
-
 		switch (currentPage) {
-		case "dashboard":
-			return <Dashboard />;
 		case "food-search":
-			return <FoodSearch />;
+			return <FoodSearch onLoginRequired={handleLoginRequired} />;
+		case "dashboard":
+			return <Dashboard onLoginRequired={handleLoginRequired} />;
 		case "profile":
-			return <Profile />;
+			return <Profile onLoginRequired={handleLoginRequired} />;
 		case "statistics":
-			return <Statistics />;
+			return <Statistics onLoginRequired={handleLoginRequired} />;
 		case "api-test":
-			return <ApiTest />;
+			return <ApiTest onLoginRequired={handleLoginRequired} />;
 		default:
-			return <Dashboard />;
+			return <FoodSearch onLoginRequired={handleLoginRequired} />;
 		}
 	};
 
 	return (
 		<div className="App">
-			{isAuthenticated && (
-				<Navigation
-					currentPage={currentPage}
-					onNavigate={setCurrentPage}
-					onLogout={handleLogout}
-				/>
-			)}
+			<Navigation
+				currentPage={currentPage}
+				onNavigate={setCurrentPage}
+				onLogout={handleLogout}
+				onLoginRequired={handleLoginRequired}
+				isAuthenticated={isAuthenticated}
+			/>
 			<main className="main-content">
 				{renderPage()}
 			</main>
+			<LoginModal
+				isOpen={showLoginModal}
+				onClose={() => setShowLoginModal(false)}
+				onSuccess={() => setShowLoginModal(false)}
+			/>
 		</div>
+	);
+}
+
+function App() {
+	return (
+		<AuthProvider>
+			<AppContent />
+		</AuthProvider>
 	);
 }
 

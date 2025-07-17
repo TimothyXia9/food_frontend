@@ -26,7 +26,8 @@ class ApiClient {
 
 	private async request<T>(
 		endpoint: string,
-		options: RequestInit = {}
+		options: RequestInit = {},
+		isRetry: boolean = false
 	): Promise<ApiResponse<T>> {
 		const url = `${this.baseURL}${endpoint}`;
 		const token = this.getToken();
@@ -49,10 +50,25 @@ class ApiClient {
 
 		try {
 			const response = await fetch(url, config);
+			
+			// Handle 401 errors with token refresh
+			if (response.status === 401 && !isRetry && !endpoint.includes("/auth/")) {
+				try {
+					await this.refreshToken();
+					// Retry the request with new token
+					return this.request(endpoint, options, true);
+				} catch (refreshError) {
+					// Refresh failed, redirect to login
+					this.handleAuthFailure();
+					throw new Error("Authentication failed");
+				}
+			}
+
 			const data = await response.json();
 
 			if (!response.ok) {
-				throw new Error(data.error?.message || "Request failed");
+				const errorMessage = data.detail || data.error?.message || `HTTP ${response.status}`;
+				throw new Error(errorMessage);
 			}
 
 			return data;
@@ -60,6 +76,40 @@ class ApiClient {
 			console.error("API request failed:", error);
 			throw error;
 		}
+	}
+
+	private async refreshToken(): Promise<void> {
+		const refreshToken = localStorage.getItem("refresh_token");
+		if (!refreshToken) {
+			throw new Error("No refresh token available");
+		}
+
+		const response = await fetch(`${this.baseURL}/auth/refresh/`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ refresh: refreshToken }),
+		});
+
+		if (!response.ok) {
+			throw new Error("Token refresh failed");
+		}
+
+		const data = await response.json();
+		if (data.success && data.data?.access) {
+			this.setToken(data.data.access);
+		} else {
+			throw new Error("Invalid refresh response");
+		}
+	}
+
+	private handleAuthFailure(): void {
+		this.setToken(null);
+		localStorage.removeItem("refresh_token");
+		// In a real app, you might want to emit an event or call a callback
+		// to redirect to login page
+		window.location.href = "/";
 	}
 
 	async get<T>(endpoint: string, params?: Record<string, unknown>): Promise<ApiResponse<T>> {

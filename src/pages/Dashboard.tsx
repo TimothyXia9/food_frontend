@@ -1,6 +1,12 @@
 import React from "react";
+import { useAuth } from "../contexts/AuthContext";
 
-const Dashboard = () => {
+interface DashboardProps {
+	onLoginRequired: () => void;
+}
+
+const Dashboard = ({ onLoginRequired }: DashboardProps) => {
+	const { isAuthenticated } = useAuth();
 	const todayDate = new Date().toLocaleDateString("zh-CN");
 
 	// 模拟数据
@@ -37,6 +43,21 @@ const Dashboard = () => {
 	];
 	const calorieProgress = (dailyStats.caloriesConsumed / dailyStats.calorieGoal) * 100;
 	const remainingCalories = dailyStats.calorieGoal - dailyStats.caloriesConsumed;
+	
+	if (!isAuthenticated) {
+		return (
+			<div className="dashboard">
+				<div className="not-authenticated">
+					<h2>我的首页</h2>
+					<p>请先登录以查看您的个人数据和饮食统计</p>
+					<button onClick={onLoginRequired} className="btn btn-primary">
+						登录
+					</button>
+				</div>
+			</div>
+		);
+	}
+	
 	return (
 		<div className="dashboard">
 			<div className="dashboard-header">
@@ -111,7 +132,12 @@ const Dashboard = () => {
 				<div className="card meals-card">
 					<div className="card-header">
 						<h3 className="card-title">今日餐食</h3>
-						<button className="btn btn-primary">+ 添加餐食</button>
+						<button 
+							className="btn btn-primary"
+							onClick={() => isAuthenticated ? console.log("Add meal") : onLoginRequired()}
+						>
+							+ 添加餐食
+						</button>
 					</div>
 					<div className="meals-list">
 						{recentMeals.map((meal) => (
@@ -135,15 +161,24 @@ const Dashboard = () => {
 						<h3 className="card-title">快捷操作</h3>
 					</div>
 					<div className="action-grid">
-						<button className="action-btn">
+						<button 
+							className="action-btn"
+							onClick={() => isAuthenticated ? console.log("Camera") : onLoginRequired()}
+						>
 							<div className="action-icon">📸</div>
 							<span>拍照记录</span>
 						</button>
-						<button className="action-btn">
+						<button 
+							className="action-btn"
+							onClick={() => isAuthenticated ? console.log("Search") : onLoginRequired()}
+						>
 							<div className="action-icon">🔍</div>
 							<span>搜索食物</span>
 						</button>
-						<button className="action-btn">
+						<button 
+							className="action-btn"
+							onClick={() => isAuthenticated ? console.log("Weight") : onLoginRequired()}
+						>
 							<div className="action-icon">⚖️</div>
 							<span>记录体重</span>
 						</button>
@@ -346,6 +381,26 @@ const Dashboard = () => {
 
 				.action-icon {
 					font-size: 1.5rem;
+				}
+
+				.not-authenticated {
+					text-align: center;
+					padding: 3rem;
+					background: white;
+					border-radius: 8px;
+					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					margin: 2rem auto;
+					max-width: 600px;
+				}
+
+				.not-authenticated h2 {
+					margin-bottom: 1rem;
+					color: #2c3e50;
+				}
+
+				.not-authenticated p {
+					margin-bottom: 2rem;
+					color: #7f8c8d;
 				}
 
 				@media (max-width: 768px) {
