@@ -157,9 +157,9 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				}
 			}
 			
-			// Clean up URL parameter
-			const newUrl = window.location.origin + window.location.pathname;
-			window.history.replaceState({}, "", newUrl);
+			// Clean up URL parameter - use pushState to avoid triggering re-render
+			const newUrl = window.location.pathname;
+			window.history.replaceState(null, "", newUrl);
 		}
 	}, [success, showError]);
 	const handleSearch = async () => {

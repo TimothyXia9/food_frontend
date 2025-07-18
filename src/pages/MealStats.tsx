@@ -6,11 +6,12 @@ import { DateRangePicker } from "../components/DateRangePicker";
 
 interface MealStatsProps {
 	onLoginRequired: () => void;
+	onNavigate?: (page: string) => void;
 }
 
-const MealStats = ({ onLoginRequired }: MealStatsProps) => {
+const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 	const { isAuthenticated } = useAuth();
-	const { error: showError } = useNotification();
+	const { error: showError, confirm } = useNotification();
 	
 	const [selectedDate, setSelectedDate] = React.useState(() => {
 		const today = new Date();
@@ -127,7 +128,14 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				}));
 				
 				// Navigate to food search page with meal editing context
-				window.location.href = `/?edit_meal=${mealId}`;
+				if (onNavigate) {
+					// Use URL params for passing the edit meal id
+					window.history.pushState({}, "", `/?edit_meal=${mealId}`);
+					onNavigate("food-search");
+				} else {
+					// Fallback to full page reload if navigation function not available
+					window.location.href = `/?edit_meal=${mealId}`;
+				}
 			} else {
 				showError(response.error?.message || "获取餐食详情失败");
 			}
@@ -138,7 +146,8 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 	};
 
 	const handleDeleteMeal = async (mealId: number) => {
-		if (!window.confirm("确定要删除这顿餐食吗？")) return;
+		const confirmed = await confirm("确定要删除这顿餐食吗？");
+		if (!confirmed) return;
 		
 		try {
 			const response = await mealService.deleteMeal(mealId);

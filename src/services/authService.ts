@@ -70,6 +70,10 @@ class AuthService {
 		return apiClient.getToken();
 	}
 
+	setToken(token: string | null): void {
+		apiClient.setToken(token);
+	}
+
 	async getCurrentUser(): Promise<ApiResponse<any>> {
 		return apiClient.get<any>("/auth/user/");
 	}

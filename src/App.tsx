@@ -40,7 +40,7 @@ function AppContent() {
 		case "dashboard":
 			return <Dashboard onLoginRequired={handleLoginRequired} />;
 		case "meal-stats":
-			return <MealStats onLoginRequired={handleLoginRequired} />;
+			return <MealStats onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
 		case "profile":
 			return <Profile onLoginRequired={handleLoginRequired} />;
 		case "statistics":

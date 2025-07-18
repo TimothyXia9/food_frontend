@@ -108,9 +108,9 @@ class ApiClient {
 		this.setToken(null);
 		localStorage.removeItem("refresh_token");
 		localStorage.removeItem("user");
-		// In a real app, you might want to emit an event or call a callback
-		// to redirect to login page
-		window.location.href = "/";
+		// Don't force redirect - let the AuthContext handle the state change
+		// This prevents disrupting the user's current page/workflow
+		console.log("Authentication failed - tokens cleared");
 	}
 
 	async get<T>(endpoint: string, params?: Record<string, unknown>): Promise<ApiResponse<T>> {

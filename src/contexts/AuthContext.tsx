@@ -27,6 +27,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 	const isAuthenticated = !!user && authService.isAuthenticated();
 
+	// Monitor token changes to keep user state in sync
+	React.useEffect(() => {
+		const token = authService.getCurrentToken();
+		if (!token && user) {
+			// Token was cleared but user state still exists, clear user state
+			setUser(null);
+		}
+	}, [user]);
+
 	// Check if user is already logged in on app start
 	useEffect(() => {
 		const checkAuthStatus = async () => {
@@ -51,14 +60,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 							setUser(response.data);
 							localStorage.setItem("user", JSON.stringify(response.data));
 						} else {
-							// Token is invalid, clear everything
-							await authService.logout();
+							// Token is invalid, clear everything silently
+							authService.setToken(null);
 							setUser(null);
 						}
 					} catch (error) {
 						console.error("Token verification failed:", error);
-						// Token is invalid, clear everything
-						await authService.logout();
+						// Token is invalid, clear everything silently
+						authService.setToken(null);
 						setUser(null);
 					}
 				}
