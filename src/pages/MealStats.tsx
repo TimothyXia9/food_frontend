@@ -42,7 +42,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 		if (isAuthenticated) {
 			loadMealStatistics();
 			loadRecentMeals();
-			loadCurrentMeals();
+			loadCurrentMeals(); // 默认加载当天的食物篮
 		}
 	}, [isAuthenticated]);
 
@@ -121,6 +121,25 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 		}
 	};
 
+	const loadAllMeals = async () => {
+		if (!isAuthenticated) return;
+		
+		setLoadingMeals(true);
+		try {
+			// 显示所有：不传递任何日期参数
+			const response = await mealService.getUserMeals({ 
+				page_size: 100
+			});
+			if (response.success && response.data) {
+				setCurrentMeals(response.data.meals || []);
+			}
+		} catch (error) {
+			console.error("Load all meals error:", error);
+		} finally {
+			setLoadingMeals(false);
+		}
+	};
+
 	const handleEditMeal = async (mealId: number) => {
 		try {
 			// Load meal details before navigation
@@ -161,6 +180,12 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 		if (isAuthenticated) {
 			loadMealStatistics();
 			loadCurrentMeals();
+		}
+	};
+
+	const handleShowAll = () => {
+		if (isAuthenticated) {
+			loadAllMeals();
 		}
 	};
 
@@ -225,27 +250,36 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 			</div>
 
 			<div className="stats-controls">
-				<DateRangePicker
-					startDate={isSingleMode ? selectedDate : startDate}
-					endDate={isSingleMode ? selectedDate : endDate}
-					onStartDateChange={(date) => {
-						if (isSingleMode) {
-							setSelectedDate(date);
-						} else {
-							setStartDate(date);
-						}
-					}}
-					onEndDateChange={(date) => {
-						if (isSingleMode) {
-							setSelectedDate(date);
-						} else {
-							setEndDate(date);
-						}
-					}}
-					isSingleMode={isSingleMode}
-					onModeChange={setIsSingleMode}
-					onApply={handleDateRangeApply}
-				/>
+				<div className="date-controls-wrapper">
+					<DateRangePicker
+						startDate={isSingleMode ? selectedDate : startDate}
+						endDate={isSingleMode ? selectedDate : endDate}
+						onStartDateChange={(date) => {
+							if (isSingleMode) {
+								setSelectedDate(date);
+							} else {
+								setStartDate(date);
+							}
+						}}
+						onEndDateChange={(date) => {
+							if (isSingleMode) {
+								setSelectedDate(date);
+							} else {
+								setEndDate(date);
+							}
+						}}
+						isSingleMode={isSingleMode}
+						onModeChange={setIsSingleMode}
+						onApply={handleDateRangeApply}
+					/>
+					<button 
+						type="button"
+						className="show-all-btn"
+						onClick={handleShowAll}
+					>
+						显示所有
+					</button>
+				</div>
 			</div>
 
 			{loading ? (
@@ -274,71 +308,73 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 								</button>
 							</div>
 							
-							{loadingMeals ? (
-								<div className="loading-meals">
-									<div className="loading-spinner">🍽️</div>
-									<p>正在加载餐食...</p>
-								</div>
-							) : (
-								<div className="meal-basket">
-									{currentMeals.length > 0 ? (
-										currentMeals.map((meal: any) => (
-											<div key={meal.id} className="meal-basket-item">
-												<div className="meal-info">
-													<div className="meal-header">
-														<span className="meal-type">{getMealTypeDisplayName(meal.meal_type)}</span>
-														<span className="meal-time">{new Date(meal.created_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}</span>
+							<div className="meal-basket-content">
+								{loadingMeals ? (
+									<div className="loading-meals">
+										<div className="loading-spinner">🍽️</div>
+										<p>正在加载餐食...</p>
+									</div>
+								) : (
+									<div className="meal-basket">
+										{currentMeals.length > 0 ? (
+											currentMeals.map((meal: any) => (
+												<div key={meal.id} className="meal-basket-item">
+													<div className="meal-info">
+														<div className="meal-header">
+															<span className="meal-type">{getMealTypeDisplayName(meal.meal_type)}</span>
+															<span className="meal-time">{new Date(meal.created_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}</span>
+														</div>
+														<div className="meal-name">{meal.name || "未命名餐食"}</div>
+														<div className="meal-datetime">
+															<span className="meal-date">📅 {new Date(meal.date).toLocaleDateString("zh-CN")}</span>
+															<span className="meal-created-time">🕐 {new Date(meal.created_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
+														</div>
+														<div className="meal-calories">{meal.total_calories.toFixed(1)} kcal</div>
+														<div className="meal-macros">
+															蛋白质: {meal.total_protein.toFixed(1)}g | 
+															脂肪: {meal.total_fat.toFixed(1)}g | 
+															碳水: {meal.total_carbs.toFixed(1)}g
+														</div>
 													</div>
-													<div className="meal-name">{meal.name || "未命名餐食"}</div>
-													<div className="meal-datetime">
-														<span className="meal-date">📅 {new Date(meal.created_at).toLocaleDateString("zh-CN")}</span>
-														<span className="meal-created-time">🕐 {new Date(meal.created_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
-													</div>
-													<div className="meal-calories">{meal.total_calories.toFixed(1)} kcal</div>
-													<div className="meal-macros">
-														蛋白质: {meal.total_protein.toFixed(1)}g | 
-														脂肪: {meal.total_fat.toFixed(1)}g | 
-														碳水: {meal.total_carbs.toFixed(1)}g
+													<div className="meal-actions">
+														<button 
+															className="edit-btn"
+															onClick={() => handleEditMeal(meal.id)}
+															title="编辑餐食"
+														>
+															✏️
+														</button>
+														<button 
+															className="delete-btn"
+															onClick={() => handleDeleteMeal(meal.id)}
+															title="删除餐食"
+														>
+															🗑️
+														</button>
 													</div>
 												</div>
-												<div className="meal-actions">
-													<button 
-														className="edit-btn"
-														onClick={() => handleEditMeal(meal.id)}
-														title="编辑餐食"
-													>
-														✏️
-													</button>
-													<button 
-														className="delete-btn"
-														onClick={() => handleDeleteMeal(meal.id)}
-														title="删除餐食"
-													>
-														🗑️
-													</button>
-												</div>
+											))
+										) : (
+											<div className="empty-basket">
+												<div className="empty-icon">🍽️</div>
+												<p>今天还没有添加任何餐食</p>
+												<button 
+													className="add-first-meal-btn"
+													onClick={() => {
+														if (onNavigate) {
+															onNavigate("food-search");
+														} else {
+															window.location.href = "/";
+														}
+													}}
+												>
+													添加第一餐
+												</button>
 											</div>
-										))
-									) : (
-										<div className="empty-basket">
-											<div className="empty-icon">🍽️</div>
-											<p>今天还没有添加任何餐食</p>
-											<button 
-												className="add-first-meal-btn"
-												onClick={() => {
-													if (onNavigate) {
-														onNavigate("food-search");
-													} else {
-														window.location.href = "/";
-													}
-												}}
-											>
-												添加第一餐
-											</button>
-										</div>
-									)}
-								</div>
-							)}
+										)}
+									</div>
+								)}
+							</div>
 						</div>
 
 						{/* Right Column - Statistics */}
@@ -535,6 +571,30 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 					margin-bottom: 2rem;
 				}
 
+				.date-controls-wrapper {
+					display: flex;
+					align-items: center;
+					gap: 1rem;
+				}
+
+				.show-all-btn {
+					background: #6c757d;
+					color: white;
+					border: none;
+					padding: 0.5rem 1rem;
+					border-radius: 6px;
+					cursor: pointer;
+					font-size: 0.9rem;
+					font-weight: 500;
+					transition: all 0.3s ease;
+					white-space: nowrap;
+				}
+
+				.show-all-btn:hover {
+					background: #5a6268;
+					transform: translateY(-1px);
+				}
+
 
 				.stats-main-layout {
 					display: grid;
@@ -590,18 +650,23 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 					background: white;
 					border-radius: 8px;
 					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-					padding: 1.5rem;
 					max-height: 70vh;
-					overflow-y: auto;
+					overflow: hidden;
+					display: flex;
+					flex-direction: column;
 				}
 
 				.food-basket-header {
 					display: flex;
 					justify-content: space-between;
 					align-items: center;
-					margin-bottom: 1rem;
-					padding-bottom: 1rem;
+					padding: 1.5rem 1.5rem 1rem 1.5rem;
 					border-bottom: 2px solid #f8f9fa;
+					background: white;
+					position: sticky;
+					top: 0;
+					z-index: 10;
+					flex-shrink: 0;
 				}
 
 				.food-basket-header h3 {
@@ -628,6 +693,12 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 				.loading-meals {
 					text-align: center;
 					padding: 2rem;
+				}
+
+				.meal-basket-content {
+					flex: 1;
+					overflow-y: auto;
+					padding: 0 1.5rem 1.5rem 1.5rem;
 				}
 
 				.meal-basket {
@@ -1093,6 +1164,16 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 						flex-direction: column;
 						align-items: flex-start;
 						gap: 0.5rem;
+					}
+
+					.date-controls-wrapper {
+						flex-direction: column;
+						align-items: stretch;
+						gap: 0.75rem;
+					}
+
+					.show-all-btn {
+						align-self: flex-end;
 					}
 
 					.recent-meals-grid {

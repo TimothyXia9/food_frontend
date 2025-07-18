@@ -122,6 +122,17 @@
 	color: #ffffff;
 }
 
+.mode-btn.show-all-btn {
+	background: #28a745;
+	border-color: #28a745;
+	color: #ffffff;
+}
+
+.mode-btn.show-all-btn:hover {
+	background: #218838;
+	border-color: #1e7e34;
+}
+
 /* Content */
 .date-range-picker-content {
 	padding: 16px;

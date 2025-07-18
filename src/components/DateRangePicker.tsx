@@ -234,6 +234,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 		}
 	};
 
+
 	// Quick selection handlers
 	const handleQuickSelect = (type: "week" | "month") => {
 		const today = new Date();
