@@ -368,9 +368,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 										key={index}
 										type="button"
 										className={`calendar-day ${day.isCurrentMonth ? "current-month" : "other-month"
-											} ${day.isToday ? "today" : ""
-											} ${day.isSelected ? "selected" : ""
-											}`}
+										} ${day.isToday ? "today" : ""
+										} ${day.isSelected ? "selected" : ""
+										}`}
 										onClick={() => handleCalendarDateSelect(day.fullDate)}
 									>
 										{day.date}
