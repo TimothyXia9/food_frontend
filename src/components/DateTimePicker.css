@@ -1,0 +1,508 @@
+/* DateTimePicker Component Styles - Notion-inspired design with custom calendar */
+
+.datetime-picker {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+	max-width: 280px;
+}
+
+/* Trigger Button */
+.datetime-picker-trigger {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 12px;
+	background: #ffffff;
+	border: 1px solid #e1e5e9;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.15s ease;
+	font-size: 14px;
+	color: #37352f;
+	min-height: 36px;
+}
+
+.datetime-picker-trigger:hover {
+	background: #f7f6f3;
+	border-color: #d3d1cb;
+}
+
+.datetime-picker-trigger:focus {
+	outline: none;
+	border-color: #2383e2;
+	box-shadow: 0 0 0 1px #2383e2;
+}
+
+.datetime-value {
+	flex: 1;
+	text-align: left;
+	font-weight: 400;
+}
+
+.datetime-picker-icon {
+	margin-left: 8px;
+	opacity: 0.6;
+	transition: opacity 0.15s ease;
+	fill: currentColor;
+}
+
+.datetime-picker-trigger:hover .datetime-picker-icon {
+	opacity: 0.8;
+}
+
+/* Popup Container */
+.datetime-picker-popup {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	margin-top: 4px;
+	background: #ffffff;
+	border: 1px solid #e1e5e9;
+	border-radius: 8px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+	z-index: 1000;
+	min-width: 350px;
+	animation: slideDown 0.15s ease-out;
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Header */
+.datetime-picker-header {
+	padding: 16px 16px 12px 16px;
+	border-bottom: 1px solid #f1f1ef;
+}
+
+.datetime-picker-header h3 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: #37352f;
+}
+
+/* Content */
+.datetime-picker-content {
+	padding: 16px;
+}
+
+/* Section Labels */
+.section-label {
+	display: block;
+	font-size: 12px;
+	font-weight: 500;
+	color: #787774;
+	margin-bottom: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* Calendar Section */
+.calendar-section {
+	margin-bottom: 24px;
+}
+
+/* Calendar Header with Navigation */
+.calendar-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 16px;
+	padding: 0 4px;
+}
+
+.nav-btn {
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #f7f6f3;
+	border: 1px solid #e1e5e9;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.15s ease;
+	outline: none;
+}
+
+.nav-btn:hover {
+	background: #efefef;
+	border-color: #d3d1cb;
+}
+
+.nav-btn:active {
+	background: #e5e4e1;
+	transform: scale(0.95);
+}
+
+.nav-btn svg {
+	fill: #37352f;
+	opacity: 0.7;
+}
+
+.nav-btn:hover svg {
+	opacity: 1;
+}
+
+.month-year {
+	font-size: 15px;
+	font-weight: 600;
+	color: #37352f;
+	min-width: 120px;
+	text-align: center;
+}
+
+/* Week Days Header */
+.weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 2px;
+	margin-bottom: 8px;
+}
+
+.weekday {
+	padding: 8px 4px;
+	text-align: center;
+	font-size: 12px;
+	font-weight: 500;
+	color: #787774;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* Calendar Grid */
+.calendar-grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 2px;
+}
+
+.calendar-day {
+	width: 36px;
+	height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 400;
+	color: #37352f;
+	transition: all 0.15s ease;
+	outline: none;
+	position: relative;
+}
+
+.calendar-day:hover {
+	background: #f7f6f3;
+}
+
+.calendar-day.current-month {
+	color: #37352f;
+}
+
+.calendar-day.other-month {
+	color: #b8b6b0;
+	opacity: 0.6;
+}
+
+.calendar-day.other-month:hover {
+	background: #f7f6f3;
+	opacity: 0.8;
+}
+
+.calendar-day.today {
+	background: #e8f4fd;
+	color: #2383e2;
+	font-weight: 600;
+}
+
+.calendar-day.today:hover {
+	background: #d9edfc;
+}
+
+.calendar-day.selected {
+	background: #2383e2;
+	color: #ffffff;
+	font-weight: 600;
+}
+
+.calendar-day.selected:hover {
+	background: #1a73cf;
+}
+
+.calendar-day.today.selected {
+	background: #2383e2;
+	color: #ffffff;
+}
+
+.calendar-day:active {
+	transform: scale(0.95);
+}
+
+/* Time Section */
+.time-section {
+	margin-bottom: 16px;
+}
+
+.quick-time-options {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.quick-time-btn {
+	padding: 8px 6px;
+	background: #f7f6f3;
+	border: 1px solid #e1e5e9;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: 400;
+	color: #37352f;
+	transition: all 0.15s ease;
+	outline: none;
+	text-align: center;
+}
+
+.quick-time-btn:hover {
+	background: #efefef;
+	border-color: #d3d1cb;
+}
+
+.quick-time-btn.selected {
+	background: #2383e2;
+	border-color: #2383e2;
+	color: #ffffff;
+	font-weight: 500;
+}
+
+.quick-time-btn:active {
+	transform: translateY(1px);
+}
+
+.time-input {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid #e1e5e9;
+	border-radius: 4px;
+	font-size: 14px;
+	color: #37352f;
+	background: #ffffff;
+	transition: all 0.15s ease;
+	outline: none;
+}
+
+.time-input:hover {
+	border-color: #d3d1cb;
+}
+
+.time-input:focus {
+	border-color: #2383e2;
+	box-shadow: 0 0 0 1px #2383e2;
+}
+
+/* Footer */
+.datetime-picker-footer {
+	padding: 12px 16px;
+	border-top: 1px solid #f1f1ef;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.confirm-btn {
+	padding: 8px 20px;
+	background: #2383e2;
+	border: 1px solid #2383e2;
+	border-radius: 4px;
+	color: #ffffff;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.15s ease;
+	outline: none;
+}
+
+.confirm-btn:hover {
+	background: #1a73cf;
+	border-color: #1a73cf;
+}
+
+.confirm-btn:active {
+	transform: translateY(1px);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+	.datetime-picker-popup {
+		min-width: 320px;
+		left: 50%;
+		right: auto;
+		transform: translateX(-50%);
+	}
+	
+	.calendar-header {
+		margin-bottom: 12px;
+	}
+	
+	.month-year {
+		font-size: 14px;
+		min-width: 100px;
+	}
+	
+	.nav-btn {
+		width: 28px;
+		height: 28px;
+	}
+	
+	.calendar-day {
+		width: 32px;
+		height: 32px;
+		font-size: 13px;
+	}
+	
+	.quick-time-options {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 6px;
+	}
+	
+	.quick-time-btn {
+		padding: 6px 4px;
+		font-size: 11px;
+	}
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+	.datetime-picker-popup {
+		min-width: 280px;
+	}
+	
+	.calendar-day {
+		width: 28px;
+		height: 28px;
+		font-size: 12px;
+	}
+	
+	.weekday {
+		padding: 6px 2px;
+		font-size: 11px;
+	}
+}
+
+/* Dark theme support (optional) */
+@media (prefers-color-scheme: dark) {
+	.datetime-picker-trigger {
+		background: #2f3437;
+		border-color: #454b4e;
+		color: #e9e9e7;
+	}
+	
+	.datetime-picker-trigger:hover {
+		background: #37393c;
+		border-color: #5a6063;
+	}
+	
+	.datetime-picker-popup {
+		background: #2f3437;
+		border-color: #454b4e;
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+	}
+	
+	.datetime-picker-header {
+		border-bottom-color: #454b4e;
+	}
+	
+	.datetime-picker-header h3 {
+		color: #e9e9e7;
+	}
+	
+	.section-label {
+		color: #9b9a97;
+	}
+	
+	.nav-btn {
+		background: #37393c;
+		border-color: #454b4e;
+	}
+	
+	.nav-btn:hover {
+		background: #3f4144;
+		border-color: #5a6063;
+	}
+	
+	.nav-btn svg {
+		fill: #e9e9e7;
+	}
+	
+	.month-year {
+		color: #e9e9e7;
+	}
+	
+	.weekday {
+		color: #9b9a97;
+	}
+	
+	.calendar-day {
+		color: #e9e9e7;
+	}
+	
+	.calendar-day:hover {
+		background: #37393c;
+	}
+	
+	.calendar-day.other-month {
+		color: #6b6f72;
+	}
+	
+	.calendar-day.other-month:hover {
+		background: #37393c;
+	}
+	
+	.calendar-day.today {
+		background: #1a3a52;
+		color: #4a9eff;
+	}
+	
+	.calendar-day.today:hover {
+		background: #1e3f5a;
+	}
+	
+	.quick-time-btn {
+		background: #37393c;
+		border-color: #454b4e;
+		color: #e9e9e7;
+	}
+	
+	.quick-time-btn:hover {
+		background: #3f4144;
+		border-color: #5a6063;
+	}
+	
+	.time-input {
+		background: #37393c;
+		border-color: #454b4e;
+		color: #e9e9e7;
+	}
+	
+	.time-input:hover {
+		border-color: #5a6063;
+	}
+	
+	.datetime-picker-footer {
+		border-top-color: #454b4e;
+	}
+}
