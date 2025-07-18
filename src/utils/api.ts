@@ -107,6 +107,7 @@ class ApiClient {
 	private handleAuthFailure(): void {
 		this.setToken(null);
 		localStorage.removeItem("refresh_token");
+		localStorage.removeItem("user");
 		// In a real app, you might want to emit an event or call a callback
 		// to redirect to login page
 		window.location.href = "/";

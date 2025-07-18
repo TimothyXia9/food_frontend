@@ -1,5 +1,6 @@
 import React from "react";
 import { foodService } from "../services/foodService";
+import { mealService } from "../services/mealService";
 import { Food } from "../types/api";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
@@ -14,7 +15,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const { success, error: showError, confirm } = useNotification();
 	const [searchQuery, setSearchQuery] = React.useState("");
 	const [searchResults, setSearchResults] = React.useState<Food[]>([]);
-	const [selectedMeal] = React.useState("breakfast");
+	// const [selectedMeal] = React.useState("breakfast");
 	const [showAddFoodForm, setShowAddFoodForm] = React.useState(false);
 	const [loading, setLoading] = React.useState(false);
 	const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -44,6 +45,17 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		return `${year}-${month}-${day}T${hours}:${minutes}`;
 	};
 
+	// Helper function to format datetime as meal name
+	const formatDateTimeAsName = (dateTimeString: string) => {
+		const date = new Date(dateTimeString);
+		const year = date.getFullYear();
+		const month = (date.getMonth() + 1).toString().padStart(2, "0");
+		const day = date.getDate().toString().padStart(2, "0");
+		const hours = date.getHours().toString().padStart(2, "0");
+		const minutes = date.getMinutes().toString().padStart(2, "0");
+		return `${year}-${month}-${day} ${hours}:${minutes}`;
+	};
+
 	// Load meal cart from localStorage
 	const loadMealCartFromStorage = () => {
 		try {
@@ -65,11 +77,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		}
 	};
 
-	// Initialize state with data from localStorage
+	// Initialize state with data from localStorage or editing meal
 	const initialData = loadMealCartFromStorage();
 	const [mealCart, setMealCart] = React.useState<{ food: Food, quantity: number, updated?: boolean }[]>(initialData.cart);
 	const [mealName, setMealName] = React.useState(initialData.name);
 	const [mealTime, setMealTime] = React.useState(initialData.time);
+	const [editingMealId, setEditingMealId] = React.useState<number | null>(null);
 
 	// Save meal cart to localStorage whenever it changes
 	React.useEffect(() => {
@@ -85,6 +98,70 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	React.useEffect(() => {
 		localStorage.setItem("mealTime", mealTime);
 	}, [mealTime]);
+
+	// Check for editing meal data on component mount
+	React.useEffect(() => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const editMealId = urlParams.get("edit_meal");
+		
+		if (editMealId) {
+			// Load editing meal data from sessionStorage
+			const editingMealData = sessionStorage.getItem("editingMeal");
+			if (editingMealData) {
+				try {
+					const mealData = JSON.parse(editingMealData);
+					
+					// Set editing meal ID
+					setEditingMealId(parseInt(editMealId));
+					
+					// Set meal name and time
+					setMealName(mealData.name || "");
+					if (mealData.date) {
+						// Convert date to datetime format for the picker
+						const mealDateTime = new Date(mealData.date);
+						// Add current time if date doesn't include time
+						if (!mealData.date.includes("T")) {
+							const now = new Date();
+							mealDateTime.setHours(now.getHours(), now.getMinutes());
+						}
+						setMealTime(mealDateTime.toISOString().slice(0, 16));
+					}
+					
+					// Convert meal foods to cart format
+					if (mealData.foods && mealData.foods.length > 0) {
+						const cartItems = mealData.foods.map((mealFood: any) => ({
+							food: {
+								id: mealFood.food_id,
+								name: mealFood.food_name,
+								calories_per_100g: (mealFood.calories / mealFood.quantity) * 100,
+								protein_per_100g: (mealFood.protein / mealFood.quantity) * 100,
+								fat_per_100g: (mealFood.fat / mealFood.quantity) * 100,
+								carbs_per_100g: (mealFood.carbs / mealFood.quantity) * 100,
+								fiber_per_100g: 0,
+								sugar_per_100g: 0,
+								sodium_per_100g: 0,
+								serving_size: 100,
+								is_custom: false,
+								is_usda: false
+							} as Food,
+							quantity: mealFood.quantity,
+							updated: false
+						}));
+						setMealCart(cartItems);
+					}
+					
+					success(`已加载食物篮: ${mealData.name || "未命名"}`);
+				} catch (error) {
+					console.error("Error loading editing meal data:", error);
+					showError("加载编辑餐食数据时发生错误");
+				}
+			}
+			
+			// Clean up URL parameter
+			const newUrl = window.location.origin + window.location.pathname;
+			window.history.replaceState({}, "", newUrl);
+		}
+	}, [success, showError]);
 	const handleSearch = async () => {
 		if (!searchQuery.trim()) {
 			setSearchResults([]);
@@ -206,21 +283,68 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			return;
 		}
 
-		console.log("Saving meal:", {
-			name: mealName || `${getMealName(selectedMeal)}`,
-			time: mealTime,
-			foods: mealCart
-		});
+		// Use datetime as name if no name is provided
+		const finalMealName = mealName || formatDateTimeAsName(mealTime);
 
-		// TODO: Implement meal service integration
-		success(`已保存食物篮: ${mealName || getMealName(selectedMeal)}`);
-		// Clear meal cart and localStorage after successful save
-		setMealCart([]);
-		setMealName("");
-		setMealTime(getCurrentLocalDateTime());
-		localStorage.removeItem("mealCart");
-		localStorage.removeItem("mealName");
-		localStorage.removeItem("mealTime");
+		try {
+			// Extract date and determine meal type from time
+			const mealDateTime = new Date(mealTime);
+			const mealDate = mealDateTime.toISOString().split("T")[0]; // YYYY-MM-DD format
+			const hour = mealDateTime.getHours();
+			
+			// Determine meal type based on time
+			let mealType: "breakfast" | "lunch" | "dinner" | "snack" = "snack";
+			if (hour >= 5 && hour < 11) {
+				mealType = "breakfast";
+			} else if (hour >= 11 && hour < 16) {
+				mealType = "lunch";
+			} else if (hour >= 16 && hour < 22) {
+				mealType = "dinner";
+			}
+
+			// Prepare foods data for API
+			const foods = mealCart.map(item => ({
+				food_id: item.food.id,
+				quantity: item.quantity
+			}));
+
+			let response;
+			if (editingMealId) {
+				// Update existing meal
+				response = await mealService.updateMeal(editingMealId, {
+					date: mealDate,
+					meal_type: mealType,
+					name: finalMealName,
+					foods: foods
+				});
+			} else {
+				// Create new meal
+				response = await mealService.createMeal({
+					date: mealDate,
+					meal_type: mealType,
+					name: finalMealName,
+					foods: foods
+				});
+			}
+
+			if (response.success) {
+				success(`已${editingMealId ? "更新" : "保存"}食物篮: ${finalMealName}`);
+				// Clear meal cart and localStorage after successful save
+				setMealCart([]);
+				setMealName("");
+				setMealTime(getCurrentLocalDateTime());
+				setEditingMealId(null);
+				localStorage.removeItem("mealCart");
+				localStorage.removeItem("mealName");
+				localStorage.removeItem("mealTime");
+				sessionStorage.removeItem("editingMeal");
+			} else {
+				showError(response.error?.message || `${editingMealId ? "更新" : "保存"}食物篮失败`);
+			}
+		} catch (error) {
+			console.error("Save meal error:", error);
+			showError(`${editingMealId ? "更新" : "保存"}食物篮时发生错误`);
+		}
 	};
 
 	const getTotalNutrition = () => {
@@ -400,15 +524,6 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		}
 	};
 
-	const getMealName = (mealType: string) => {
-		const mealNames: Record<string, string> = {
-			breakfast: "早餐",
-			lunch: "午餐",
-			dinner: "晚餐",
-			snack: "零食",
-		};
-		return mealNames[mealType] || mealType;
-	};
 	return (
 		<div className="food-search">
 			<div className="page-header">
@@ -420,13 +535,13 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				{/* Left side - Meal Cart */}
 				<div className="meal-cart-section">
 					<div className="meal-cart-header">
-						<h3>当前食物篮</h3>
+						<h3>{editingMealId ? "正在编辑食物篮" : "当前食物篮"}</h3>
 						<div className="meal-controls">
 							<input
 								type="text"
 								value={mealName}
 								onChange={(e) => setMealName(e.target.value)}
-								placeholder={`输入食物篮名称 (默认: ${getMealName(selectedMeal)})`}
+								placeholder={"输入食物篮名称 (默认: 创建时间)"}
 								className="meal-name-input"
 							/>
 							<DateTimePicker
@@ -519,7 +634,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 										清空
 									</button>
 									<button onClick={handleSaveMeal} className="btn btn-primary save-btn">
-										保存食物篮
+										{editingMealId ? "更新食物篮" : "保存食物篮"}
 									</button>
 								</div>
 							</>
@@ -936,11 +1051,25 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				}
 
 				.quantity-input-small {
-					width: 60px;
-					padding: 0.25rem;
-					border: 1px solid #ddd;
-					border-radius: 3px;
+					width: 70px;
+					padding: 0.5rem;
+					border: 2px solid #dee2e6;
+					border-radius: 6px;
 					text-align: center;
+					font-size: 0.9rem;
+					font-weight: 500;
+					background: white;
+					transition: all 0.3s ease;
+				}
+
+				.quantity-input-small:focus {
+					outline: none;
+					border-color: #3498db;
+					box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+				}
+
+				.quantity-input-small:hover {
+					border-color: #adb5bd;
 				}
 
 				.remove-btn {
@@ -1508,15 +1637,40 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 				.quantity-input {
 					display: flex;
 					align-items: center;
-					gap: 0.5rem;
+					gap: 0.75rem;
 					margin-bottom: 0.75rem;
+					padding: 0.75rem;
+					background: #f8f9fa;
+					border-radius: 8px;
+					border: 1px solid #e9ecef;
+				}
+
+				.quantity-input label {
+					font-weight: 500;
+					color: #495057;
+					white-space: nowrap;
 				}
 
 				.quantity-field {
-					width: 80px;
-					padding: 0.25rem;
-					border: 1px solid #ddd;
-					border-radius: 4px;
+					width: 100px;
+					padding: 0.5rem 0.75rem;
+					border: 2px solid #dee2e6;
+					border-radius: 6px;
+					font-size: 1rem;
+					font-weight: 500;
+					text-align: center;
+					background: white;
+					transition: all 0.3s ease;
+				}
+
+				.quantity-field:focus {
+					outline: none;
+					border-color: #3498db;
+					box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+				}
+
+				.quantity-field:hover {
+					border-color: #adb5bd;
 				}
 
 				.calculated-nutrition {
