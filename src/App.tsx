@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import Statistics from "./pages/Statistics";
 import ApiTest from "./pages/ApiTest";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
 function AppContent() {
 	const [currentPage, setCurrentPage] = useState("food-search");
@@ -72,7 +73,9 @@ function AppContent() {
 function App() {
 	return (
 		<AuthProvider>
-			<AppContent />
+			<NotificationProvider>
+				<AppContent />
+			</NotificationProvider>
 		</AuthProvider>
 	);
 }

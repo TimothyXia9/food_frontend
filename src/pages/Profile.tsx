@@ -1,6 +1,7 @@
 import React from "react";
 import { userService } from "../services";
 import { useAuth } from "../contexts/AuthContext";
+import { useNotification } from "../contexts/NotificationContext";
 
 interface ProfileProps {
 	onLoginRequired: () => void;
@@ -8,6 +9,7 @@ interface ProfileProps {
 
 const Profile = ({ onLoginRequired }: ProfileProps) => {
 	const { isAuthenticated } = useAuth();
+	const { success } = useNotification();
 	const [isEditing, setIsEditing] = React.useState(false);
 	const [loading, setLoading] = React.useState(true);
 	const [saving, setSaving] = React.useState(false);
@@ -89,7 +91,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 			if (response.success) {
 				setProfile({ ...editProfile });
 				setIsEditing(false);
-				alert("个人资料已更新！");
+				success("个人资料已更新！");
 			} else {
 				throw new Error(response.error?.message || "更新失败");
 			}
@@ -99,7 +101,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 			// For demo purposes, still update locally
 			setProfile({ ...editProfile });
 			setIsEditing(false);
-			alert("个人资料已更新！(演示模式)");
+			success("个人资料已更新！(演示模式)");
 		} finally {
 			setSaving(false);
 		}

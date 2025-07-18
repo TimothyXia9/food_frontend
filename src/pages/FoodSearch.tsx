@@ -2,6 +2,7 @@ import React from "react";
 import { foodService } from "../services/foodService";
 import { Food } from "../types/api";
 import { useAuth } from "../contexts/AuthContext";
+import { useNotification } from "../contexts/NotificationContext";
 
 interface FoodSearchProps {
 	onLoginRequired: () => void;
@@ -9,6 +10,7 @@ interface FoodSearchProps {
 
 const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const { isAuthenticated } = useAuth();
+	const { success } = useNotification();
 	const [searchQuery, setSearchQuery] = React.useState("");
 	const [searchResults, setSearchResults] = React.useState<Food[]>([]);
 	const [selectedMeal, setSelectedMeal] = React.useState("breakfast");
@@ -93,7 +95,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const handleAddFood = (food: Food, quantity: number) => {
 		console.log(`Adding ${quantity}g of ${food.name} to ${selectedMeal}`);
 		// TODO: Implement meal service integration
-		alert(`已添加 ${quantity}g ${food.name} 到${getMealName(selectedMeal)}`);
+		success(`已添加 ${quantity}g ${food.name} 到${getMealName(selectedMeal)}`);
 	};
 	const handleCustomFoodSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -116,7 +118,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 			const response = await foodService.createCustomFood(foodData);
 			if (response.success) {
-				alert("自定义食物已创建！");
+				success("自定义食物已创建！");
 				setShowAddFoodForm(false);
 				setEditingFood(null);
 				setCustomFood({
