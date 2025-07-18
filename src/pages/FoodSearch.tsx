@@ -13,7 +13,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const { success, error: showError, confirm } = useNotification();
 	const [searchQuery, setSearchQuery] = React.useState("");
 	const [searchResults, setSearchResults] = React.useState<Food[]>([]);
-	const [selectedMeal, setSelectedMeal] = React.useState("breakfast");
+	const [selectedMeal] = React.useState("breakfast");
 	const [showAddFoodForm, setShowAddFoodForm] = React.useState(false);
 	const [loading, setLoading] = React.useState(false);
 	const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
@@ -31,6 +31,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const [viewMode, setViewMode] = React.useState<"search" | "user">("search");
 	const [userFoods, setUserFoods] = React.useState<Food[]>([]);
 	const [userFoodsLoading, setUserFoodsLoading] = React.useState(false);
+
+	// New state for meal management
+	const [currentTab, setCurrentTab] = React.useState<"add_food" | "meal_stats">("add_food");
+	const [mealCart, setMealCart] = React.useState<{ food: Food, quantity: number, updated?: boolean }[]>([]);
+	const [mealName, setMealName] = React.useState("");
+	const [mealTime, setMealTime] = React.useState(new Date().toISOString().slice(0, 16));
 	const handleSearch = async () => {
 		if (!searchQuery.trim()) {
 			setSearchResults([]);
@@ -82,7 +88,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const handleViewModeChange = (mode: "search" | "user") => {
 		setViewMode(mode);
 		setErrorMessage(null);
-		
+
 		if (mode === "user") {
 			handleLoadUserFoods();
 		} else {
@@ -91,9 +97,87 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		}
 	};
 	const handleAddFood = (food: Food, quantity: number) => {
-		console.log(`Adding ${quantity}g of ${food.name} to ${selectedMeal}`);
+		// Add to meal cart
+		const existingIndex = mealCart.findIndex(item => item.food.id === food.id);
+		if (existingIndex >= 0) {
+			// Update existing item quantity
+			const newCart = [...mealCart];
+			newCart[existingIndex].quantity += quantity;
+			setMealCart(newCart);
+		} else {
+			// Add new item
+			setMealCart([...mealCart, { food, quantity }]);
+		}
+		success(`已添加 ${quantity}g ${food.name} 到食物篮`);
+	};
+
+	const handleRemoveFromCart = (foodId: number) => {
+		setMealCart(mealCart.filter(item => item.food.id !== foodId));
+	};
+
+	const handleUpdateCartQuantity = (foodId: number, newQuantity: number) => {
+		if (newQuantity <= 0) {
+			handleRemoveFromCart(foodId);
+			return;
+		}
+		setMealCart(mealCart.map(item =>
+			item.food.id === foodId ? { ...item, quantity: newQuantity, updated: false } : item
+		));
+	};
+
+	const clearUpdatedStatus = (foodId: number) => {
+		setMealCart(prevCart => 
+			prevCart.map(item => 
+				item.food.id === foodId ? { ...item, updated: false } : item
+			)
+		);
+	};
+
+	const handleClearCart = async () => {
+		const confirmed = await confirm("确定要清空所有食物吗？");
+		if (confirmed) {
+			setMealCart([]);
+			success("已清空食物篮");
+		}
+	};
+
+	const handleSaveMeal = async () => {
+		if (!isAuthenticated) {
+			onLoginRequired();
+			return;
+		}
+
+		if (mealCart.length === 0) {
+			showError("请先添加食物到食物篮");
+			return;
+		}
+
+		console.log("Saving meal:", {
+			name: mealName || `${getMealName(selectedMeal)}`,
+			time: mealTime,
+			foods: mealCart
+		});
+
 		// TODO: Implement meal service integration
-		success(`已添加 ${quantity}g ${food.name} 到${getMealName(selectedMeal)}`);
+		success(`已保存餐食: ${mealName || getMealName(selectedMeal)}`);
+		setMealCart([]);
+		setMealName("");
+	};
+
+	const getTotalNutrition = () => {
+		return mealCart.reduce((total, item) => {
+			const calories = (item.food.calories_per_100g * item.quantity) / 100;
+			const protein = ((item.food.protein_per_100g || 0) * item.quantity) / 100;
+			const fat = ((item.food.fat_per_100g || 0) * item.quantity) / 100;
+			const carbs = ((item.food.carbs_per_100g || 0) * item.quantity) / 100;
+
+			return {
+				calories: total.calories + calories,
+				protein: total.protein + protein,
+				fat: total.fat + fat,
+				carbs: total.carbs + carbs
+			};
+		}, { calories: 0, protein: 0, fat: 0, carbs: 0 });
 	};
 	const handleCustomFoodSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -115,19 +199,48 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 			// Check if we're editing an existing user food
 			const isEditingUserFood = editingFood && editingFood.is_custom;
-			
+
 			let response;
 			if (isEditingUserFood) {
 				response = await foodService.updateCustomFood(editingFood.id, foodData);
 			} else {
 				response = await foodService.createCustomFood(foodData);
 			}
-			
+
 			if (response.success) {
 				success(isEditingUserFood ? "自定义食物已更新！" : "自定义食物已创建！");
+				
+				// Update meal cart if the edited food is in the cart
+				if (isEditingUserFood && response.data && editingFood) {
+					const updatedFood: Food = {
+						...editingFood,
+						name: response.data.name || foodData.name,
+						calories_per_100g: response.data.calories_per_100g || foodData.calories_per_100g,
+						protein_per_100g: response.data.protein_per_100g || foodData.protein_per_100g,
+						fat_per_100g: response.data.fat_per_100g || foodData.fat_per_100g,
+						carbs_per_100g: response.data.carbs_per_100g || foodData.carbs_per_100g,
+						fiber_per_100g: response.data.fiber_per_100g || foodData.fiber_per_100g,
+						sugar_per_100g: response.data.sugar_per_100g || foodData.sugar_per_100g,
+						sodium_per_100g: response.data.sodium_per_100g || foodData.sodium_per_100g,
+					};
+					
+					// Update cart if this food is in the cart
+					const isInCart = mealCart.some(item => item.food.id === editingFood.id);
+					if (isInCart) {
+						setMealCart(prevCart => 
+							prevCart.map(item => 
+								item.food.id === editingFood.id 
+									? { ...item, food: updatedFood, updated: true }
+									: item
+							)
+						);
+						success("食物篮中的营养信息已同步更新！");
+					}
+				}
+				
 				setShowAddFoodForm(false);
 				resetForm();
-				
+
 				// Refresh user foods list if we're in user mode
 				if (viewMode === "user") {
 					handleLoadUserFoods();
@@ -193,7 +306,15 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	};
 
 	const handleDeleteFood = async (food: Food) => {
-		const confirmed = await confirm(`确定要删除食物 "${food.name}" 吗？此操作无法撤销。`);
+		// Check if food is in the meal cart
+		const isInCart = mealCart.some(item => item.food.id === food.id);
+		
+		let confirmMessage = `确定要删除食物 "${food.name}" 吗？此操作无法撤销。`;
+		if (isInCart) {
+			confirmMessage += "\n\n⚠️ 注意：该食物已添加到当前餐食中，删除后也会从餐食中移除。";
+		}
+		
+		const confirmed = await confirm(confirmMessage);
 		if (!confirmed) {
 			return;
 		}
@@ -202,6 +323,13 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			const response = await foodService.deleteCustomFood(food.id);
 			if (response.success) {
 				success(`食物 "${food.name}" 已成功删除！`);
+				
+				// Remove food from meal cart if it was there
+				if (isInCart) {
+					setMealCart(prevCart => prevCart.filter(item => item.food.id !== food.id));
+					success("已从当前餐食中移除该食物");
+				}
+				
 				// 刷新用户食物列表
 				handleLoadUserFoods();
 			} else {
@@ -224,129 +352,273 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	};
 	return (
 		<div className="food-search">
-			<div className="search-header">
-				<h1>添加食物</h1>
-				<div className="meal-selector">
-					<label className="form-label">添加到：</label>
-					<select value={selectedMeal} onChange={(e) => setSelectedMeal(e.target.value)} className="form-input">
-						<option value="breakfast">早餐</option>
-						<option value="lunch">午餐</option>
-						<option value="dinner">晚餐</option>
-						<option value="snack">零食</option>
-					</select>
-				</div>
-			</div>
-			
-			<div className="view-mode-selector">
-				<button 
-					onClick={() => handleViewModeChange("search")}
-					className={`view-mode-btn ${viewMode === "search" ? "active" : ""}`}
+			<div className="main-tabs">
+				<button
+					onClick={() => setCurrentTab("add_food")}
+					className={`main-tab-btn ${currentTab === "add_food" ? "active" : ""}`}
 				>
-					搜索食物
+					添加食物
 				</button>
-				<button 
-					onClick={() => handleViewModeChange("user")}
-					className={`view-mode-btn ${viewMode === "user" ? "active" : ""}`}
-					disabled={!isAuthenticated}
+				<button
+					onClick={() => setCurrentTab("meal_stats")}
+					className={`main-tab-btn ${currentTab === "meal_stats" ? "active" : ""}`}
 				>
-					我的食物
+					每餐统计
 				</button>
 			</div>
-			{viewMode === "search" && (
-				<div className="search-section">
-					<div className="search-bar">
-						<input 
-							type="text" 
-							value={searchQuery} 
-							onChange={(e) => setSearchQuery(e.target.value)} 
-							placeholder="搜索食物..." 
-							className="search-input" 
-							onKeyPress={(e) => e.key === "Enter" && handleSearch()} 
-							disabled={loading}
-						/>
-						<button onClick={handleSearch} className="btn btn-primary search-btn" disabled={loading}>
-							{loading ? "搜索中..." : "搜索"}
-						</button>
+
+			{currentTab === "add_food" && (
+				<div className="add-food-layout">
+					{/* Left side - Meal Cart */}
+					<div className="meal-cart-section">
+						<div className="meal-cart-header">
+							<h3>当前餐食</h3>
+							<div className="meal-controls">
+								<input
+									type="text"
+									value={mealName}
+									onChange={(e) => setMealName(e.target.value)}
+									placeholder={`输入餐食名称 (默认: ${getMealName(selectedMeal)})`}
+									className="meal-name-input"
+								/>
+								<input
+									type="datetime-local"
+									value={mealTime}
+									onChange={(e) => setMealTime(e.target.value)}
+									className="meal-time-input"
+								/>
+							</div>
+						</div>
+
+						<div className="meal-cart-content">
+							{mealCart.length === 0 ? (
+								<div className="empty-cart">
+									<p>食物篮为空，请从右侧添加食物</p>
+								</div>
+							) : (
+								<>
+									<div className="cart-items">
+										{mealCart.map((item) => (
+											<div key={item.food.id} className={`cart-item ${item.updated ? "updated" : ""}`}>
+												<div className="cart-item-info">
+													<h4>
+														{item.food.name}
+														{item.updated && (
+															<span className="updated-badge" title="营养信息已更新">
+																🔄
+															</span>
+														)}
+													</h4>
+													<p>{Math.round((item.food.calories_per_100g * item.quantity) / 100)} kcal</p>
+													{item.updated && (
+														<p className="updated-text">营养信息已更新</p>
+													)}
+												</div>
+												<div className="cart-item-controls">
+													{item.updated && (
+														<button 
+															onClick={() => clearUpdatedStatus(item.food.id)}
+															className="clear-update-btn"
+															title="确认更新"
+														>
+															✓
+														</button>
+													)}
+													<input
+														type="number"
+														value={item.quantity}
+														onChange={(e) => handleUpdateCartQuantity(item.food.id, Number(e.target.value))}
+														min="1"
+														className="quantity-input-small"
+													/>
+													<span>g</span>
+													<button
+														onClick={() => handleRemoveFromCart(item.food.id)}
+														className="remove-btn"
+													>
+														×
+													</button>
+												</div>
+											</div>
+										))}
+									</div>
+									<div className="cart-summary">
+										{(() => {
+											const totals = getTotalNutrition();
+											return (
+												<div className="nutrition-totals">
+													<div className="total-item">
+														<span className="total-label">总卡路里:</span>
+														<span className="total-value">{Math.round(totals.calories)} kcal</span>
+													</div>
+													<div className="total-item">
+														<span className="total-label">蛋白质:</span>
+														<span className="total-value">{Math.round(totals.protein * 10) / 10}g</span>
+													</div>
+													<div className="total-item">
+														<span className="total-label">脂肪:</span>
+														<span className="total-value">{Math.round(totals.fat * 10) / 10}g</span>
+													</div>
+													<div className="total-item">
+														<span className="total-label">碳水:</span>
+														<span className="total-value">{Math.round(totals.carbs * 10) / 10}g</span>
+													</div>
+												</div>
+											);
+										})()}
+									</div>
+									<div className="cart-actions">
+										<button onClick={handleClearCart} className="btn btn-danger clear-btn">
+											清空
+										</button>
+										<button onClick={handleSaveMeal} className="btn btn-primary save-btn">
+											保存餐食
+										</button>
+									</div>
+								</>
+							)}
+						</div>
 					</div>
-					<div className="search-actions">
-						<button 
-							onClick={() => {
-								if (isAuthenticated) {
-									resetForm();
-									setShowAddFoodForm(true);
-								} else {
-									onLoginRequired();
-								}
-							}} 
-							className="btn btn-success"
-						>
-							+ 创建自定义食物
-						</button>
-						<button 
-							className="btn btn-warning"
-							onClick={() => isAuthenticated ? console.log("Camera") : onLoginRequired()}
-						>
-							📸 拍照识别
-						</button>
+
+					{/* Right side - Food Search */}
+					<div className="food-search-section">
+						<div className="view-mode-selector">
+							<button
+								onClick={() => handleViewModeChange("search")}
+								className={`view-mode-btn ${viewMode === "search" ? "active" : ""}`}
+							>
+								搜索食物
+							</button>
+							<button
+								onClick={() => handleViewModeChange("user")}
+								className={`view-mode-btn ${viewMode === "user" ? "active" : ""}`}
+								disabled={!isAuthenticated}
+							>
+								我的食物
+							</button>
+						</div>
+
+						{viewMode === "search" && (
+							<div className="search-section">
+								<div className="search-bar">
+									<input
+										type="text"
+										value={searchQuery}
+										onChange={(e) => setSearchQuery(e.target.value)}
+										placeholder="搜索食物..."
+										className="search-input"
+										onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+										disabled={loading}
+									/>
+									<button onClick={handleSearch} className="btn btn-primary search-btn" disabled={loading}>
+										{loading ? "搜索中..." : "搜索"}
+									</button>
+								</div>
+								<div className="search-actions">
+									<button
+										onClick={() => {
+											if (isAuthenticated) {
+												resetForm();
+												setShowAddFoodForm(true);
+											} else {
+												onLoginRequired();
+											}
+										}}
+										className="btn btn-success"
+									>
+										+ 创建自定义食物
+									</button>
+									<button
+										className="btn btn-warning"
+										onClick={() => isAuthenticated ? console.log("Camera") : onLoginRequired()}
+									>
+										📸 拍照识别
+									</button>
+								</div>
+							</div>
+						)}
+
+						{viewMode === "user" && (
+							<div className="user-foods-section">
+								<div className="user-foods-header">
+									<h3>我的自定义食物</h3>
+									<button
+										onClick={() => {
+											if (isAuthenticated) {
+												resetForm();
+												setShowAddFoodForm(true);
+											} else {
+												onLoginRequired();
+											}
+										}}
+										className="btn btn-success"
+									>
+										+ 创建自定义食物
+									</button>
+								</div>
+								{userFoodsLoading && <p>加载中...</p>}
+								{!userFoodsLoading && userFoods.length === 0 && (
+									<p className="no-foods-message">您还没有创建任何自定义食物。点击上方按钮创建您的第一个自定义食物！</p>
+								)}
+							</div>
+						)}
+
+						{errorMessage && (
+							<div className="error-message">
+								<p>{errorMessage}</p>
+							</div>
+						)}
+
+						{viewMode === "search" && searchResults.length > 0 && (
+							<div className="search-results">
+								<h3>搜索结果</h3>
+								<div className="results-grid">
+									{searchResults.map((food: Food) => (
+										<FoodItem key={food.id} food={food} onAdd={handleAddFood} onLoginRequired={onLoginRequired} onCopy={handleCopyFood} />
+									))}
+								</div>
+							</div>
+						)}
+
+						{viewMode === "user" && userFoods.length > 0 && (
+							<div className="user-foods-results">
+								<div className="results-grid">
+									{userFoods.map((food: Food) => (
+										<FoodItem
+											key={food.id}
+											food={food}
+											onAdd={handleAddFood}
+											onLoginRequired={onLoginRequired}
+											onCopy={handleCopyFood}
+											onEdit={handleEditFood}
+											onDelete={handleDeleteFood}
+											showEditActions={true}
+										/>
+									))}
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			)}
-			
-			{viewMode === "user" && (
-				<div className="user-foods-section">
-					<div className="user-foods-header">
-						<h3>我的自定义食物</h3>
-						<button 
-							onClick={() => {
-								if (isAuthenticated) {
-									resetForm();
-									setShowAddFoodForm(true);
-								} else {
-									onLoginRequired();
-								}
-							}} 
-							className="btn btn-success"
-						>
-							+ 创建自定义食物
-						</button>
+
+			{currentTab === "meal_stats" && (
+				<div className="meal-stats-section">
+					<div className="stats-header">
+						<h2>每餐统计</h2>
+						<p>查看您每餐的营养摄入情况</p>
 					</div>
-					{userFoodsLoading && <p>加载中...</p>}
-					{!userFoodsLoading && userFoods.length === 0 && (
-						<p className="no-foods-message">您还没有创建任何自定义食物。点击上方按钮创建您的第一个自定义食物！</p>
-					)}
-				</div>
-			)}
-			{errorMessage && (
-				<div className="error-message">
-					<p>{errorMessage}</p>
-				</div>
-			)}
-			{viewMode === "search" && searchResults.length > 0 && (
-				<div className="search-results">
-					<h3>搜索结果</h3>
-					<div className="results-grid">
-						{searchResults.map((food: Food) => (
-							<FoodItem key={food.id} food={food} onAdd={handleAddFood} onLoginRequired={onLoginRequired} onCopy={handleCopyFood} />
-						))}
-					</div>
-				</div>
-			)}
-			
-			{viewMode === "user" && userFoods.length > 0 && (
-				<div className="user-foods-results">
-					<div className="results-grid">
-						{userFoods.map((food: Food) => (
-							<FoodItem 
-								key={food.id} 
-								food={food} 
-								onAdd={handleAddFood} 
-								onLoginRequired={onLoginRequired} 
-								onCopy={handleCopyFood}
-								onEdit={handleEditFood}
-								onDelete={handleDeleteFood}
-								showEditActions={true}
-							/>
-						))}
+					<div className="stats-content">
+						<div className="stats-placeholder">
+							<p>🍽️ 餐食统计功能正在开发中...</p>
+							<p>将在此处显示：</p>
+							<ul>
+								<li>今日各餐营养摄入</li>
+								<li>每餐卡路里分布</li>
+								<li>营养素对比图表</li>
+								<li>餐食历史记录</li>
+							</ul>
+						</div>
 					</div>
 				</div>
 			)}
@@ -355,10 +627,10 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					<div className="modal">
 						<div className="modal-header">
 							<h3>
-								{editingFood && editingFood.is_custom 
-									? `编辑食物: ${editingFood.name}` 
-									: editingFood 
-										? `复制并编辑: ${editingFood.name}` 
+								{editingFood && editingFood.is_custom
+									? `编辑食物: ${editingFood.name}`
+									: editingFood
+										? `复制并编辑: ${editingFood.name}`
 										: "创建自定义食物"
 								}
 							</h3>
@@ -377,25 +649,25 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						<form onSubmit={handleCustomFoodSubmit} className="custom-food-form">
 							<div className="form-group">
 								<label className="form-label">食物名称</label>
-								<input 
-									type="text" 
-									value={customFood.name} 
-									onChange={(e) => setCustomFood({ ...customFood, name: e.target.value })} 
-									className="form-input" 
-									required 
+								<input
+									type="text"
+									value={customFood.name}
+									onChange={(e) => setCustomFood({ ...customFood, name: e.target.value })}
+									className="form-input"
+									required
 									disabled={loading}
 									placeholder="输入食物名称"
 								/>
 							</div>
-							
+
 							<div className="form-group">
 								<label className="form-label">🔥 卡路里 (每100g) *</label>
-								<input 
-									type="number" 
-									value={customFood.calories} 
-									onChange={(e) => setCustomFood({ ...customFood, calories: e.target.value })} 
-									className="form-input" 
-									required 
+								<input
+									type="number"
+									value={customFood.calories}
+									onChange={(e) => setCustomFood({ ...customFood, calories: e.target.value })}
+									className="form-input"
+									required
 									disabled={loading}
 									placeholder="例如: 250"
 								/>
@@ -404,12 +676,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 							<div className="form-row">
 								<div className="form-group">
 									<label className="form-label">蛋白质 (g)</label>
-									<input 
-										type="number" 
-										step="0.1" 
-										value={customFood.protein} 
-										onChange={(e) => setCustomFood({ ...customFood, protein: e.target.value })} 
-										className="form-input" 
+									<input
+										type="number"
+										step="0.1"
+										value={customFood.protein}
+										onChange={(e) => setCustomFood({ ...customFood, protein: e.target.value })}
+										className="form-input"
 										disabled={loading}
 									/>
 								</div>
@@ -418,23 +690,23 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 							<div className="form-row">
 								<div className="form-group">
 									<label className="form-label">脂肪 (g)</label>
-									<input 
-										type="number" 
-										step="0.1" 
-										value={customFood.fat} 
-										onChange={(e) => setCustomFood({ ...customFood, fat: e.target.value })} 
-										className="form-input" 
+									<input
+										type="number"
+										step="0.1"
+										value={customFood.fat}
+										onChange={(e) => setCustomFood({ ...customFood, fat: e.target.value })}
+										className="form-input"
 										disabled={loading}
 									/>
 								</div>
 								<div className="form-group">
 									<label className="form-label">碳水化合物 (g)</label>
-									<input 
-										type="number" 
-										step="0.1" 
-										value={customFood.carbs} 
-										onChange={(e) => setCustomFood({ ...customFood, carbs: e.target.value })} 
-										className="form-input" 
+									<input
+										type="number"
+										step="0.1"
+										value={customFood.carbs}
+										onChange={(e) => setCustomFood({ ...customFood, carbs: e.target.value })}
+										className="form-input"
 										disabled={loading}
 									/>
 								</div>
@@ -443,23 +715,23 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 							<div className="form-row">
 								<div className="form-group">
 									<label className="form-label">纤维 (g)</label>
-									<input 
-										type="number" 
-										step="0.1" 
-										value={customFood.fiber} 
-										onChange={(e) => setCustomFood({ ...customFood, fiber: e.target.value })} 
-										className="form-input" 
+									<input
+										type="number"
+										step="0.1"
+										value={customFood.fiber}
+										onChange={(e) => setCustomFood({ ...customFood, fiber: e.target.value })}
+										className="form-input"
 										disabled={loading}
 									/>
 								</div>
 								<div className="form-group">
 									<label className="form-label">糖 (g)</label>
-									<input 
-										type="number" 
-										step="0.1" 
-										value={customFood.sugar} 
-										onChange={(e) => setCustomFood({ ...customFood, sugar: e.target.value })} 
-										className="form-input" 
+									<input
+										type="number"
+										step="0.1"
+										value={customFood.sugar}
+										onChange={(e) => setCustomFood({ ...customFood, sugar: e.target.value })}
+										className="form-input"
 										disabled={loading}
 									/>
 								</div>
@@ -468,12 +740,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 							<div className="form-row">
 								<div className="form-group">
 									<label className="form-label">钠 (mg)</label>
-									<input 
-										type="number" 
-										step="0.1" 
-										value={customFood.sodium} 
-										onChange={(e) => setCustomFood({ ...customFood, sodium: e.target.value })} 
-										className="form-input" 
+									<input
+										type="number"
+										step="0.1"
+										value={customFood.sodium}
+										onChange={(e) => setCustomFood({ ...customFood, sodium: e.target.value })}
+										className="form-input"
 										disabled={loading}
 									/>
 								</div>
@@ -496,15 +768,270 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			)}
 			<style>{`
 				.food-search {
-					max-width: 1000px;
+					max-width: 1400px;
 					margin: 0 auto;
+					padding: 1rem;
 				}
 
-				.search-header {
+				.main-tabs {
+					display: flex;
+					gap: 0.5rem;
+					margin-bottom: 2rem;
+					border-radius: 8px;
+					background: #f8f9fa;
+					padding: 0.5rem;
+				}
+
+				.main-tab-btn {
+					flex: 1;
+					padding: 0.75rem 1.5rem;
+					border: none;
+					border-radius: 6px;
+					background: transparent;
+					color: #6c757d;
+					cursor: pointer;
+					transition: all 0.3s;
+					font-weight: 500;
+					font-size: 1rem;
+				}
+
+				.main-tab-btn:hover {
+					background: #e9ecef;
+					color: #495057;
+				}
+
+				.main-tab-btn.active {
+					background: #007bff;
+					color: white;
+				}
+
+				.add-food-layout {
+					display: grid;
+					grid-template-columns: 400px 1fr;
+					gap: 2rem;
+					height: calc(100vh - 200px);
+				}
+
+				.meal-cart-section {
+					background: white;
+					border-radius: 8px;
+					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					padding: 1.5rem;
+					overflow-y: auto;
+				}
+
+				.meal-cart-header {
+					margin-bottom: 1.5rem;
+				}
+
+				.meal-cart-header h3 {
+					margin: 0 0 1rem 0;
+					color: #2c3e50;
+				}
+
+				.meal-controls {
+					display: flex;
+					flex-direction: column;
+					gap: 0.5rem;
+				}
+
+				.meal-name-input, .meal-time-input {
+					padding: 0.5rem;
+					border: 1px solid #ddd;
+					border-radius: 4px;
+					font-size: 0.9rem;
+				}
+
+				.empty-cart {
+					text-align: center;
+					color: #6c757d;
+					font-style: italic;
+					margin: 2rem 0;
+				}
+
+				.cart-items {
+					margin-bottom: 1rem;
+				}
+
+				.cart-item {
 					display: flex;
 					justify-content: space-between;
 					align-items: center;
+					padding: 0.75rem;
+					border: 1px solid #e9ecef;
+					border-radius: 6px;
+					margin-bottom: 0.5rem;
+					background: #f8f9fa;
+					transition: all 0.3s ease;
+				}
+
+				.cart-item.updated {
+					border-color: #28a745;
+					background: #d4edda;
+					box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+				}
+
+				.cart-item-info h4 {
+					margin: 0 0 0.25rem 0;
+					font-size: 0.9rem;
+					color: #2c3e50;
+				}
+
+				.cart-item-info p {
+					margin: 0;
+					font-size: 0.8rem;
+					color: #6c757d;
+				}
+
+				.cart-item-controls {
+					display: flex;
+					align-items: center;
+					gap: 0.5rem;
+				}
+
+				.updated-badge {
+					font-size: 0.8rem;
+					margin-left: 0.5rem;
+					animation: spin 2s linear infinite;
+				}
+
+				@keyframes spin {
+					from { transform: rotate(0deg); }
+					to { transform: rotate(360deg); }
+				}
+
+				.updated-text {
+					margin: 0;
+					font-size: 0.75rem;
+					color: #155724;
+					font-style: italic;
+				}
+
+				.clear-update-btn {
+					background: #28a745;
+					color: white;
+					border: none;
+					border-radius: 3px;
+					width: 24px;
+					height: 24px;
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					font-size: 0.8rem;
+				}
+
+				.clear-update-btn:hover {
+					background: #218838;
+				}
+
+				.quantity-input-small {
+					width: 60px;
+					padding: 0.25rem;
+					border: 1px solid #ddd;
+					border-radius: 3px;
+					text-align: center;
+				}
+
+				.remove-btn {
+					background: #dc3545;
+					color: white;
+					border: none;
+					border-radius: 3px;
+					width: 24px;
+					height: 24px;
+					cursor: pointer;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+
+				.cart-summary {
+					background: #e9ecef;
+					padding: 1rem;
+					border-radius: 6px;
 					margin-bottom: 1rem;
+				}
+
+				.nutrition-totals {
+					display: grid;
+					grid-template-columns: 1fr 1fr;
+					gap: 0.5rem;
+				}
+
+				.total-item {
+					display: flex;
+					justify-content: space-between;
+				}
+
+				.total-label {
+					font-weight: 500;
+					color: #495057;
+				}
+
+				.total-value {
+					font-weight: bold;
+					color: #2ecc71;
+				}
+
+				.cart-actions {
+					display: flex;
+					gap: 0.5rem;
+				}
+
+				.clear-btn, .save-btn {
+					flex: 1;
+					padding: 0.75rem;
+				}
+
+				.food-search-section {
+					background: white;
+					border-radius: 8px;
+					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					padding: 1.5rem;
+					overflow-y: auto;
+				}
+
+				.meal-stats-section {
+					background: white;
+					border-radius: 8px;
+					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					padding: 2rem;
+					text-align: center;
+				}
+
+				.stats-header h2 {
+					margin: 0 0 0.5rem 0;
+					color: #2c3e50;
+				}
+
+				.stats-header p {
+					margin: 0 0 2rem 0;
+					color: #6c757d;
+				}
+
+				.stats-placeholder {
+					background: #f8f9fa;
+					padding: 2rem;
+					border-radius: 8px;
+					border: 2px dashed #dee2e6;
+				}
+
+				.stats-placeholder p {
+					margin: 0 0 1rem 0;
+					color: #6c757d;
+					font-size: 1.1rem;
+				}
+
+				.stats-placeholder ul {
+					text-align: left;
+					color: #495057;
+					max-width: 300px;
+					margin: 0 auto;
+				}
+
+				.stats-placeholder li {
+					margin-bottom: 0.5rem;
 				}
 				
 				.view-mode-selector {
@@ -685,10 +1212,19 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				}
 
 				@media (max-width: 768px) {
-					.search-header {
-						flex-direction: column;
+					.add-food-layout {
+						grid-template-columns: 1fr;
 						gap: 1rem;
-						align-items: flex-start;
+						height: auto;
+					}
+
+					.meal-cart-section {
+						order: 2;
+						max-height: 400px;
+					}
+
+					.food-search-section {
+						order: 1;
 					}
 
 					.search-bar {
@@ -701,6 +1237,22 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 					.form-row {
 						grid-template-columns: 1fr;
+					}
+
+					.nutrition-totals {
+						grid-template-columns: 1fr;
+					}
+
+					.cart-actions {
+						flex-direction: column;
+					}
+
+					.main-tabs {
+						flex-direction: column;
+					}
+
+					.main-tab-btn {
+						padding: 1rem;
 					}
 				}
 			`}</style>
@@ -734,7 +1286,7 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 
 	const handleGetNutrition = async () => {
 		if (!food.is_usda || !food.fdc_id) return;
-		
+
 		setLoadingNutrition(true);
 		try {
 			const response = await foodService.getUSDANutrition(food.fdc_id.toString());
@@ -782,8 +1334,8 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 					</span>
 					<div className="nutrition-actions">
 						{food.is_usda && activeFood.calories_per_100g === 0 && (
-							<button 
-								onClick={handleGetNutrition} 
+							<button
+								onClick={handleGetNutrition}
 								className="get-nutrition-btn"
 								disabled={loadingNutrition}
 							>
@@ -831,23 +1383,23 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 				</div>
 
 				<div className="food-actions">
-					<button 
-						onClick={() => isAuthenticated ? onAdd(food, quantity) : onLoginRequired()} 
+					<button
+						onClick={() => isAuthenticated ? onAdd(food, quantity) : onLoginRequired()}
 						className="btn btn-primary add-btn"
 					>
 						添加
 					</button>
 					{showEditActions ? (
 						<>
-							<button 
-								onClick={() => onEdit && onEdit(food)} 
+							<button
+								onClick={() => onEdit && onEdit(food)}
 								className="btn btn-warning edit-btn"
 								title="编辑食物"
 							>
 								✏️ 编辑
 							</button>
-							<button 
-								onClick={() => onDelete && onDelete(food)} 
+							<button
+								onClick={() => onDelete && onDelete(food)}
 								className="btn btn-danger delete-btn"
 								title="删除食物"
 							>
@@ -855,8 +1407,8 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 							</button>
 						</>
 					) : (
-						<button 
-							onClick={() => isAuthenticated ? onCopy(food) : onLoginRequired()} 
+						<button
+							onClick={() => isAuthenticated ? onCopy(food) : onLoginRequired()}
 							className="btn btn-secondary copy-btn"
 							title="复制为自定义食物"
 						>
