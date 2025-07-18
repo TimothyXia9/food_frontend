@@ -15,6 +15,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedDate, setSelectedDate] = useState<string>("");
 	const [selectedTime, setSelectedTime] = useState<string>("");
+	const [timeInput, setTimeInput] = useState<string>("");
 	const [currentMonth, setCurrentMonth] = useState(new Date());
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -26,6 +27,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 			const timeStr = date.toTimeString().slice(0, 5);
 			setSelectedDate(dateStr);
 			setSelectedTime(timeStr);
+			setTimeInput(formatTimeForDisplay(timeStr));
 			// Set current month to the month of the selected date
 			setCurrentMonth(new Date(date.getFullYear(), date.getMonth(), 1));
 		} else {
@@ -35,6 +37,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 			const timeStr = now.toTimeString().slice(0, 5);
 			setSelectedDate(dateStr);
 			setSelectedTime(timeStr);
+			setTimeInput(formatTimeForDisplay(timeStr));
 			setCurrentMonth(new Date(now.getFullYear(), now.getMonth(), 1));
 			// Update parent with current date/time
 			const currentDateTime = `${dateStr}T${timeStr}`;
@@ -81,10 +84,6 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 		// Check if it's today, yesterday, or tomorrow
 		if (dateStr === today.toISOString().split("T")[0]) {
 			return `今天 ${timeStr}`;
-		} else if (dateStr === yesterday.toISOString().split("T")[0]) {
-			return `昨天 ${timeStr}`;
-		} else if (dateStr === tomorrow.toISOString().split("T")[0]) {
-			return `明天 ${timeStr}`;
 		} else {
 			// Format as MM-DD if same year, otherwise YYYY-MM-DD
 			const currentYear = today.getFullYear();
@@ -185,6 +184,105 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 		handleDateChange(dateStr);
 	};
 
+	// Format time for display (24h to 12h with AM/PM or keep 24h)
+	const formatTimeForDisplay = (time24: string) => {
+		return time24; // For now, keep 24h format
+	};
+
+	// Parse various time input formats
+	const parseTimeInput = (input: string): string | null => {
+		// Remove spaces and convert to lowercase
+		const cleanInput = input.replace(/\s+/g, "").toLowerCase();
+
+		// Match different time formats
+		const patterns = [
+			// 24-hour format: 14:30, 14.30, 1430
+			/^(\d{1,2})[:.h]?(\d{2})$/,
+			// 12-hour format: 2:30pm, 2.30pm, 230pm
+			/^(\d{1,2})[:.h]?(\d{2})(am|pm)$/,
+			// Hour only: 14, 14h, 2pm
+			/^(\d{1,2})(h|am|pm)?$/,
+			// Shortcuts: noon, midnight
+			/^(noon|midnight)$/
+		];
+
+		// Handle special cases
+		if (cleanInput === "noon" || cleanInput === "12pm") {
+			return "12:00";
+		}
+		if (cleanInput === "midnight" || cleanInput === "12am") {
+			return "00:00";
+		}
+
+		// Try each pattern
+		for (const pattern of patterns) {
+			const match = cleanInput.match(pattern);
+			if (match) {
+				if (match[3]) {
+					// 12-hour format with AM/PM
+					let hour = parseInt(match[1]);
+					const minute = match[2] || "00";
+					const period = match[3];
+
+					if (period === "pm" && hour !== 12) hour += 12;
+					if (period === "am" && hour === 12) hour = 0;
+
+					return `${hour.toString().padStart(2, "0")}:${minute}`;
+				} else if (match[2]) {
+					// 24-hour format with minutes
+					const hour = parseInt(match[1]);
+					const minute = match[2];
+
+					if (hour >= 0 && hour <= 23 && parseInt(minute) >= 0 && parseInt(minute) <= 59) {
+						return `${hour.toString().padStart(2, "0")}:${minute}`;
+					}
+				} else {
+					// Hour only
+					let hour = parseInt(match[1]);
+					const hasAmPm = match[2] && (match[2] === "am" || match[2] === "pm");
+
+					if (hasAmPm) {
+						if (match[2] === "pm" && hour !== 12) hour += 12;
+						if (match[2] === "am" && hour === 12) hour = 0;
+					}
+
+					if (hour >= 0 && hour <= 23) {
+						return `${hour.toString().padStart(2, "0")}:00`;
+					}
+				}
+			}
+		}
+
+		return null; // Invalid input
+	};
+
+	// Handle time input change
+	const handleTimeInputChange = (input: string) => {
+		setTimeInput(input);
+	};
+
+	// Handle time input blur (when user finishes typing)
+	const handleTimeInputBlur = () => {
+		const parsedTime = parseTimeInput(timeInput);
+		if (parsedTime) {
+			setSelectedTime(parsedTime);
+			setTimeInput(formatTimeForDisplay(parsedTime));
+			const newDateTime = `${selectedDate}T${parsedTime}`;
+			onChange(newDateTime);
+		} else {
+			// Reset to previous valid time if invalid
+			setTimeInput(formatTimeForDisplay(selectedTime));
+		}
+	};
+
+	// Handle Enter key press
+	const handleTimeInputKeyPress = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter") {
+			handleTimeInputBlur();
+		}
+	};
+
+
 	return (
 		<div className="datetime-picker" ref={containerRef}>
 			<div
@@ -253,9 +351,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 										key={index}
 										type="button"
 										className={`calendar-day ${day.isCurrentMonth ? "current-month" : "other-month"
-										} ${day.isToday ? "today" : ""
-										} ${day.isSelected ? "selected" : ""
-										}`}
+											} ${day.isToday ? "today" : ""
+											} ${day.isSelected ? "selected" : ""
+											}`}
 										onClick={() => handleCalendarDateSelect(day.fullDate)}
 									>
 										{day.date}
@@ -268,15 +366,21 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 						<div className="time-section">
 							<label className="section-label">选择时间</label>
 
-
-
-							{/* Custom Time */}
-							<input
-								type="time"
-								value={selectedTime}
-								onChange={(e) => handleTimeChange(e.target.value)}
-								className="time-input"
-							/>
+							{/* Direct Time Input */}
+							<div className="time-input-container">
+								<input
+									type="text"
+									value={timeInput}
+									onChange={(e) => handleTimeInputChange(e.target.value)}
+									onBlur={handleTimeInputBlur}
+									onKeyPress={handleTimeInputKeyPress}
+									placeholder="例如: 14:30, 2:30pm, 1430, noon"
+									className="time-text-input"
+								/>
+								<div className="time-input-hint">
+									支持格式：14:30 • 2:30pm • 1430 • noon • midnight
+								</div>
+							</div>
 						</div>
 					</div>
 

@@ -257,62 +257,77 @@
 	margin-bottom: 16px;
 }
 
-.quick-time-options {
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 8px;
-	margin-bottom: 12px;
-}
-
-.quick-time-btn {
-	padding: 8px 6px;
-	background: #f7f6f3;
-	border: 1px solid #e1e5e9;
-	border-radius: 4px;
-	cursor: pointer;
-	font-size: 12px;
-	font-weight: 400;
-	color: #37352f;
-	transition: all 0.15s ease;
-	outline: none;
-	text-align: center;
-}
-
-.quick-time-btn:hover {
-	background: #efefef;
-	border-color: #d3d1cb;
-}
-
-.quick-time-btn.selected {
-	background: #2383e2;
-	border-color: #2383e2;
-	color: #ffffff;
-	font-weight: 500;
-}
-
-.quick-time-btn:active {
-	transform: translateY(1px);
-}
-
-.time-input {
+/* Custom Time Selector */
+.custom-time-selector {
 	width: 100%;
-	padding: 8px 12px;
+}
+
+.time-input-group {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
+	padding: 16px;
+	background: #f7f6f3;
+	border-radius: 8px;
 	border: 1px solid #e1e5e9;
-	border-radius: 4px;
-	font-size: 14px;
-	color: #37352f;
+}
+
+.time-component {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+}
+
+.time-label {
+	font-size: 12px;
+	font-weight: 500;
+	color: #787774;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.time-select {
+	width: 60px;
+	padding: 8px 12px;
 	background: #ffffff;
+	border: 1px solid #e1e5e9;
+	border-radius: 6px;
+	font-size: 16px;
+	font-weight: 600;
+	color: #37352f;
+	text-align: center;
 	transition: all 0.15s ease;
 	outline: none;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z' fill='%23666'/></svg>");
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+	background-size: 12px;
+	padding-right: 32px;
 }
 
-.time-input:hover {
+.time-select:hover {
 	border-color: #d3d1cb;
+	background-color: #fbfbfa;
 }
 
-.time-input:focus {
+.time-select:focus {
 	border-color: #2383e2;
 	box-shadow: 0 0 0 1px #2383e2;
+	background-color: #ffffff;
+}
+
+.time-separator {
+	font-size: 24px;
+	font-weight: 600;
+	color: #37352f;
+	margin-top: 20px;
+	line-height: 1;
 }
 
 /* Footer */
@@ -374,14 +389,21 @@
 		font-size: 13px;
 	}
 	
-	.quick-time-options {
-		grid-template-columns: repeat(2, 1fr);
-		gap: 6px;
+	.time-input-group {
+		gap: 12px;
+		padding: 12px;
 	}
 	
-	.quick-time-btn {
-		padding: 6px 4px;
-		font-size: 11px;
+	.time-select {
+		width: 50px;
+		font-size: 14px;
+		padding: 6px 8px;
+		padding-right: 28px;
+	}
+	
+	.time-separator {
+		font-size: 20px;
+		margin-top: 16px;
 	}
 }
 
@@ -400,6 +422,23 @@
 	.weekday {
 		padding: 6px 2px;
 		font-size: 11px;
+	}
+	
+	.time-input-group {
+		gap: 8px;
+		padding: 10px;
+	}
+	
+	.time-select {
+		width: 45px;
+		font-size: 13px;
+		padding: 5px 6px;
+		padding-right: 26px;
+	}
+	
+	.time-separator {
+		font-size: 18px;
+		margin-top: 14px;
 	}
 }
 
@@ -481,25 +520,32 @@
 		background: #1e3f5a;
 	}
 	
-	.quick-time-btn {
+	.time-input-group {
 		background: #37393c;
+		border-color: #454b4e;
+	}
+	
+	.time-label {
+		color: #9b9a97;
+	}
+	
+	.time-select {
+		background: #2f3437;
 		border-color: #454b4e;
 		color: #e9e9e7;
 	}
 	
-	.quick-time-btn:hover {
-		background: #3f4144;
+	.time-select:hover {
 		border-color: #5a6063;
+		background-color: #37393c;
 	}
 	
-	.time-input {
-		background: #37393c;
-		border-color: #454b4e;
+	.time-select:focus {
+		background-color: #2f3437;
+	}
+	
+	.time-separator {
 		color: #e9e9e7;
-	}
-	
-	.time-input:hover {
-		border-color: #5a6063;
 	}
 	
 	.datetime-picker-footer {
