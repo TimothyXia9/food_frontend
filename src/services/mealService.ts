@@ -55,6 +55,30 @@ class MealService {
 	async createMealPlan(data: { start_date: string; end_date: string; meal_template: any }): Promise<ApiResponse<{ meals_created: number; start_date: string; end_date: string }>> {
 		return apiClient.post<{ meals_created: number; start_date: string; end_date: string }>("/meals/plan/", data);
 	}
+
+	async getMealStatistics(date: string, mealType?: string): Promise<ApiResponse<any>> {
+		const params: any = { date };
+		if (mealType) {
+			params.meal_type = mealType;
+		}
+		return apiClient.get<any>("/meals/statistics/", params);
+	}
+
+	async getMealComparison(date1: string, date2: string, mealType?: string): Promise<ApiResponse<any>> {
+		const params: any = { date1, date2 };
+		if (mealType) {
+			params.meal_type = mealType;
+		}
+		return apiClient.get<any>("/meals/comparison/", params);
+	}
+
+	async getDailySummary(date: string): Promise<ApiResponse<any>> {
+		return apiClient.get<any>("/meals/daily-summary/", { date });
+	}
+
+	async getNutritionStats(startDate: string, endDate: string): Promise<ApiResponse<any>> {
+		return apiClient.get<any>("/meals/nutrition-stats/", { start_date: startDate, end_date: endDate });
+	}
 }
 
 export const mealService = new MealService();
