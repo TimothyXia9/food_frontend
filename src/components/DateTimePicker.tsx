@@ -19,22 +19,37 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 	const [currentMonth, setCurrentMonth] = useState(new Date());
 	const containerRef = useRef<HTMLDivElement>(null);
 
+	// Helper function to format date to local date string (YYYY-MM-DD)
+	const formatLocalDate = (date: Date) => {
+		const year = date.getFullYear();
+		const month = (date.getMonth() + 1).toString().padStart(2, "0");
+		const day = date.getDate().toString().padStart(2, "0");
+		return `${year}-${month}-${day}`;
+	};
+
+	// Helper function to format time to local time string (HH:MM)
+	const formatLocalTime = (date: Date) => {
+		const hours = date.getHours().toString().padStart(2, "0");
+		const minutes = date.getMinutes().toString().padStart(2, "0");
+		return `${hours}:${minutes}`;
+	};
+
 	// Initialize date and time from value
 	useEffect(() => {
 		if (value) {
 			const date = new Date(value);
-			const dateStr = date.toISOString().split("T")[0];
-			const timeStr = date.toTimeString().slice(0, 5);
+			const dateStr = formatLocalDate(date);
+			const timeStr = formatLocalTime(date);
 			setSelectedDate(dateStr);
 			setSelectedTime(timeStr);
 			setTimeInput(formatTimeForDisplay(timeStr));
 			// Set current month to the month of the selected date
 			setCurrentMonth(new Date(date.getFullYear(), date.getMonth(), 1));
 		} else {
-			// Default to current date and time
+			// Default to current date and time in local timezone
 			const now = new Date();
-			const dateStr = now.toISOString().split("T")[0];
-			const timeStr = now.toTimeString().slice(0, 5);
+			const dateStr = formatLocalDate(now);
+			const timeStr = formatLocalTime(now);
 			setSelectedDate(dateStr);
 			setSelectedTime(timeStr);
 			setTimeInput(formatTimeForDisplay(timeStr));
@@ -71,30 +86,38 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 	const formatDisplayValue = () => {
 		if (!selectedDate || !selectedTime) return placeholder;
 
-		const date = new Date(`${selectedDate}T${selectedTime}`);
 		const today = new Date();
 		const yesterday = new Date();
 		yesterday.setDate(today.getDate() - 1);
 		const tomorrow = new Date();
 		tomorrow.setDate(today.getDate() + 1);
 
+		const todayStr = formatLocalDate(today);
+		const yesterdayStr = formatLocalDate(yesterday);
+		const tomorrowStr = formatLocalDate(tomorrow);
+
 		const dateStr = selectedDate;
 		const timeStr = selectedTime;
 
 		// Check if it's today, yesterday, or tomorrow
-		if (dateStr === today.toISOString().split("T")[0]) {
+		if (dateStr === todayStr) {
 			return `今天 ${timeStr}`;
+		} else if (dateStr === yesterdayStr) {
+			return `昨天 ${timeStr}`;
+		} else if (dateStr === tomorrowStr) {
+			return `明天 ${timeStr}`;
 		} else {
 			// Format as MM-DD if same year, otherwise YYYY-MM-DD
 			const currentYear = today.getFullYear();
-			const selectedYear = date.getFullYear();
+			const selectedDateObj = new Date(`${dateStr}T00:00:00`);
+			const selectedYear = selectedDateObj.getFullYear();
 
 			if (selectedYear === currentYear) {
-				const month = (date.getMonth() + 1).toString().padStart(2, "0");
-				const day = date.getDate().toString().padStart(2, "0");
+				const month = (selectedDateObj.getMonth() + 1).toString().padStart(2, "0");
+				const day = selectedDateObj.getDate().toString().padStart(2, "0");
 				return `${month}-${day} ${timeStr}`;
 			} else {
-				return `${selectedYear}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")} ${timeStr}`;
+				return `${selectedYear}-${(selectedDateObj.getMonth() + 1).toString().padStart(2, "0")}-${selectedDateObj.getDate().toString().padStart(2, "0")} ${timeStr}`;
 			}
 		}
 	};
@@ -106,12 +129,6 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 		onChange(newDateTime);
 	};
 
-	// Handle time change
-	const handleTimeChange = (newTime: string) => {
-		setSelectedTime(newTime);
-		const newDateTime = `${selectedDate}T${newTime}`;
-		onChange(newDateTime);
-	};
 
 	// Get calendar days for current month
 	const getCalendarDays = () => {
@@ -132,17 +149,17 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 				isCurrentMonth: false,
 				isToday: false,
 				isSelected: false,
-				fullDate: prevDate.toISOString().split("T")[0]
+				fullDate: formatLocalDate(prevDate)
 			});
 		}
 
 		// Add days of current month
 		const today = new Date();
-		const todayStr = today.toISOString().split("T")[0];
+		const todayStr = formatLocalDate(today);
 
 		for (let day = 1; day <= daysInMonth; day++) {
 			const dateObj = new Date(year, month, day);
-			const dateStr = dateObj.toISOString().split("T")[0];
+			const dateStr = formatLocalDate(dateObj);
 
 			days.push({
 				date: day,
@@ -162,7 +179,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 				isCurrentMonth: false,
 				isToday: false,
 				isSelected: false,
-				fullDate: nextDate.toISOString().split("T")[0]
+				fullDate: formatLocalDate(nextDate)
 			});
 		}
 
@@ -373,13 +390,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 									value={timeInput}
 									onChange={(e) => handleTimeInputChange(e.target.value)}
 									onBlur={handleTimeInputBlur}
-									onKeyPress={handleTimeInputKeyPress}
+									onKeyDown={handleTimeInputKeyPress}
 									placeholder="例如: 14:30, 2:30pm, 1430, noon"
 									className="time-text-input"
 								/>
-								<div className="time-input-hint">
-									支持格式：14:30 • 2:30pm • 1430 • noon • midnight
-								</div>
 							</div>
 						</div>
 					</div>

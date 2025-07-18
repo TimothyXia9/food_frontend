@@ -33,6 +33,17 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const [userFoods, setUserFoods] = React.useState<Food[]>([]);
 	const [userFoodsLoading, setUserFoodsLoading] = React.useState(false);
 
+	// Helper function to format current date/time for local timezone
+	const getCurrentLocalDateTime = () => {
+		const now = new Date();
+		const year = now.getFullYear();
+		const month = (now.getMonth() + 1).toString().padStart(2, "0");
+		const day = now.getDate().toString().padStart(2, "0");
+		const hours = now.getHours().toString().padStart(2, "0");
+		const minutes = now.getMinutes().toString().padStart(2, "0");
+		return `${year}-${month}-${day}T${hours}:${minutes}`;
+	};
+
 	// Load meal cart from localStorage
 	const loadMealCartFromStorage = () => {
 		try {
@@ -42,14 +53,14 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			return {
 				cart: savedCart ? JSON.parse(savedCart) : [],
 				name: savedName || "",
-				time: savedTime || new Date().toISOString().slice(0, 16)
+				time: savedTime || getCurrentLocalDateTime()
 			};
 		} catch (error) {
 			console.error("Error loading meal cart from storage:", error);
 			return {
 				cart: [],
 				name: "",
-				time: new Date().toISOString().slice(0, 16)
+				time: getCurrentLocalDateTime()
 			};
 		}
 	};
@@ -175,7 +186,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		if (confirmed) {
 			setMealCart([]);
 			setMealName("");
-			setMealTime(new Date().toISOString().slice(0, 16));
+			setMealTime(getCurrentLocalDateTime());
 			// Clear localStorage as well
 			localStorage.removeItem("mealCart");
 			localStorage.removeItem("mealName");
@@ -206,7 +217,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		// Clear meal cart and localStorage after successful save
 		setMealCart([]);
 		setMealName("");
-		setMealTime(new Date().toISOString().slice(0, 16));
+		setMealTime(getCurrentLocalDateTime());
 		localStorage.removeItem("mealCart");
 		localStorage.removeItem("mealName");
 		localStorage.removeItem("mealTime");
