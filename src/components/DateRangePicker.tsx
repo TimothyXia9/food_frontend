@@ -241,18 +241,15 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 		let end: Date;
 
 		if (type === "week") {
-			// Previous week (Monday to Sunday)
-			const dayOfWeek = today.getDay();
-			const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Monday = 0
+			// 今天以前的7天（包括今天）
 			end = new Date(today);
-			end.setDate(today.getDate() - daysToSubtract - 1); // Last Sunday
-			start = new Date(end);
-			start.setDate(end.getDate() - 6); // Previous Monday
+			start = new Date(today);
+			start.setDate(today.getDate() - 6); // 7天前
 		} else {
-			// Previous month
-			const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1);
-			start = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
-			end = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
+			// 今天以前的30天（包括今天）
+			end = new Date(today);
+			start = new Date(today);
+			start.setDate(today.getDate() - 29); // 30天前
 		}
 
 		const startStr = formatLocalDate(start);
