@@ -58,6 +58,7 @@ class AuthService {
 		} finally {
 			apiClient.setToken(null);
 			localStorage.removeItem("refresh_token");
+			localStorage.removeItem("user");
 		}
 	}
 
@@ -67,6 +68,10 @@ class AuthService {
 
 	getCurrentToken(): string | null {
 		return apiClient.getToken();
+	}
+
+	async getCurrentUser(): Promise<ApiResponse<any>> {
+		return apiClient.get<any>("/auth/user/");
 	}
 }
 

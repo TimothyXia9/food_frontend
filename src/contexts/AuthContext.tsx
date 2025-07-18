@@ -33,10 +33,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			try {
 				const token = authService.getCurrentToken();
 				if (token) {
-					// TODO: Add a method to verify token and get user info
-					// For now, we'll consider the user authenticated if token exists
-					// In a real app, you'd want to validate the token with the server
-					console.log("User has existing token");
+					// Try to get user info from localStorage first
+					const savedUser = localStorage.getItem("user");
+					if (savedUser) {
+						try {
+							const parsedUser = JSON.parse(savedUser);
+							setUser(parsedUser);
+						} catch (error) {
+							console.error("Failed to parse saved user:", error);
+						}
+					}
+					
+					// Verify token is still valid by making a profile request
+					try {
+						const response = await authService.getCurrentUser();
+						if (response.success && response.data) {
+							setUser(response.data);
+							localStorage.setItem("user", JSON.stringify(response.data));
+						} else {
+							// Token is invalid, clear everything
+							await authService.logout();
+							setUser(null);
+						}
+					} catch (error) {
+						console.error("Token verification failed:", error);
+						// Token is invalid, clear everything
+						await authService.logout();
+						setUser(null);
+					}
 				}
 			} catch (error) {
 				console.error("Auth check failed:", error);
@@ -53,6 +77,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			const response = await authService.login(credentials);
 			if (response.success && response.data) {
 				setUser(response.data.user);
+				// Save user info to localStorage for persistence
+				localStorage.setItem("user", JSON.stringify(response.data.user));
 				return true;
 			}
 			return false;
@@ -67,6 +93,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			const response = await authService.register(data);
 			if (response.success && response.data) {
 				setUser(response.data.user);
+				// Save user info to localStorage for persistence
+				localStorage.setItem("user", JSON.stringify(response.data.user));
 				return true;
 			}
 			return false;
@@ -83,6 +111,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			console.error("Logout failed:", error);
 		} finally {
 			setUser(null);
+			// Clear user info from localStorage
+			localStorage.removeItem("user");
 		}
 	};
 
