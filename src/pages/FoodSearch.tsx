@@ -10,16 +10,15 @@ interface FoodSearchProps {
 
 const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const { isAuthenticated } = useAuth();
-	const { success } = useNotification();
+	const { success, error: showError, confirm } = useNotification();
 	const [searchQuery, setSearchQuery] = React.useState("");
 	const [searchResults, setSearchResults] = React.useState<Food[]>([]);
 	const [selectedMeal, setSelectedMeal] = React.useState("breakfast");
 	const [showAddFoodForm, setShowAddFoodForm] = React.useState(false);
 	const [loading, setLoading] = React.useState(false);
-	const [error, setError] = React.useState<string | null>(null);
+	const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 	const [customFood, setCustomFood] = React.useState({
 		name: "",
-		brand: "",
 		calories: "",
 		protein: "",
 		fat: "",
@@ -27,7 +26,6 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		fiber: "",
 		sugar: "",
 		sodium: "",
-		serving_size: "100",
 	});
 	const [editingFood, setEditingFood] = React.useState<Food | null>(null);
 	const [viewMode, setViewMode] = React.useState<"search" | "user">("search");
@@ -40,17 +38,17 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		}
 
 		setLoading(true);
-		setError(null);
+		setErrorMessage(null);
 
 		try {
 			const response = await foodService.searchFoods({ query: searchQuery });
 			if (response.success && response.data) {
 				setSearchResults(response.data.foods);
 			} else {
-				setError(response.error?.message || "搜索失败");
+				setErrorMessage(response.error?.message || "搜索失败");
 			}
 		} catch (error) {
-			setError("搜索时发生错误");
+			setErrorMessage("搜索时发生错误");
 			console.error("Search error:", error);
 		} finally {
 			setLoading(false);
@@ -64,17 +62,17 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		}
 
 		setUserFoodsLoading(true);
-		setError(null);
+		setErrorMessage(null);
 
 		try {
 			const response = await foodService.getUserFoods();
 			if (response.success && response.data) {
 				setUserFoods(response.data.foods);
 			} else {
-				setError(response.error?.message || "获取用户食物失败");
+				setErrorMessage(response.error?.message || "获取用户食物失败");
 			}
 		} catch (error) {
-			setError("获取用户食物时发生错误");
+			setErrorMessage("获取用户食物时发生错误");
 			console.error("Load user foods error:", error);
 		} finally {
 			setUserFoodsLoading(false);
@@ -83,7 +81,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 	const handleViewModeChange = (mode: "search" | "user") => {
 		setViewMode(mode);
-		setError(null);
+		setErrorMessage(null);
 		
 		if (mode === "user") {
 			handleLoadUserFoods();
@@ -100,13 +98,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const handleCustomFoodSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setLoading(true);
-		setError(null);
+		setErrorMessage(null);
 
 		try {
 			const foodData = {
 				name: customFood.name,
-				brand: customFood.brand,
-				serving_size: parseInt(customFood.serving_size),
+				serving_size: 100, // Default serving size
 				calories_per_100g: parseFloat(customFood.calories),
 				protein_per_100g: parseFloat(customFood.protein) || 0,
 				fat_per_100g: parseFloat(customFood.fat) || 0,
@@ -116,33 +113,30 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				sodium_per_100g: parseFloat(customFood.sodium) || 0,
 			};
 
-			const response = await foodService.createCustomFood(foodData);
+			// Check if we're editing an existing user food
+			const isEditingUserFood = editingFood && editingFood.is_custom;
+			
+			let response;
+			if (isEditingUserFood) {
+				response = await foodService.updateCustomFood(editingFood.id, foodData);
+			} else {
+				response = await foodService.createCustomFood(foodData);
+			}
+			
 			if (response.success) {
-				success("自定义食物已创建！");
+				success(isEditingUserFood ? "自定义食物已更新！" : "自定义食物已创建！");
 				setShowAddFoodForm(false);
-				setEditingFood(null);
-				setCustomFood({
-					name: "",
-					brand: "",
-					calories: "",
-					protein: "",
-					fat: "",
-					carbs: "",
-					fiber: "",
-					sugar: "",
-					sodium: "",
-					serving_size: "100",
-				});
+				resetForm();
 				
 				// Refresh user foods list if we're in user mode
 				if (viewMode === "user") {
 					handleLoadUserFoods();
 				}
 			} else {
-				setError(response.error?.message || "创建失败");
+				setErrorMessage(response.error?.message || (isEditingUserFood ? "更新失败" : "创建失败"));
 			}
 		} catch (error) {
-			setError("创建时发生错误");
+			setErrorMessage("创建时发生错误");
 			console.error("Create food error:", error);
 		} finally {
 			setLoading(false);
@@ -153,7 +147,6 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		// 复制食物数据到表单
 		setCustomFood({
 			name: food.name,
-			brand: food.brand || "",
 			calories: food.calories_per_100g.toString(),
 			protein: food.protein_per_100g?.toString() || "0",
 			fat: food.fat_per_100g?.toString() || "0",
@@ -161,11 +154,63 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			fiber: food.fiber_per_100g?.toString() || "0",
 			sugar: food.sugar_per_100g?.toString() || "0",
 			sodium: food.sodium_per_100g?.toString() || "0",
-			serving_size: food.serving_size.toString(),
 		});
 		setEditingFood(food);
 		setShowAddFoodForm(true);
-		setError(null);
+		setErrorMessage(null);
+	};
+
+	const resetForm = () => {
+		setCustomFood({
+			name: "",
+			calories: "",
+			protein: "",
+			fat: "",
+			carbs: "",
+			fiber: "",
+			sugar: "",
+			sodium: "",
+		});
+		setEditingFood(null);
+		setErrorMessage(null);
+	};
+
+	const handleEditFood = (food: Food) => {
+		// 编辑用户自定义食物
+		setCustomFood({
+			name: food.name,
+			calories: food.calories_per_100g.toString(),
+			protein: food.protein_per_100g?.toString() || "0",
+			fat: food.fat_per_100g?.toString() || "0",
+			carbs: food.carbs_per_100g?.toString() || "0",
+			fiber: food.fiber_per_100g?.toString() || "0",
+			sugar: food.sugar_per_100g?.toString() || "0",
+			sodium: food.sodium_per_100g?.toString() || "0",
+		});
+		setEditingFood(food);
+		setShowAddFoodForm(true);
+		setErrorMessage(null);
+	};
+
+	const handleDeleteFood = async (food: Food) => {
+		const confirmed = await confirm(`确定要删除食物 "${food.name}" 吗？此操作无法撤销。`);
+		if (!confirmed) {
+			return;
+		}
+
+		try {
+			const response = await foodService.deleteCustomFood(food.id);
+			if (response.success) {
+				success(`食物 "${food.name}" 已成功删除！`);
+				// 刷新用户食物列表
+				handleLoadUserFoods();
+			} else {
+				throw new Error(response.error?.message || "删除失败");
+			}
+		} catch (err) {
+			console.error("Failed to delete food:", err);
+			showError("删除食物失败，请稍后重试");
+		}
 	};
 
 	const getMealName = (mealType: string) => {
@@ -225,7 +270,14 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					</div>
 					<div className="search-actions">
 						<button 
-							onClick={() => isAuthenticated ? setShowAddFoodForm(true) : onLoginRequired()} 
+							onClick={() => {
+								if (isAuthenticated) {
+									resetForm();
+									setShowAddFoodForm(true);
+								} else {
+									onLoginRequired();
+								}
+							}} 
 							className="btn btn-success"
 						>
 							+ 创建自定义食物
@@ -245,7 +297,14 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					<div className="user-foods-header">
 						<h3>我的自定义食物</h3>
 						<button 
-							onClick={() => isAuthenticated ? setShowAddFoodForm(true) : onLoginRequired()} 
+							onClick={() => {
+								if (isAuthenticated) {
+									resetForm();
+									setShowAddFoodForm(true);
+								} else {
+									onLoginRequired();
+								}
+							}} 
 							className="btn btn-success"
 						>
 							+ 创建自定义食物
@@ -257,9 +316,9 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					)}
 				</div>
 			)}
-			{error && (
+			{errorMessage && (
 				<div className="error-message">
-					<p>{error}</p>
+					<p>{errorMessage}</p>
 				</div>
 			)}
 			{viewMode === "search" && searchResults.length > 0 && (
@@ -277,7 +336,16 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				<div className="user-foods-results">
 					<div className="results-grid">
 						{userFoods.map((food: Food) => (
-							<FoodItem key={food.id} food={food} onAdd={handleAddFood} onLoginRequired={onLoginRequired} onCopy={handleCopyFood} />
+							<FoodItem 
+								key={food.id} 
+								food={food} 
+								onAdd={handleAddFood} 
+								onLoginRequired={onLoginRequired} 
+								onCopy={handleCopyFood}
+								onEdit={handleEditFood}
+								onDelete={handleDeleteFood}
+								showEditActions={true}
+							/>
 						))}
 					</div>
 				</div>
@@ -286,17 +354,24 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				<div className="modal-overlay">
 					<div className="modal">
 						<div className="modal-header">
-							<h3>{editingFood ? `复制并编辑: ${editingFood.name}` : "创建自定义食物"}</h3>
+							<h3>
+								{editingFood && editingFood.is_custom 
+									? `编辑食物: ${editingFood.name}` 
+									: editingFood 
+										? `复制并编辑: ${editingFood.name}` 
+										: "创建自定义食物"
+								}
+							</h3>
 							<button onClick={() => {
 								setShowAddFoodForm(false);
-								setEditingFood(null);
+								resetForm();
 							}} className="close-btn">
 								×
 							</button>
 						</div>
-						{error && (
+						{errorMessage && (
 							<div className="error-message">
-								<p>{error}</p>
+								<p>{errorMessage}</p>
 							</div>
 						)}
 						<form onSubmit={handleCustomFoodSubmit} className="custom-food-form">
@@ -314,30 +389,19 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 							</div>
 							
 							<div className="form-group">
-								<label className="form-label">品牌</label>
+								<label className="form-label">🔥 卡路里 (每100g) *</label>
 								<input 
-									type="text" 
-									value={customFood.brand} 
-									onChange={(e) => setCustomFood({ ...customFood, brand: e.target.value })} 
+									type="number" 
+									value={customFood.calories} 
+									onChange={(e) => setCustomFood({ ...customFood, calories: e.target.value })} 
 									className="form-input" 
+									required 
 									disabled={loading}
-									placeholder="输入品牌名称（可选）"
+									placeholder="例如: 250"
 								/>
 							</div>
 
-
 							<div className="form-row">
-								<div className="form-group">
-									<label className="form-label">卡路里 (每100g)</label>
-									<input 
-										type="number" 
-										value={customFood.calories} 
-										onChange={(e) => setCustomFood({ ...customFood, calories: e.target.value })} 
-										className="form-input" 
-										required 
-										disabled={loading}
-									/>
-								</div>
 								<div className="form-group">
 									<label className="form-label">蛋白质 (g)</label>
 									<input 
@@ -413,24 +477,17 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 										disabled={loading}
 									/>
 								</div>
-								<div className="form-group">
-									<label className="form-label">分量 (g)</label>
-									<input 
-										type="number" 
-										value={customFood.serving_size} 
-										onChange={(e) => setCustomFood({ ...customFood, serving_size: e.target.value })} 
-										className="form-input" 
-										disabled={loading}
-									/>
-								</div>
 							</div>
 
 							<div className="form-actions">
-								<button type="button" onClick={() => setShowAddFoodForm(false)} className="btn btn-secondary" disabled={loading}>
+								<button type="button" onClick={() => {
+									setShowAddFoodForm(false);
+									resetForm();
+								}} className="btn btn-secondary" disabled={loading}>
 									取消
 								</button>
 								<button type="submit" className="btn btn-primary" disabled={loading}>
-									{loading ? "创建中..." : "创建"}
+									{loading ? (editingFood && editingFood.is_custom ? "更新中..." : "创建中...") : (editingFood && editingFood.is_custom ? "更新" : "创建")}
 								</button>
 							</div>
 						</form>
@@ -656,9 +713,12 @@ interface FoodItemProps {
 	onAdd: (food: Food, quantity: number) => void;
 	onLoginRequired: () => void;
 	onCopy: (food: Food) => void;
+	onEdit?: (food: Food) => void;
+	onDelete?: (food: Food) => void;
+	showEditActions?: boolean;
 }
 
-const FoodItem = ({ food, onAdd, onLoginRequired, onCopy }: FoodItemProps) => {
+const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, showEditActions = false }: FoodItemProps) => {
 	const [quantity, setQuantity] = React.useState(100);
 	const [showDetails, setShowDetails] = React.useState(false);
 	const [nutritionData, setNutritionData] = React.useState<Food | null>(null);
@@ -777,13 +837,32 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy }: FoodItemProps) => {
 					>
 						添加
 					</button>
-					<button 
-						onClick={() => isAuthenticated ? onCopy(food) : onLoginRequired()} 
-						className="btn btn-secondary copy-btn"
-						title="复制为自定义食物"
-					>
-						复制
-					</button>
+					{showEditActions ? (
+						<>
+							<button 
+								onClick={() => onEdit && onEdit(food)} 
+								className="btn btn-warning edit-btn"
+								title="编辑食物"
+							>
+								✏️ 编辑
+							</button>
+							<button 
+								onClick={() => onDelete && onDelete(food)} 
+								className="btn btn-danger delete-btn"
+								title="删除食物"
+							>
+								🗑️ 删除
+							</button>
+						</>
+					) : (
+						<button 
+							onClick={() => isAuthenticated ? onCopy(food) : onLoginRequired()} 
+							className="btn btn-secondary copy-btn"
+							title="复制为自定义食物"
+						>
+							复制
+						</button>
+					)}
 				</div>
 			</div>
 			<style>{`
@@ -960,6 +1039,32 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy }: FoodItemProps) => {
 				.copy-btn {
 					flex: 1;
 					padding: 0.75rem;
+				}
+
+				.edit-btn {
+					flex: 1;
+					padding: 0.75rem;
+					background-color: #ffc107;
+					border-color: #ffc107;
+					color: #212529;
+				}
+
+				.edit-btn:hover {
+					background-color: #e0a800;
+					border-color: #d39e00;
+				}
+
+				.delete-btn {
+					flex: 1;
+					padding: 0.75rem;
+					background-color: #dc3545;
+					border-color: #dc3545;
+					color: white;
+				}
+
+				.delete-btn:hover {
+					background-color: #c82333;
+					border-color: #bd2130;
 				}
 			`}</style>
 		</div>
