@@ -3,6 +3,7 @@ import { foodService } from "../services/foodService";
 import { Food } from "../types/api";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
+import { DateTimePicker } from "../components/DateTimePicker";
 
 interface FoodSearchProps {
 	onLoginRequired: () => void;
@@ -32,10 +33,47 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const [userFoods, setUserFoods] = React.useState<Food[]>([]);
 	const [userFoodsLoading, setUserFoodsLoading] = React.useState(false);
 
-	// New state for meal management
-	const [mealCart, setMealCart] = React.useState<{ food: Food, quantity: number, updated?: boolean }[]>([]);
-	const [mealName, setMealName] = React.useState("");
-	const [mealTime, setMealTime] = React.useState(new Date().toISOString().slice(0, 16));
+	// Load meal cart from localStorage
+	const loadMealCartFromStorage = () => {
+		try {
+			const savedCart = localStorage.getItem("mealCart");
+			const savedName = localStorage.getItem("mealName");
+			const savedTime = localStorage.getItem("mealTime");
+			return {
+				cart: savedCart ? JSON.parse(savedCart) : [],
+				name: savedName || "",
+				time: savedTime || new Date().toISOString().slice(0, 16)
+			};
+		} catch (error) {
+			console.error("Error loading meal cart from storage:", error);
+			return {
+				cart: [],
+				name: "",
+				time: new Date().toISOString().slice(0, 16)
+			};
+		}
+	};
+
+	// Initialize state with data from localStorage
+	const initialData = loadMealCartFromStorage();
+	const [mealCart, setMealCart] = React.useState<{ food: Food, quantity: number, updated?: boolean }[]>(initialData.cart);
+	const [mealName, setMealName] = React.useState(initialData.name);
+	const [mealTime, setMealTime] = React.useState(initialData.time);
+
+	// Save meal cart to localStorage whenever it changes
+	React.useEffect(() => {
+		localStorage.setItem("mealCart", JSON.stringify(mealCart));
+	}, [mealCart]);
+
+	// Save meal name to localStorage whenever it changes
+	React.useEffect(() => {
+		localStorage.setItem("mealName", mealName);
+	}, [mealName]);
+
+	// Save meal time to localStorage whenever it changes
+	React.useEffect(() => {
+		localStorage.setItem("mealTime", mealTime);
+	}, [mealTime]);
 	const handleSearch = async () => {
 		if (!searchQuery.trim()) {
 			setSearchResults([]);
@@ -136,6 +174,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		const confirmed = await confirm("确定要清空所有食物吗？");
 		if (confirmed) {
 			setMealCart([]);
+			setMealName("");
+			setMealTime(new Date().toISOString().slice(0, 16));
+			// Clear localStorage as well
+			localStorage.removeItem("mealCart");
+			localStorage.removeItem("mealName");
+			localStorage.removeItem("mealTime");
 			success("已清空食物篮");
 		}
 	};
@@ -159,8 +203,13 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 		// TODO: Implement meal service integration
 		success(`已保存餐食: ${mealName || getMealName(selectedMeal)}`);
+		// Clear meal cart and localStorage after successful save
 		setMealCart([]);
 		setMealName("");
+		setMealTime(new Date().toISOString().slice(0, 16));
+		localStorage.removeItem("mealCart");
+		localStorage.removeItem("mealName");
+		localStorage.removeItem("mealTime");
 	};
 
 	const getTotalNutrition = () => {
@@ -369,11 +418,10 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 								placeholder={`输入餐食名称 (默认: ${getMealName(selectedMeal)})`}
 								className="meal-name-input"
 							/>
-							<input
-								type="datetime-local"
+							<DateTimePicker
 								value={mealTime}
-								onChange={(e) => setMealTime(e.target.value)}
-								className="meal-time-input"
+								onChange={setMealTime}
+								placeholder="选择餐食时间"
 							/>
 						</div>
 					</div>
