@@ -8,6 +8,7 @@ interface DateRangePickerProps {
 	onEndDateChange: (date: string) => void;
 	isSingleMode: boolean;
 	onModeChange: (isSingle: boolean) => void;
+	onApply?: () => void;
 }
 
 export const DateRangePicker: React.FC<DateRangePickerProps> = ({
@@ -16,7 +17,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 	onStartDateChange,
 	onEndDateChange,
 	isSingleMode,
-	onModeChange
+	onModeChange,
+	onApply
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -227,6 +229,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 		onStartDateChange(tempStartDate);
 		onEndDateChange(tempEndDate);
 		setIsOpen(false);
+		if (onApply) {
+			onApply();
+		}
 	};
 
 	// Quick selection handlers
@@ -282,12 +287,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 						<h3>选择统计时间</h3>
 						<div className="mode-toggle">
 							<button 
+								type="button"
 								className={`mode-btn ${isSingleMode ? "active" : ""}`}
 								onClick={() => handleModeChange(true)}
 							>
 								单日
 							</button>
 							<button 
+								type="button"
 								className={`mode-btn ${!isSingleMode ? "active" : ""}`}
 								onClick={() => handleModeChange(false)}
 							>
@@ -303,12 +310,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 								<label className="section-label">快速选择</label>
 								<div className="quick-select-buttons">
 									<button 
+										type="button"
 										className="quick-select-btn"
 										onClick={() => handleQuickSelect("week")}
 									>
 										前一周
 									</button>
 									<button 
+										type="button"
 										className="quick-select-btn"
 										onClick={() => handleQuickSelect("month")}
 									>
@@ -405,12 +414,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
 					<div className="date-range-picker-footer">
 						<button
+							type="button"
 							className="cancel-btn"
 							onClick={() => setIsOpen(false)}
 						>
 							取消
 						</button>
 						<button
+							type="button"
 							className="apply-btn"
 							onClick={handleApply}
 						>

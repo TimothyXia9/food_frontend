@@ -44,7 +44,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 			loadRecentMeals();
 			loadCurrentMeals();
 		}
-	}, [isAuthenticated, selectedDate, startDate, endDate, isSingleMode]);
+	}, [isAuthenticated]);
 
 	const loadMealStatistics = async () => {
 		if (!isAuthenticated) return;
@@ -94,13 +94,25 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 		
 		setLoadingMeals(true);
 		try {
-			const currentDate = isSingleMode ? selectedDate : startDate;
-			const response = await mealService.getUserMeals({ 
-				date: currentDate,
-				page_size: 100
-			});
-			if (response.success && response.data) {
-				setCurrentMeals(response.data.meals || []);
+			if (isSingleMode) {
+				// 单日模式：显示选定日期的所有食物篮
+				const response = await mealService.getUserMeals({ 
+					date: selectedDate,
+					page_size: 100
+				});
+				if (response.success && response.data) {
+					setCurrentMeals(response.data.meals || []);
+				}
+			} else {
+				// 多日模式：显示时间段内所有食物篮
+				const response = await mealService.getUserMeals({ 
+					start_date: startDate,
+					end_date: endDate,
+					page_size: 100
+				});
+				if (response.success && response.data) {
+					setCurrentMeals(response.data.meals || []);
+				}
 			}
 		} catch (error) {
 			console.error("Load current meals error:", error);
@@ -142,6 +154,13 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 		} catch (error) {
 			console.error("Load meal details error:", error);
 			showError("获取餐食详情时发生错误");
+		}
+	};
+
+	const handleDateRangeApply = () => {
+		if (isAuthenticated) {
+			loadMealStatistics();
+			loadCurrentMeals();
 		}
 	};
 
@@ -225,6 +244,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 					}}
 					isSingleMode={isSingleMode}
 					onModeChange={setIsSingleMode}
+					onApply={handleDateRangeApply}
 				/>
 			</div>
 
@@ -242,7 +262,13 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 								<h3>🍽️ 我的食物篮</h3>
 								<button 
 									className="add-meal-btn"
-									onClick={() => window.location.href = "/"}
+									onClick={() => {
+										if (onNavigate) {
+											onNavigate("food-search");
+										} else {
+											window.location.href = "/";
+										}
+									}}
 								>
 									+ 添加餐食
 								</button>
@@ -264,6 +290,10 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 														<span className="meal-time">{new Date(meal.created_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}</span>
 													</div>
 													<div className="meal-name">{meal.name || "未命名餐食"}</div>
+													<div className="meal-datetime">
+														<span className="meal-date">📅 {new Date(meal.created_at).toLocaleDateString("zh-CN")}</span>
+														<span className="meal-created-time">🕐 {new Date(meal.created_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
+													</div>
 													<div className="meal-calories">{meal.total_calories.toFixed(1)} kcal</div>
 													<div className="meal-macros">
 														蛋白质: {meal.total_protein.toFixed(1)}g | 
@@ -295,7 +325,13 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 											<p>今天还没有添加任何餐食</p>
 											<button 
 												className="add-first-meal-btn"
-												onClick={() => window.location.href = "/"}
+												onClick={() => {
+													if (onNavigate) {
+														onNavigate("food-search");
+													} else {
+														window.location.href = "/";
+													}
+												}}
 											>
 												添加第一餐
 											</button>
@@ -645,6 +681,31 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 					font-weight: 500;
 					color: #495057;
 					margin-bottom: 0.25rem;
+				}
+
+				.meal-datetime {
+					display: flex;
+					flex-wrap: wrap;
+					gap: 0.5rem;
+					margin-bottom: 0.5rem;
+				}
+
+				.meal-date {
+					font-size: 0.8rem;
+					color: #6c757d;
+					background: #f8f9fa;
+					padding: 0.2rem 0.4rem;
+					border-radius: 3px;
+					border: 1px solid #dee2e6;
+				}
+
+				.meal-created-time {
+					font-size: 0.8rem;
+					color: #6c757d;
+					background: #f8f9fa;
+					padding: 0.2rem 0.4rem;
+					border-radius: 3px;
+					border: 1px solid #dee2e6;
 				}
 
 				.meal-calories {

@@ -9,6 +9,8 @@ import {
 
 interface MealListParams {
   date?: string;
+  start_date?: string;
+  end_date?: string;
   meal_type?: "breakfast" | "lunch" | "dinner" | "snack";
   page?: number;
   page_size?: number;
