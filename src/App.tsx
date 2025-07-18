@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import FoodSearch from "./pages/FoodSearch";
 import Profile from "./pages/Profile";
 import Statistics from "./pages/Statistics";
+import MealStats from "./pages/MealStats";
 import ApiTest from "./pages/ApiTest";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
@@ -38,6 +39,8 @@ function AppContent() {
 			return <FoodSearch onLoginRequired={handleLoginRequired} />;
 		case "dashboard":
 			return <Dashboard onLoginRequired={handleLoginRequired} />;
+		case "meal-stats":
+			return <MealStats onLoginRequired={handleLoginRequired} />;
 		case "profile":
 			return <Profile onLoginRequired={handleLoginRequired} />;
 		case "statistics":

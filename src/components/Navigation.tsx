@@ -9,9 +9,10 @@ interface NavigationProps {
 }
 const Navigation = ({ currentPage, onNavigate, onLogout, onLoginRequired, isAuthenticated }: NavigationProps) => {
 	const menuItems = [
-		{ key: "food-search", label: "搜索食物", icon: "🔍", requiresAuth: false },
 		{ key: "dashboard", label: "我的首页", icon: "🏠", requiresAuth: true },
-		{ key: "statistics", label: "数据统计", icon: "📊", requiresAuth: true },
+		{ key: "food-search", label: "搜索食物", icon: "🔍", requiresAuth: false },
+		{ key: "meal-stats", label: "每餐统计", icon: "📊", requiresAuth: true },
+		{ key: "statistics", label: "数据统计", icon: "📈", requiresAuth: true },
 		{ key: "profile", label: "个人资料", icon: "👤", requiresAuth: true },
 		{ key: "api-test", label: "API测试", icon: "🧪", requiresAuth: false },
 	];
@@ -21,9 +22,9 @@ const Navigation = ({ currentPage, onNavigate, onLogout, onLoginRequired, isAuth
 
 			<ul className="nav-menu">
 				{menuItems.map((item) => (
-					<li 
-						key={item.key} 
-						className={`nav-item ${currentPage === item.key ? "active" : ""} ${item.requiresAuth && !isAuthenticated ? "disabled" : ""}`} 
+					<li
+						key={item.key}
+						className={`nav-item ${currentPage === item.key ? "active" : ""} ${item.requiresAuth && !isAuthenticated ? "disabled" : ""}`}
 						onClick={() => {
 							if (item.requiresAuth && !isAuthenticated) {
 								onLoginRequired();
@@ -34,7 +35,7 @@ const Navigation = ({ currentPage, onNavigate, onLogout, onLoginRequired, isAuth
 					>
 						<span className="nav-icon">{item.icon}</span>
 						<span className="nav-label">{item.label}</span>
-						{item.requiresAuth && !isAuthenticated && <span className="auth-required">🔒</span>}
+						{item.requiresAuth && !isAuthenticated && <span className="auth-required"></span>}
 					</li>
 				))}
 			</ul>

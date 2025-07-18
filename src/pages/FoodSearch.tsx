@@ -33,7 +33,6 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const [userFoodsLoading, setUserFoodsLoading] = React.useState(false);
 
 	// New state for meal management
-	const [currentTab, setCurrentTab] = React.useState<"add_food" | "meal_stats">("add_food");
 	const [mealCart, setMealCart] = React.useState<{ food: Food, quantity: number, updated?: boolean }[]>([]);
 	const [mealName, setMealName] = React.useState("");
 	const [mealTime, setMealTime] = React.useState(new Date().toISOString().slice(0, 16));
@@ -126,8 +125,8 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	};
 
 	const clearUpdatedStatus = (foodId: number) => {
-		setMealCart(prevCart => 
-			prevCart.map(item => 
+		setMealCart(prevCart =>
+			prevCart.map(item =>
 				item.food.id === foodId ? { ...item, updated: false } : item
 			)
 		);
@@ -209,7 +208,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 			if (response.success) {
 				success(isEditingUserFood ? "自定义食物已更新！" : "自定义食物已创建！");
-				
+
 				// Update meal cart if the edited food is in the cart
 				if (isEditingUserFood && response.data && editingFood) {
 					const updatedFood: Food = {
@@ -223,13 +222,13 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						sugar_per_100g: response.data.sugar_per_100g || foodData.sugar_per_100g,
 						sodium_per_100g: response.data.sodium_per_100g || foodData.sodium_per_100g,
 					};
-					
+
 					// Update cart if this food is in the cart
 					const isInCart = mealCart.some(item => item.food.id === editingFood.id);
 					if (isInCart) {
-						setMealCart(prevCart => 
-							prevCart.map(item => 
-								item.food.id === editingFood.id 
+						setMealCart(prevCart =>
+							prevCart.map(item =>
+								item.food.id === editingFood.id
 									? { ...item, food: updatedFood, updated: true }
 									: item
 							)
@@ -237,7 +236,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						success("食物篮中的营养信息已同步更新！");
 					}
 				}
-				
+
 				setShowAddFoodForm(false);
 				resetForm();
 
@@ -308,12 +307,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const handleDeleteFood = async (food: Food) => {
 		// Check if food is in the meal cart
 		const isInCart = mealCart.some(item => item.food.id === food.id);
-		
+
 		let confirmMessage = `确定要删除食物 "${food.name}" 吗？此操作无法撤销。`;
 		if (isInCart) {
-			confirmMessage += "\n\n⚠️ 注意：该食物已添加到当前餐食中，删除后也会从餐食中移除。";
+			confirmMessage += "\n\n⚠️ 注意：该食物已添加到当前食物篮中，删除后也会从食物篮中移除。";
 		}
-		
+
 		const confirmed = await confirm(confirmMessage);
 		if (!confirmed) {
 			return;
@@ -323,13 +322,13 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			const response = await foodService.deleteCustomFood(food.id);
 			if (response.success) {
 				success(`食物 "${food.name}" 已成功删除！`);
-				
+
 				// Remove food from meal cart if it was there
 				if (isInCart) {
 					setMealCart(prevCart => prevCart.filter(item => item.food.id !== food.id));
-					success("已从当前餐食中移除该食物");
+					success("已从当前食物篮中移除该食物");
 				}
-				
+
 				// 刷新用户食物列表
 				handleLoadUserFoods();
 			} else {
@@ -352,276 +351,243 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	};
 	return (
 		<div className="food-search">
-			<div className="main-tabs">
-				<button
-					onClick={() => setCurrentTab("add_food")}
-					className={`main-tab-btn ${currentTab === "add_food" ? "active" : ""}`}
-				>
-					添加食物
-				</button>
-				<button
-					onClick={() => setCurrentTab("meal_stats")}
-					className={`main-tab-btn ${currentTab === "meal_stats" ? "active" : ""}`}
-				>
-					每餐统计
-				</button>
+			<div className="page-header">
+				<h1>🔍 添加食物</h1>
+				<p>搜索食物或创建自定义食物，添加到您的餐食中</p>
 			</div>
 
-			{currentTab === "add_food" && (
-				<div className="add-food-layout">
-					{/* Left side - Meal Cart */}
-					<div className="meal-cart-section">
-						<div className="meal-cart-header">
-							<h3>当前餐食</h3>
-							<div className="meal-controls">
-								<input
-									type="text"
-									value={mealName}
-									onChange={(e) => setMealName(e.target.value)}
-									placeholder={`输入餐食名称 (默认: ${getMealName(selectedMeal)})`}
-									className="meal-name-input"
-								/>
-								<input
-									type="datetime-local"
-									value={mealTime}
-									onChange={(e) => setMealTime(e.target.value)}
-									className="meal-time-input"
-								/>
-							</div>
+			<div className="add-food-layout">
+				{/* Left side - Meal Cart */}
+				<div className="meal-cart-section">
+					<div className="meal-cart-header">
+						<h3>当前食物篮</h3>
+						<div className="meal-controls">
+							<input
+								type="text"
+								value={mealName}
+								onChange={(e) => setMealName(e.target.value)}
+								placeholder={`输入餐食名称 (默认: ${getMealName(selectedMeal)})`}
+								className="meal-name-input"
+							/>
+							<input
+								type="datetime-local"
+								value={mealTime}
+								onChange={(e) => setMealTime(e.target.value)}
+								className="meal-time-input"
+							/>
 						</div>
+					</div>
 
-						<div className="meal-cart-content">
-							{mealCart.length === 0 ? (
-								<div className="empty-cart">
-									<p>食物篮为空，请从右侧添加食物</p>
-								</div>
-							) : (
-								<>
-									<div className="cart-items">
-										{mealCart.map((item) => (
-											<div key={item.food.id} className={`cart-item ${item.updated ? "updated" : ""}`}>
-												<div className="cart-item-info">
-													<h4>
-														{item.food.name}
-														{item.updated && (
-															<span className="updated-badge" title="营养信息已更新">
-																🔄
-															</span>
-														)}
-													</h4>
-													<p>{Math.round((item.food.calories_per_100g * item.quantity) / 100)} kcal</p>
+					<div className="meal-cart-content">
+						{mealCart.length === 0 ? (
+							<div className="empty-cart">
+								<p>食物篮为空，请从右侧添加食物</p>
+							</div>
+						) : (
+							<>
+								<div className="cart-items">
+									{mealCart.map((item) => (
+										<div key={item.food.id} className={`cart-item ${item.updated ? "updated" : ""}`}>
+											<div className="cart-item-info">
+												<h4>
+													{item.food.name}
 													{item.updated && (
-														<p className="updated-text">营养信息已更新</p>
+														<span className="updated-badge" title="营养信息已更新">
+															🔄
+														</span>
 													)}
-												</div>
-												<div className="cart-item-controls">
-													{item.updated && (
-														<button 
-															onClick={() => clearUpdatedStatus(item.food.id)}
-															className="clear-update-btn"
-															title="确认更新"
-														>
-															✓
-														</button>
-													)}
-													<input
-														type="number"
-														value={item.quantity}
-														onChange={(e) => handleUpdateCartQuantity(item.food.id, Number(e.target.value))}
-														min="1"
-														className="quantity-input-small"
-													/>
-													<span>g</span>
+												</h4>
+												<p>{Math.round((item.food.calories_per_100g * item.quantity) / 100)} kcal</p>
+												{item.updated && (
+													<p className="updated-text">营养信息已更新</p>
+												)}
+											</div>
+											<div className="cart-item-controls">
+												{item.updated && (
 													<button
-														onClick={() => handleRemoveFromCart(item.food.id)}
-														className="remove-btn"
+														onClick={() => clearUpdatedStatus(item.food.id)}
+														className="clear-update-btn"
+														title="确认更新"
 													>
-														×
+														✓
 													</button>
+												)}
+												<input
+													type="number"
+													value={item.quantity}
+													onChange={(e) => handleUpdateCartQuantity(item.food.id, Number(e.target.value))}
+													min="1"
+													className="quantity-input-small"
+												/>
+												<span>g</span>
+												<button
+													onClick={() => handleRemoveFromCart(item.food.id)}
+													className="remove-btn"
+												>
+													×
+												</button>
+											</div>
+										</div>
+									))}
+								</div>
+								<div className="cart-summary">
+									{(() => {
+										const totals = getTotalNutrition();
+										return (
+											<div className="nutrition-totals">
+												<div className="total-item">
+													<span className="total-label">总卡路里:</span>
+													<span className="total-value">{Math.round(totals.calories)} kcal</span>
+												</div>
+												<div className="total-item">
+													<span className="total-label">蛋白质:</span>
+													<span className="total-value">{Math.round(totals.protein * 10) / 10}g</span>
+												</div>
+												<div className="total-item">
+													<span className="total-label">脂肪:</span>
+													<span className="total-value">{Math.round(totals.fat * 10) / 10}g</span>
+												</div>
+												<div className="total-item">
+													<span className="total-label">碳水:</span>
+													<span className="total-value">{Math.round(totals.carbs * 10) / 10}g</span>
 												</div>
 											</div>
-										))}
-									</div>
-									<div className="cart-summary">
-										{(() => {
-											const totals = getTotalNutrition();
-											return (
-												<div className="nutrition-totals">
-													<div className="total-item">
-														<span className="total-label">总卡路里:</span>
-														<span className="total-value">{Math.round(totals.calories)} kcal</span>
-													</div>
-													<div className="total-item">
-														<span className="total-label">蛋白质:</span>
-														<span className="total-value">{Math.round(totals.protein * 10) / 10}g</span>
-													</div>
-													<div className="total-item">
-														<span className="total-label">脂肪:</span>
-														<span className="total-value">{Math.round(totals.fat * 10) / 10}g</span>
-													</div>
-													<div className="total-item">
-														<span className="total-label">碳水:</span>
-														<span className="total-value">{Math.round(totals.carbs * 10) / 10}g</span>
-													</div>
-												</div>
-											);
-										})()}
-									</div>
-									<div className="cart-actions">
-										<button onClick={handleClearCart} className="btn btn-danger clear-btn">
-											清空
-										</button>
-										<button onClick={handleSaveMeal} className="btn btn-primary save-btn">
-											保存餐食
-										</button>
-									</div>
-								</>
+										);
+									})()}
+								</div>
+								<div className="cart-actions">
+									<button onClick={handleClearCart} className="btn btn-danger clear-btn">
+										清空
+									</button>
+									<button onClick={handleSaveMeal} className="btn btn-primary save-btn">
+										保存餐食
+									</button>
+								</div>
+							</>
+						)}
+					</div>
+				</div>
+
+				{/* Right side - Food Search */}
+				<div className="food-search-section">
+					<div className="view-mode-selector">
+						<button
+							onClick={() => handleViewModeChange("search")}
+							className={`view-mode-btn ${viewMode === "search" ? "active" : ""}`}
+						>
+							搜索食物
+						</button>
+						<button
+							onClick={() => handleViewModeChange("user")}
+							className={`view-mode-btn ${viewMode === "user" ? "active" : ""}`}
+							disabled={!isAuthenticated}
+						>
+							我的食物
+						</button>
+					</div>
+
+					{viewMode === "search" && (
+						<div className="search-section">
+							<div className="search-bar">
+								<input
+									type="text"
+									value={searchQuery}
+									onChange={(e) => setSearchQuery(e.target.value)}
+									placeholder="搜索食物..."
+									className="search-input"
+									onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+									disabled={loading}
+								/>
+								<button onClick={handleSearch} className="btn btn-primary search-btn" disabled={loading}>
+									{loading ? "搜索中..." : "搜索"}
+								</button>
+							</div>
+							<div className="search-actions">
+								<button
+									onClick={() => {
+										if (isAuthenticated) {
+											resetForm();
+											setShowAddFoodForm(true);
+										} else {
+											onLoginRequired();
+										}
+									}}
+									className="btn btn-success"
+								>
+									+ 创建自定义食物
+								</button>
+								<button
+									className="btn btn-warning"
+									onClick={() => isAuthenticated ? console.log("Camera") : onLoginRequired()}
+								>
+									📸 拍照识别
+								</button>
+							</div>
+						</div>
+					)}
+
+					{viewMode === "user" && (
+						<div className="user-foods-section">
+							<div className="user-foods-header">
+								<h3>我的自定义食物</h3>
+								<button
+									onClick={() => {
+										if (isAuthenticated) {
+											resetForm();
+											setShowAddFoodForm(true);
+										} else {
+											onLoginRequired();
+										}
+									}}
+									className="btn btn-success"
+								>
+									+ 创建自定义食物
+								</button>
+							</div>
+							{userFoodsLoading && <p>加载中...</p>}
+							{!userFoodsLoading && userFoods.length === 0 && (
+								<p className="no-foods-message">您还没有创建任何自定义食物。点击上方按钮创建您的第一个自定义食物！</p>
 							)}
 						</div>
-					</div>
+					)}
 
-					{/* Right side - Food Search */}
-					<div className="food-search-section">
-						<div className="view-mode-selector">
-							<button
-								onClick={() => handleViewModeChange("search")}
-								className={`view-mode-btn ${viewMode === "search" ? "active" : ""}`}
-							>
-								搜索食物
-							</button>
-							<button
-								onClick={() => handleViewModeChange("user")}
-								className={`view-mode-btn ${viewMode === "user" ? "active" : ""}`}
-								disabled={!isAuthenticated}
-							>
-								我的食物
-							</button>
+					{errorMessage && (
+						<div className="error-message">
+							<p>{errorMessage}</p>
 						</div>
+					)}
 
-						{viewMode === "search" && (
-							<div className="search-section">
-								<div className="search-bar">
-									<input
-										type="text"
-										value={searchQuery}
-										onChange={(e) => setSearchQuery(e.target.value)}
-										placeholder="搜索食物..."
-										className="search-input"
-										onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-										disabled={loading}
+					{viewMode === "search" && searchResults.length > 0 && (
+						<div className="search-results">
+							<h3>搜索结果</h3>
+							<div className="results-grid">
+								{searchResults.map((food: Food) => (
+									<FoodItem key={food.id} food={food} onAdd={handleAddFood} onLoginRequired={onLoginRequired} onCopy={handleCopyFood} />
+								))}
+							</div>
+						</div>
+					)}
+
+					{viewMode === "user" && userFoods.length > 0 && (
+						<div className="user-foods-results">
+							<div className="results-grid">
+								{userFoods.map((food: Food) => (
+									<FoodItem
+										key={food.id}
+										food={food}
+										onAdd={handleAddFood}
+										onLoginRequired={onLoginRequired}
+										onCopy={handleCopyFood}
+										onEdit={handleEditFood}
+										onDelete={handleDeleteFood}
+										showEditActions={true}
 									/>
-									<button onClick={handleSearch} className="btn btn-primary search-btn" disabled={loading}>
-										{loading ? "搜索中..." : "搜索"}
-									</button>
-								</div>
-								<div className="search-actions">
-									<button
-										onClick={() => {
-											if (isAuthenticated) {
-												resetForm();
-												setShowAddFoodForm(true);
-											} else {
-												onLoginRequired();
-											}
-										}}
-										className="btn btn-success"
-									>
-										+ 创建自定义食物
-									</button>
-									<button
-										className="btn btn-warning"
-										onClick={() => isAuthenticated ? console.log("Camera") : onLoginRequired()}
-									>
-										📸 拍照识别
-									</button>
-								</div>
+								))}
 							</div>
-						)}
-
-						{viewMode === "user" && (
-							<div className="user-foods-section">
-								<div className="user-foods-header">
-									<h3>我的自定义食物</h3>
-									<button
-										onClick={() => {
-											if (isAuthenticated) {
-												resetForm();
-												setShowAddFoodForm(true);
-											} else {
-												onLoginRequired();
-											}
-										}}
-										className="btn btn-success"
-									>
-										+ 创建自定义食物
-									</button>
-								</div>
-								{userFoodsLoading && <p>加载中...</p>}
-								{!userFoodsLoading && userFoods.length === 0 && (
-									<p className="no-foods-message">您还没有创建任何自定义食物。点击上方按钮创建您的第一个自定义食物！</p>
-								)}
-							</div>
-						)}
-
-						{errorMessage && (
-							<div className="error-message">
-								<p>{errorMessage}</p>
-							</div>
-						)}
-
-						{viewMode === "search" && searchResults.length > 0 && (
-							<div className="search-results">
-								<h3>搜索结果</h3>
-								<div className="results-grid">
-									{searchResults.map((food: Food) => (
-										<FoodItem key={food.id} food={food} onAdd={handleAddFood} onLoginRequired={onLoginRequired} onCopy={handleCopyFood} />
-									))}
-								</div>
-							</div>
-						)}
-
-						{viewMode === "user" && userFoods.length > 0 && (
-							<div className="user-foods-results">
-								<div className="results-grid">
-									{userFoods.map((food: Food) => (
-										<FoodItem
-											key={food.id}
-											food={food}
-											onAdd={handleAddFood}
-											onLoginRequired={onLoginRequired}
-											onCopy={handleCopyFood}
-											onEdit={handleEditFood}
-											onDelete={handleDeleteFood}
-											showEditActions={true}
-										/>
-									))}
-								</div>
-							</div>
-						)}
-					</div>
-				</div>
-			)}
-
-			{currentTab === "meal_stats" && (
-				<div className="meal-stats-section">
-					<div className="stats-header">
-						<h2>每餐统计</h2>
-						<p>查看您每餐的营养摄入情况</p>
-					</div>
-					<div className="stats-content">
-						<div className="stats-placeholder">
-							<p>🍽️ 餐食统计功能正在开发中...</p>
-							<p>将在此处显示：</p>
-							<ul>
-								<li>今日各餐营养摄入</li>
-								<li>每餐卡路里分布</li>
-								<li>营养素对比图表</li>
-								<li>餐食历史记录</li>
-							</ul>
 						</div>
-					</div>
+					)}
 				</div>
-			)}
+			</div>
 			{showAddFoodForm && (
 				<div className="modal-overlay">
 					<div className="modal">
@@ -773,36 +739,21 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					padding: 1rem;
 				}
 
-				.main-tabs {
-					display: flex;
-					gap: 0.5rem;
+				.page-header {
+					text-align: center;
 					margin-bottom: 2rem;
-					border-radius: 8px;
-					background: #f8f9fa;
-					padding: 0.5rem;
 				}
 
-				.main-tab-btn {
-					flex: 1;
-					padding: 0.75rem 1.5rem;
-					border: none;
-					border-radius: 6px;
-					background: transparent;
+				.page-header h1 {
+					margin: 0 0 0.5rem 0;
+					color: #2c3e50;
+					font-size: 2.2rem;
+				}
+
+				.page-header p {
+					margin: 0;
 					color: #6c757d;
-					cursor: pointer;
-					transition: all 0.3s;
-					font-weight: 500;
-					font-size: 1rem;
-				}
-
-				.main-tab-btn:hover {
-					background: #e9ecef;
-					color: #495057;
-				}
-
-				.main-tab-btn.active {
-					background: #007bff;
-					color: white;
+					font-size: 1.1rem;
 				}
 
 				.add-food-layout {
@@ -992,47 +943,6 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					overflow-y: auto;
 				}
 
-				.meal-stats-section {
-					background: white;
-					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-					padding: 2rem;
-					text-align: center;
-				}
-
-				.stats-header h2 {
-					margin: 0 0 0.5rem 0;
-					color: #2c3e50;
-				}
-
-				.stats-header p {
-					margin: 0 0 2rem 0;
-					color: #6c757d;
-				}
-
-				.stats-placeholder {
-					background: #f8f9fa;
-					padding: 2rem;
-					border-radius: 8px;
-					border: 2px dashed #dee2e6;
-				}
-
-				.stats-placeholder p {
-					margin: 0 0 1rem 0;
-					color: #6c757d;
-					font-size: 1.1rem;
-				}
-
-				.stats-placeholder ul {
-					text-align: left;
-					color: #495057;
-					max-width: 300px;
-					margin: 0 auto;
-				}
-
-				.stats-placeholder li {
-					margin-bottom: 0.5rem;
-				}
 				
 				.view-mode-selector {
 					display: flex;
@@ -1247,12 +1157,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						flex-direction: column;
 					}
 
-					.main-tabs {
-						flex-direction: column;
+					.page-header h1 {
+						font-size: 1.8rem;
 					}
 
-					.main-tab-btn {
-						padding: 1rem;
+					.page-header p {
+						font-size: 1rem;
 					}
 				}
 			`}</style>
