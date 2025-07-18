@@ -43,7 +43,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	];
 	const calorieProgress = (dailyStats.caloriesConsumed / dailyStats.calorieGoal) * 100;
 	const remainingCalories = dailyStats.calorieGoal - dailyStats.caloriesConsumed;
-	
+
 	if (!isAuthenticated) {
 		return (
 			<div className="dashboard">
@@ -57,7 +57,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			</div>
 		);
 	}
-	
+
 	return (
 		<div className="dashboard">
 			<div className="dashboard-header">
@@ -132,11 +132,11 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				<div className="card meals-card">
 					<div className="card-header">
 						<h3 className="card-title">今日餐食</h3>
-						<button 
+						<button
 							className="btn btn-primary"
 							onClick={() => isAuthenticated ? console.log("Add meal") : onLoginRequired()}
 						>
-							+ 添加餐食
+							+ 添加食物篮
 						</button>
 					</div>
 					<div className="meals-list">
@@ -161,21 +161,21 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 						<h3 className="card-title">快捷操作</h3>
 					</div>
 					<div className="action-grid">
-						<button 
+						<button
 							className="action-btn"
 							onClick={() => isAuthenticated ? console.log("Camera") : onLoginRequired()}
 						>
 							<div className="action-icon">📸</div>
 							<span>拍照记录</span>
 						</button>
-						<button 
+						<button
 							className="action-btn"
 							onClick={() => isAuthenticated ? console.log("Search") : onLoginRequired()}
 						>
 							<div className="action-icon">🔍</div>
 							<span>搜索食物</span>
 						</button>
-						<button 
+						<button
 							className="action-btn"
 							onClick={() => isAuthenticated ? console.log("Weight") : onLoginRequired()}
 						>

@@ -19,7 +19,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 			<div className="meal-stats-login-required">
 				<div className="login-prompt">
 					<h2>📊 每餐统计</h2>
-					<p>请登录以查看您的餐食统计数据</p>
+					<p>请登录以查看您的食物篮统计数据</p>
 					<button onClick={onLoginRequired} className="btn btn-primary">
 						登录查看
 					</button>
@@ -34,7 +34,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				<h1>📊 每餐统计</h1>
 				<p>查看您每餐的营养摄入情况和统计数据</p>
 			</div>
-			
+
 			<div className="stats-content">
 				<div className="stats-placeholder">
 					<div className="placeholder-icon">🍽️</div>

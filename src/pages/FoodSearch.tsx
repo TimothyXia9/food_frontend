@@ -202,7 +202,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		});
 
 		// TODO: Implement meal service integration
-		success(`已保存餐食: ${mealName || getMealName(selectedMeal)}`);
+		success(`已保存食物篮: ${mealName || getMealName(selectedMeal)}`);
 		// Clear meal cart and localStorage after successful save
 		setMealCart([]);
 		setMealName("");
@@ -402,7 +402,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		<div className="food-search">
 			<div className="page-header">
 				<h1>🔍 添加食物</h1>
-				<p>搜索食物或创建自定义食物，添加到您的餐食中</p>
+				<p>搜索食物或创建自定义食物，添加到您的食物篮中</p>
 			</div>
 
 			<div className="add-food-layout">
@@ -415,7 +415,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 								type="text"
 								value={mealName}
 								onChange={(e) => setMealName(e.target.value)}
-								placeholder={`输入餐食名称 (默认: ${getMealName(selectedMeal)})`}
+								placeholder={`输入食物篮名称 (默认: ${getMealName(selectedMeal)})`}
 								className="meal-name-input"
 							/>
 							<DateTimePicker
@@ -508,7 +508,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 										清空
 									</button>
 									<button onClick={handleSaveMeal} className="btn btn-primary save-btn">
-										保存餐食
+										保存食物篮
 									</button>
 								</div>
 							</>
