@@ -1,5 +1,6 @@
 import React from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { createLocalDate } from "../utils/timezone";
 
 interface StatisticsProps {
 	onLoginRequired: () => void;
@@ -8,7 +9,7 @@ interface StatisticsProps {
 const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 	const { isAuthenticated } = useAuth();
 	const [selectedPeriod, setSelectedPeriod] = React.useState<"week" | "month" | "year">("week");
-	const [currentDate, setCurrentDate] = React.useState(new Date());
+	const [currentDate, setCurrentDate] = React.useState(createLocalDate(new Date().toISOString().split("T")[0]));
 	const weeklyData = [
 		{ date: "2024-01-15", calories: 1800, weight: 70.5, goal: 2000 },
 		{ date: "2024-01-16", calories: 2100, weight: 70.3, goal: 2000 },

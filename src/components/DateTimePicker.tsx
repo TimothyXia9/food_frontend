@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./DateTimePicker.css";
+import { getCurrentLocalDate, getCurrentLocalDateTime, isToday, isYesterday, isTomorrow, createLocalDate, formatDateToLocal } from "../utils/timezone";
 
 interface DateTimePickerProps {
 	value: string; // ISO datetime string (YYYY-MM-DDTHH:mm)
@@ -86,30 +87,20 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 	const formatDisplayValue = () => {
 		if (!selectedDate || !selectedTime) return placeholder;
 
-		const today = new Date();
-		const yesterday = new Date();
-		yesterday.setDate(today.getDate() - 1);
-		const tomorrow = new Date();
-		tomorrow.setDate(today.getDate() + 1);
-
-		const todayStr = formatLocalDate(today);
-		const yesterdayStr = formatLocalDate(yesterday);
-		const tomorrowStr = formatLocalDate(tomorrow);
-
 		const dateStr = selectedDate;
 		const timeStr = selectedTime;
 
-		// Check if it's today, yesterday, or tomorrow
-		if (dateStr === todayStr) {
+		// Use timezone utility functions for accurate date checking
+		if (isToday(dateStr)) {
 			return `今天 ${timeStr}`;
-		} else if (dateStr === yesterdayStr) {
+		} else if (isYesterday(dateStr)) {
 			return `昨天 ${timeStr}`;
-		} else if (dateStr === tomorrowStr) {
+		} else if (isTomorrow(dateStr)) {
 			return `明天 ${timeStr}`;
 		} else {
 			// Format as MM-DD if same year, otherwise YYYY-MM-DD
-			const currentYear = today.getFullYear();
-			const selectedDateObj = new Date(`${dateStr}T00:00:00`);
+			const currentYear = new Date().getFullYear();
+			const selectedDateObj = createLocalDate(dateStr);
 			const selectedYear = selectedDateObj.getFullYear();
 
 			if (selectedYear === currentYear) {

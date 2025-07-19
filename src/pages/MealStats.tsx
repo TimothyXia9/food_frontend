@@ -3,6 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 import { mealService } from "../services/mealService";
 import { DateRangePicker } from "../components/DateRangePicker";
+import { getCurrentLocalDate } from "../utils/timezone";
 
 interface MealStatsProps {
 	onLoginRequired: () => void;
@@ -14,16 +15,13 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 	const { error: showError, confirm } = useNotification();
 	
 	const [selectedDate, setSelectedDate] = React.useState(() => {
-		const today = new Date();
-		return today.toISOString().split("T")[0];
+		return getCurrentLocalDate();
 	});
 	const [startDate, setStartDate] = React.useState(() => {
-		const today = new Date();
-		return today.toISOString().split("T")[0];
+		return getCurrentLocalDate();
 	});
 	const [endDate, setEndDate] = React.useState(() => {
-		const today = new Date();
-		return today.toISOString().split("T")[0];
+		return getCurrentLocalDate();
 	});
 	const [isSingleMode, setIsSingleMode] = React.useState(true);
 	const [mealStatistics, setMealStatistics] = React.useState<any>(null);
@@ -32,21 +30,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 	const [currentMeals, setCurrentMeals] = React.useState<any[]>([]);
 	const [loadingMeals, setLoadingMeals] = React.useState(false);
 
-	React.useEffect(() => {
-		if (!isAuthenticated) {
-			onLoginRequired();
-		}
-	}, [isAuthenticated, onLoginRequired]);
-
-	React.useEffect(() => {
-		if (isAuthenticated) {
-			loadMealStatistics();
-			loadRecentMeals();
-			loadCurrentMeals(); // 默认加载当天的食物篮
-		}
-	}, [isAuthenticated]);
-
-	const loadMealStatistics = async () => {
+	const loadMealStatistics = React.useCallback(async () => {
 		if (!isAuthenticated) return;
 		
 		setLoading(true);
@@ -74,22 +58,9 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [isAuthenticated, isSingleMode, startDate, endDate, selectedDate, showError]);
 
-	const loadRecentMeals = async () => {
-		if (!isAuthenticated) return;
-		
-		try {
-			const response = await mealService.getRecentMeals(7);
-			if (response.success && response.data) {
-				setRecentMeals(response.data.meals || []);
-			}
-		} catch (error) {
-			console.error("Load recent meals error:", error);
-		}
-	};
-
-	const loadCurrentMeals = async () => {
+	const loadCurrentMeals = React.useCallback(async () => {
 		if (!isAuthenticated) return;
 		
 		setLoadingMeals(true);
@@ -119,7 +90,43 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 		} finally {
 			setLoadingMeals(false);
 		}
+	}, [isAuthenticated, isSingleMode, selectedDate, startDate, endDate]);
+
+	const loadRecentMeals = async () => {
+		if (!isAuthenticated) return;
+		
+		try {
+			const response = await mealService.getRecentMeals(7);
+			if (response.success && response.data) {
+				setRecentMeals(response.data.meals || []);
+			}
+		} catch (error) {
+			console.error("Load recent meals error:", error);
+		}
 	};
+
+	// Initial data loading effect
+	React.useEffect(() => {
+		if (!isAuthenticated) {
+			onLoginRequired();
+		}
+	}, [isAuthenticated, onLoginRequired]);
+
+	React.useEffect(() => {
+		if (isAuthenticated) {
+			loadMealStatistics();
+			loadRecentMeals();
+			loadCurrentMeals(); // 默认加载当天的食物篮
+		}
+	}, [isAuthenticated, loadMealStatistics, loadCurrentMeals]);
+
+	// 监听日期变化，自动加载对应日期的数据
+	React.useEffect(() => {
+		if (isAuthenticated) {
+			loadMealStatistics();
+			loadCurrentMeals();
+		}
+	}, [isAuthenticated, loadMealStatistics, loadCurrentMeals]);
 
 	const loadAllMeals = async () => {
 		if (!isAuthenticated) return;
@@ -177,7 +184,9 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 	};
 
 	const handleDateRangeApply = () => {
+		// 数据加载现在由useEffect自动处理，这里保留回调用于其他用途
 		if (isAuthenticated) {
+			// 可选：添加手动刷新逻辑
 			loadMealStatistics();
 			loadCurrentMeals();
 		}

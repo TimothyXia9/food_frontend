@@ -129,12 +129,20 @@ export interface CreateMealRequest {
   foods: {
     food_id: number;
     quantity: number;
+    // USDA food support - passed to backend for automatic food creation
+    fdc_id?: string | number;
+    usda_fdc_id?: string | number;
+    name?: string; // fallback name if USDA fetch fails
   }[];
 }
 
 export interface AddFoodToMealRequest {
   food_id: number;
   quantity: number;
+  // USDA food support - passed to backend for automatic food creation
+  fdc_id?: string | number;
+  usda_fdc_id?: string | number;
+  name?: string; // fallback name if USDA fetch fails
 }
 
 export interface UpdateFoodInMealRequest {

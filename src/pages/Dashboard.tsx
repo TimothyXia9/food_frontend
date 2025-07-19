@@ -1,5 +1,6 @@
 import React from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { getCurrentLocalDate } from "../utils/timezone";
 
 interface DashboardProps {
 	onLoginRequired: () => void;
@@ -7,7 +8,7 @@ interface DashboardProps {
 
 const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	const { isAuthenticated } = useAuth();
-	const todayDate = new Date().toLocaleDateString("zh-CN");
+	const todayDate = new Date(getCurrentLocalDate()).toLocaleDateString("zh-CN");
 
 	// 模拟数据
 	const dailyStats = {

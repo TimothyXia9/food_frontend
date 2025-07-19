@@ -5,6 +5,7 @@ import { Food } from "../types/api";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 import { DateTimePicker } from "../components/DateTimePicker";
+import { getCurrentLocalDateTime } from "../utils/timezone";
 
 interface FoodSearchProps {
 	onLoginRequired: () => void;
@@ -34,16 +35,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const [userFoods, setUserFoods] = React.useState<Food[]>([]);
 	const [userFoodsLoading, setUserFoodsLoading] = React.useState(false);
 
-	// Helper function to format current date/time for local timezone
-	const getCurrentLocalDateTime = () => {
-		const now = new Date();
-		const year = now.getFullYear();
-		const month = (now.getMonth() + 1).toString().padStart(2, "0");
-		const day = now.getDate().toString().padStart(2, "0");
-		const hours = now.getHours().toString().padStart(2, "0");
-		const minutes = now.getMinutes().toString().padStart(2, "0");
-		return `${year}-${month}-${day}T${hours}:${minutes}`;
-	};
+	// Note: getCurrentLocalDateTime is now imported from utils/timezone
 
 	// Helper function to format datetime as meal name
 	const formatDateTimeAsName = (dateTimeString: string) => {
@@ -77,27 +69,48 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		}
 	};
 
-	// Initialize state with data from localStorage or editing meal
-	const initialData = loadMealCartFromStorage();
+	// Initialize state with data from localStorage or editing meal (only if authenticated)
+	const initialData = isAuthenticated ? loadMealCartFromStorage() : { cart: [], name: "", time: getCurrentLocalDateTime() };
 	const [mealCart, setMealCart] = React.useState<{ food: Food, quantity: number, updated?: boolean }[]>(initialData.cart);
 	const [mealName, setMealName] = React.useState(initialData.name);
 	const [mealTime, setMealTime] = React.useState(initialData.time);
 	const [editingMealId, setEditingMealId] = React.useState<number | null>(null);
 
-	// Save meal cart to localStorage whenever it changes
+	// Clear meal cart when user is not authenticated
 	React.useEffect(() => {
-		localStorage.setItem("mealCart", JSON.stringify(mealCart));
-	}, [mealCart]);
+		if (!isAuthenticated) {
+			setMealCart([]);
+			setMealName("");
+			setMealTime(getCurrentLocalDateTime());
+			setEditingMealId(null);
+			// Clear localStorage as well
+			localStorage.removeItem("mealCart");
+			localStorage.removeItem("mealName");
+			localStorage.removeItem("mealTime");
+			sessionStorage.removeItem("editingMeal");
+		}
+	}, [isAuthenticated]);
 
-	// Save meal name to localStorage whenever it changes
+	// Save meal cart to localStorage whenever it changes (only if authenticated)
 	React.useEffect(() => {
-		localStorage.setItem("mealName", mealName);
-	}, [mealName]);
+		if (isAuthenticated) {
+			localStorage.setItem("mealCart", JSON.stringify(mealCart));
+		}
+	}, [mealCart, isAuthenticated]);
 
-	// Save meal time to localStorage whenever it changes
+	// Save meal name to localStorage whenever it changes (only if authenticated)
 	React.useEffect(() => {
-		localStorage.setItem("mealTime", mealTime);
-	}, [mealTime]);
+		if (isAuthenticated) {
+			localStorage.setItem("mealName", mealName);
+		}
+	}, [mealName, isAuthenticated]);
+
+	// Save meal time to localStorage whenever it changes (only if authenticated)
+	React.useEffect(() => {
+		if (isAuthenticated) {
+			localStorage.setItem("mealTime", mealTime);
+		}
+	}, [mealTime, isAuthenticated]);
 
 	// Check for editing meal data on component mount
 	React.useEffect(() => {
@@ -222,6 +235,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		}
 	};
 	const handleAddFood = (food: Food, quantity: number) => {
+		// Check authentication before adding to cart
+		if (!isAuthenticated) {
+			onLoginRequired();
+			return;
+		}
+
 		// Add to meal cart
 		const existingIndex = mealCart.findIndex(item => item.food.id === food.id);
 		if (existingIndex >= 0) {
@@ -303,28 +322,44 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			}
 
 			// Prepare foods data for API
-			const foods = mealCart.map(item => ({
-				food_id: item.food.id,
-				quantity: item.quantity
-			}));
+			const foods = mealCart.map(item => {
+				if (item.food.is_usda && item.food.fdc_id) {
+					// For USDA foods, send placeholder food_id and include USDA data
+					return {
+						food_id: -1, // Placeholder for non-existent food
+						quantity: item.quantity,
+						fdc_id: item.food.fdc_id,
+						name: item.food.name
+					};
+				} else {
+					// For regular foods, send the actual food_id
+					return {
+						food_id: item.food.id,
+						quantity: item.quantity
+					};
+				}
+			});
+
 
 			let response;
 			if (editingMealId) {
 				// Update existing meal
-				response = await mealService.updateMeal(editingMealId, {
+				const updateData = {
 					date: mealDate,
 					meal_type: mealType,
 					name: finalMealName,
 					foods: foods
-				});
+				};
+				response = await mealService.updateMeal(editingMealId, updateData);
 			} else {
 				// Create new meal
-				response = await mealService.createMeal({
+				const createData = {
 					date: mealDate,
 					meal_type: mealType,
 					name: finalMealName,
 					foods: foods
-				});
+				};
+				response = await mealService.createMeal(createData);
 			}
 
 			if (response.success) {
@@ -553,7 +588,14 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					</div>
 
 					<div className="meal-cart-content">
-						{mealCart.length === 0 ? (
+						{!isAuthenticated ? (
+							<div className="empty-cart">
+								<p>请先登录以使用食物篮功能</p>
+								<button onClick={onLoginRequired} className="btn btn-primary">
+									登录
+								</button>
+							</div>
+						) : mealCart.length === 0 ? (
 							<div className="empty-cart">
 								<p>食物篮为空，请从右侧添加食物</p>
 							</div>
@@ -630,10 +672,18 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									})()}
 								</div>
 								<div className="cart-actions">
-									<button onClick={handleClearCart} className="btn btn-danger clear-btn">
+									<button 
+										onClick={handleClearCart} 
+										className="btn btn-danger clear-btn"
+										disabled={!isAuthenticated}
+									>
 										清空
 									</button>
-									<button onClick={handleSaveMeal} className="btn btn-primary save-btn">
+									<button 
+										onClick={handleSaveMeal} 
+										className="btn btn-primary save-btn"
+										disabled={!isAuthenticated}
+									>
 										{editingMealId ? "更新食物篮" : "保存食物篮"}
 									</button>
 								</div>

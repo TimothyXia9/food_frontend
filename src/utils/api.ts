@@ -67,7 +67,7 @@ class ApiClient {
 			const data = await response.json();
 
 			if (!response.ok) {
-				const errorMessage = data.detail || data.error?.message || `HTTP ${response.status}`;
+				const errorMessage = data.detail || data.error?.message || data.message || `HTTP ${response.status}`;
 				throw new Error(errorMessage);
 			}
 
