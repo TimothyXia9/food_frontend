@@ -335,7 +335,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 														</div>
 														<div className="meal-name">{meal.name || "未命名餐食"}</div>
 														<div className="meal-datetime">
-															<span className="meal-date">📅 {new Date(meal.date).toLocaleDateString("zh-CN")}</span>
+															<span className="meal-date">📅 {meal.date}</span>
 															<span className="meal-created-time">🕐 {new Date(meal.created_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
 														</div>
 														<div className="meal-calories">{meal.total_calories.toFixed(1)} kcal</div>
@@ -513,7 +513,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 							<div key={meal.id} className="recent-meal-item">
 								<div className="recent-meal-header">
 									<span className="meal-type">{getMealTypeDisplayName(meal.meal_type)}</span>
-									<span className="meal-date">{new Date(meal.date).toLocaleDateString("zh-CN")}</span>
+									<span className="meal-date">{meal.date}</span>
 								</div>
 								<div className="recent-meal-name">{meal.name}</div>
 								<div className="recent-meal-calories">{meal.total_calories.toFixed(1)} kcal</div>
