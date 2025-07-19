@@ -56,13 +56,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 		};
 	}, []);
 
-	// Helper function to format date to local date string (YYYY-MM-DD)
-	const formatLocalDate = (date: Date) => {
-		const year = date.getFullYear();
-		const month = (date.getMonth() + 1).toString().padStart(2, "0");
-		const day = date.getDate().toString().padStart(2, "0");
-		return `${year}-${month}-${day}`;
-	};
+	// Note: Using formatDateToLocal from timezone utils instead of local function
 
 	// Format display value
 	const formatDisplayValue = () => {
@@ -82,9 +76,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 		const tomorrow = new Date();
 		tomorrow.setDate(today.getDate() + 1);
 
-		const todayStr = formatLocalDate(today);
-		const yesterdayStr = formatLocalDate(yesterday);
-		const tomorrowStr = formatLocalDate(tomorrow);
+		const todayStr = formatDateToLocal(today);
+		const yesterdayStr = formatDateToLocal(yesterday);
+		const tomorrowStr = formatDateToLocal(tomorrow);
 
 		// Check if it's today, yesterday, or tomorrow
 		if (dateStr === todayStr) {
@@ -131,17 +125,17 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 				isInRange: false,
 				isRangeStart: false,
 				isRangeEnd: false,
-				fullDate: formatLocalDate(prevDate)
+				fullDate: formatDateToLocal(prevDate)
 			});
 		}
 
 		// Add days of current month
 		const today = new Date();
-		const todayStr = formatLocalDate(today);
+		const todayStr = formatDateToLocal(today);
 
 		for (let day = 1; day <= daysInMonth; day++) {
 			const dateObj = new Date(year, month, day);
-			const dateStr = formatLocalDate(dateObj);
+			const dateStr = formatDateToLocal(dateObj);
 			
 			const isStart = dateStr === tempStartDate;
 			const isEnd = dateStr === tempEndDate;
@@ -172,7 +166,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 				isInRange: false,
 				isRangeStart: false,
 				isRangeEnd: false,
-				fullDate: formatLocalDate(nextDate)
+				fullDate: formatDateToLocal(nextDate)
 			});
 		}
 
@@ -227,8 +221,15 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
 	// Apply changes and close
 	const handleApply = () => {
-		onStartDateChange(tempStartDate);
-		onEndDateChange(tempEndDate);
+		if (isSingleMode) {
+			// In single mode, call both callbacks with the same date to ensure proper sync
+			onStartDateChange(tempStartDate);
+			onEndDateChange(tempStartDate);
+		} else {
+			// In range mode, call both callbacks
+			onStartDateChange(tempStartDate);
+			onEndDateChange(tempEndDate);
+		}
 		setIsOpen(false);
 		if (onApply) {
 			onApply();
@@ -254,8 +255,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 			start.setDate(today.getDate() - 29); // 30天前
 		}
 
-		const startStr = formatLocalDate(start);
-		const endStr = formatLocalDate(end);
+		const startStr = formatDateToLocal(start);
+		const endStr = formatDateToLocal(end);
 
 		setTempStartDate(startStr);
 		setTempEndDate(endStr);

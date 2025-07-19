@@ -116,17 +116,17 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	React.useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const editMealId = urlParams.get("edit_meal");
-		
+
 		if (editMealId) {
 			// Load editing meal data from sessionStorage
 			const editingMealData = sessionStorage.getItem("editingMeal");
 			if (editingMealData) {
 				try {
 					const mealData = JSON.parse(editingMealData);
-					
+
 					// Set editing meal ID
 					setEditingMealId(parseInt(editMealId));
-					
+
 					// Set meal name and time
 					setMealName(mealData.name || "");
 					if (mealData.date) {
@@ -139,7 +139,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						}
 						setMealTime(mealDateTime.toISOString().slice(0, 16));
 					}
-					
+
 					// Convert meal foods to cart format
 					if (mealData.foods && mealData.foods.length > 0) {
 						const cartItems = mealData.foods.map((mealFood: any) => ({
@@ -162,14 +162,14 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						}));
 						setMealCart(cartItems);
 					}
-					
+
 					success(`已加载食物篮: ${mealData.name || "未命名"}`);
 				} catch (error) {
 					console.error("Error loading editing meal data:", error);
 					showError("加载编辑餐食数据时发生错误");
 				}
 			}
-			
+
 			// Clean up URL parameter - use pushState to avoid triggering re-render
 			const newUrl = window.location.pathname;
 			window.history.replaceState(null, "", newUrl);
@@ -241,7 +241,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			return;
 		}
 
-		// Add to meal cart
+		// Add to meal cart - preserve the original food properties including USDA status
 		const existingIndex = mealCart.findIndex(item => item.food.id === food.id);
 		if (existingIndex >= 0) {
 			// Update existing item quantity
@@ -249,7 +249,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			newCart[existingIndex].quantity += quantity;
 			setMealCart(newCart);
 		} else {
-			// Add new item
+			// Add new item, ensuring USDA properties are preserved
 			setMealCart([...mealCart, { food, quantity }]);
 		}
 		success(`已添加 ${quantity}g ${food.name} 到食物篮`);
@@ -310,7 +310,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			const mealDateTime = new Date(mealTime);
 			const mealDate = mealDateTime.toISOString().split("T")[0]; // YYYY-MM-DD format
 			const hour = mealDateTime.getHours();
-			
+
 			// Determine meal type based on time
 			let mealType: "breakfast" | "lunch" | "dinner" | "snack" = "snack";
 			if (hour >= 5 && hour < 11) {
@@ -527,9 +527,14 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		// Check if food is in the meal cart
 		const isInCart = mealCart.some(item => item.food.id === food.id);
 
+		// Build comprehensive confirmation message
 		let confirmMessage = `确定要删除食物 "${food.name}" 吗？此操作无法撤销。`;
 		if (isInCart) {
-			confirmMessage += "\n\n⚠️ 注意：该食物已添加到当前食物篮中，删除后也会从食物篮中移除。";
+			confirmMessage += "\n\n⚠️ 该食物将从以下位置移除：";
+			confirmMessage += "\n• 当前食物篮";
+			confirmMessage += "\n• 所有已保存的餐食记录（如有）";
+		} else {
+			confirmMessage += "\n\n⚠️ 该食物将从所有已保存的餐食记录中移除（如有）。";
 		}
 
 		const confirmed = await confirm(confirmMessage);
@@ -540,22 +545,46 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		try {
 			const response = await foodService.deleteCustomFood(food.id);
 			if (response.success) {
-				success(`食物 "${food.name}" 已成功删除！`);
-
 				// Remove food from meal cart if it was there
 				if (isInCart) {
 					setMealCart(prevCart => prevCart.filter(item => item.food.id !== food.id));
-					success("已从当前食物篮中移除该食物");
 				}
+
+				// Build comprehensive success message
+				let successMessage = `食物 "${food.name}" 已成功删除！`;
+				const impacts = [];
+				
+				if (response.data?.removed_from_meals) {
+					impacts.push(`从 ${response.data.meal_count} 个餐食的 ${response.data.meal_foods_count} 条记录中移除`);
+				}
+				
+				if (isInCart) {
+					impacts.push("从当前食物篮中移除");
+				}
+
+				if (impacts.length > 0) {
+					successMessage += "\n\n✅ 已同时完成：\n• " + impacts.join("\n• ");
+				}
+
+				success(successMessage);
 
 				// 刷新用户食物列表
 				handleLoadUserFoods();
 			} else {
 				throw new Error(response.error?.message || "删除失败");
 			}
-		} catch (err) {
+		} catch (err: unknown) {
 			console.error("Failed to delete food:", err);
-			showError("删除食物失败，请稍后重试");
+			
+			// Simple error handling since cascade deletion should handle most cases
+			const getErrorMessage = (error: unknown): string => {
+				if (typeof error === "object" && error !== null && "message" in error) {
+					return (error as { message: string }).message;
+				}
+				return "请稍后重试";
+			};
+
+			showError(`删除食物失败：${getErrorMessage(err)}`);
 		}
 	};
 
@@ -672,15 +701,15 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									})()}
 								</div>
 								<div className="cart-actions">
-									<button 
-										onClick={handleClearCart} 
+									<button
+										onClick={handleClearCart}
 										className="btn btn-danger clear-btn"
 										disabled={!isAuthenticated}
 									>
 										清空
 									</button>
-									<button 
-										onClick={handleSaveMeal} 
+									<button
+										onClick={handleSaveMeal}
 										className="btn btn-primary save-btn"
 										disabled={!isAuthenticated}
 									>
@@ -1503,11 +1532,24 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 							<span>脂肪: {activeFood.fat_per_100g || 0}g</span>
 							<span>碳水: {activeFood.carbs_per_100g || 0}g</span>
 						</div>
-						{activeFood.fiber_per_100g > 0 && (
-							<div className="nutrition-row">
-								<span>纤维: {activeFood.fiber_per_100g}g</span>
-								<span>糖: {activeFood.sugar_per_100g || 0}g</span>
-								<span>钠: {activeFood.sodium_per_100g || 0}mg</span>
+						<div className="nutrition-row">
+							<span>纤维: {activeFood.fiber_per_100g || 0}g</span>
+							<span>糖: {activeFood.sugar_per_100g || 0}g</span>
+							<span>钠: {activeFood.sodium_per_100g || 0}mg</span>
+						</div>
+						{food.is_usda && (
+							<div className="usda-details">
+								<div className="nutrition-row">
+									{food.fdc_id && <span>USDA ID: {food.fdc_id}</span>}
+									{food.brand && <span>品牌: {food.brand}</span>}
+								</div>
+								<div className="usda-info">
+									<span className="info-text">✅ 来源于美国农业部营养数据库</span>
+									<span className="readonly-text">🔒 此为USDA官方数据，无法直接编辑</span>
+								</div>
+								<div className="usda-actions">
+									<small className="copy-hint">💡 如需修改营养信息，请点击"复制为自定义"按钮</small>
+								</div>
 							</div>
 						)}
 					</div>
@@ -1539,20 +1581,37 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 					</button>
 					{showEditActions ? (
 						<>
-							<button
-								onClick={() => onEdit && onEdit(food)}
-								className="btn btn-warning edit-btn"
-								title="编辑食物"
-							>
-								✏️ 编辑
-							</button>
-							<button
-								onClick={() => onDelete && onDelete(food)}
-								className="btn btn-danger delete-btn"
-								title="删除食物"
-							>
-								🗑️ 删除
-							</button>
+							{food.is_usda ? (
+								<>
+									{/* USDA foods are read-only, only allow copying */}
+									<button
+										onClick={() => isAuthenticated ? onCopy(food) : onLoginRequired()}
+										className="btn btn-info copy-btn"
+										title="复制为自定义食物"
+									>
+										📋 复制为自定义
+									</button>
+									<span className="readonly-badge" title="USDA食物为只读，不可编辑">🔒 只读</span>
+								</>
+							) : (
+								<>
+									{/* Custom foods can be edited and deleted */}
+									<button
+										onClick={() => onEdit && onEdit(food)}
+										className="btn btn-warning edit-btn"
+										title="编辑食物"
+									>
+										✏️ 编辑
+									</button>
+									<button
+										onClick={() => onDelete && onDelete(food)}
+										className="btn btn-danger delete-btn"
+										title="删除食物"
+									>
+										🗑️ 删除
+									</button>
+								</>
+							)}
 						</>
 					) : (
 						<button
@@ -1622,6 +1681,18 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 					font-size: 0.8rem;
 				}
 
+				.readonly-badge {
+					background: #f8f9fa;
+					color: #6c757d;
+					padding: 0.25rem 0.5rem;
+					border-radius: 4px;
+					font-size: 0.75rem;
+					border: 1px solid #dee2e6;
+					display: inline-flex;
+					align-items: center;
+					gap: 0.25rem;
+				}
+
 				.nutrition-summary {
 					display: flex;
 					justify-content: space-between;
@@ -1676,6 +1747,44 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 				.nutrition-row {
 					display: flex;
 					justify-content: space-between;
+				}
+
+				.usda-details {
+					margin-top: 0.5rem;
+					padding-top: 0.5rem;
+					border-top: 1px solid #e9ecef;
+				}
+
+				.usda-info {
+					margin-top: 0.25rem;
+				}
+
+				.info-text {
+					font-size: 0.8rem;
+					color: #28a745;
+					font-style: italic;
+					display: block;
+					margin-bottom: 0.25rem;
+				}
+
+				.readonly-text {
+					font-size: 0.75rem;
+					color: #dc3545;
+					font-weight: 500;
+					display: block;
+				}
+
+				.usda-actions {
+					margin-top: 0.5rem;
+					padding-top: 0.5rem;
+					border-top: 1px solid #dee2e6;
+				}
+
+				.copy-hint {
+					font-size: 0.75rem;
+					color: #6c757d;
+					font-style: italic;
+					display: block;
 				}
 
 				.add-section {

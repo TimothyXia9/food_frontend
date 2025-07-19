@@ -5,6 +5,7 @@ import {
 	FoodSearchParams,
 	FoodSearchResult,
 	CreateFoodRequest,
+	DeleteFoodResponse,
 	USDAFoodSearchParams,
 	USDAFoodSearchResult,
 	USDANutritionData,
@@ -28,8 +29,8 @@ class FoodService {
 		return apiClient.put<Food>(`/foods/${foodId}/update/`, data);
 	}
 
-	async deleteCustomFood(foodId: number): Promise<ApiResponse<void>> {
-		return apiClient.delete<void>(`/foods/${foodId}/delete/`);
+	async deleteCustomFood(foodId: number): Promise<ApiResponse<DeleteFoodResponse>> {
+		return apiClient.delete<DeleteFoodResponse>(`/foods/${foodId}/delete/`);
 	}
 
 

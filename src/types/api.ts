@@ -96,6 +96,12 @@ export interface CreateFoodRequest {
   aliases?: string[];
 }
 
+export interface DeleteFoodResponse {
+  removed_from_meals: boolean;
+  meal_count: number;
+  meal_foods_count: number;
+}
+
 export interface MealFood {
   id: number;
   food: Food;

@@ -9,12 +9,13 @@
  */
 export const getCurrentLocalDateTime = (): string => {
 	const now = new Date();
-	// 获取本地时区偏移量（分钟）
-	const timezoneOffsetMs = now.getTimezoneOffset() * 60 * 1000;
-	// 创建本地时间对象
-	const localTime = new Date(now.getTime() - timezoneOffsetMs);
-	// 返回本地时间的ISO字符串，截取到分钟
-	return localTime.toISOString().slice(0, 16);
+	// 使用本地时区格式化，避免UTC偏移问题
+	const year = now.getFullYear();
+	const month = (now.getMonth() + 1).toString().padStart(2, "0");
+	const day = now.getDate().toString().padStart(2, "0");
+	const hours = now.getHours().toString().padStart(2, "0");
+	const minutes = now.getMinutes().toString().padStart(2, "0");
+	return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
 /**
@@ -24,12 +25,11 @@ export const getCurrentLocalDateTime = (): string => {
  */
 export const getCurrentLocalDate = (): string => {
 	const now = new Date();
-	// 获取本地时区偏移量（分钟）
-	const timezoneOffsetMs = now.getTimezoneOffset() * 60 * 1000;
-	// 创建本地时间对象
-	const localTime = new Date(now.getTime() - timezoneOffsetMs);
-	// 返回本地日期字符串
-	return localTime.toISOString().split("T")[0];
+	// 使用本地时区格式化，避免UTC偏移问题
+	const year = now.getFullYear();
+	const month = (now.getMonth() + 1).toString().padStart(2, "0");
+	const day = now.getDate().toString().padStart(2, "0");
+	return `${year}-${month}-${day}`;
 };
 
 /**
@@ -37,9 +37,11 @@ export const getCurrentLocalDate = (): string => {
  * 格式: YYYY-MM-DD
  */
 export const formatDateToLocal = (date: Date): string => {
-	const timezoneOffsetMs = date.getTimezoneOffset() * 60 * 1000;
-	const localTime = new Date(date.getTime() - timezoneOffsetMs);
-	return localTime.toISOString().split("T")[0];
+	// 使用本地时区格式化，避免UTC偏移问题
+	const year = date.getFullYear();
+	const month = (date.getMonth() + 1).toString().padStart(2, "0");
+	const day = date.getDate().toString().padStart(2, "0");
+	return `${year}-${month}-${day}`;
 };
 
 /**
@@ -47,9 +49,13 @@ export const formatDateToLocal = (date: Date): string => {
  * 格式: YYYY-MM-DDTHH:MM
  */
 export const formatDateTimeToLocal = (date: Date): string => {
-	const timezoneOffsetMs = date.getTimezoneOffset() * 60 * 1000;
-	const localTime = new Date(date.getTime() - timezoneOffsetMs);
-	return localTime.toISOString().slice(0, 16);
+	// 使用本地时区格式化，避免UTC偏移问题
+	const year = date.getFullYear();
+	const month = (date.getMonth() + 1).toString().padStart(2, "0");
+	const day = date.getDate().toString().padStart(2, "0");
+	const hours = date.getHours().toString().padStart(2, "0");
+	const minutes = date.getMinutes().toString().padStart(2, "0");
+	return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
 /**
