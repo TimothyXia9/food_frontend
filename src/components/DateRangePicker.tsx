@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./DateRangePicker.css";
-import { getCurrentLocalDate, getLocalDateOffset, isToday, isYesterday, isTomorrow, createLocalDate, formatDateToLocal } from "../utils/timezone";
+import { getCurrentLocalDate, getLocalDateOffset, createLocalDate } from "../utils/timezone";
 
 interface DateRangePickerProps {
 	startDate: string; // ISO date string (YYYY-MM-DD)
@@ -21,6 +21,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 	onModeChange,
 	onApply
 }) => {
+	// 本地的日期格式化函数
+	const formatDateToLocal = (date: Date): string => {
+		const year = date.getFullYear();
+		const month = (date.getMonth() + 1).toString().padStart(2, "0");
+		const day = date.getDate().toString().padStart(2, "0");
+		return `${year}-${month}-${day}`;
+	};
+
 	const [isOpen, setIsOpen] = useState(false);
 	const [currentMonth, setCurrentMonth] = useState(new Date());
 	const [selectionStep, setSelectionStep] = useState<"start" | "end">("start");
@@ -70,15 +78,9 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 	const formatSingleDate = (dateStr: string) => {
 		if (!dateStr) return "";
 
-		const today = new Date();
-		const yesterday = new Date();
-		yesterday.setDate(today.getDate() - 1);
-		const tomorrow = new Date();
-		tomorrow.setDate(today.getDate() + 1);
-
-		const todayStr = formatDateToLocal(today);
-		const yesterdayStr = formatDateToLocal(yesterday);
-		const tomorrowStr = formatDateToLocal(tomorrow);
+		const todayStr = getCurrentLocalDate();
+		const yesterdayStr = getLocalDateOffset(-1);
+		const tomorrowStr = getLocalDateOffset(1);
 
 		// Check if it's today, yesterday, or tomorrow
 		if (dateStr === todayStr) {
@@ -89,8 +91,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 			return "明天";
 		} else {
 			// Format as MM-DD if same year, otherwise YYYY-MM-DD
-			const currentYear = today.getFullYear();
-			const selectedDateObj = new Date(`${dateStr}T00:00:00`);
+			const currentYear = new Date().getFullYear();
+			const selectedDateObj = createLocalDate(dateStr);
 			const selectedYear = selectedDateObj.getFullYear();
 
 			if (selectedYear === currentYear) {

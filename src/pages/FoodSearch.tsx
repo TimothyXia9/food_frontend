@@ -5,7 +5,7 @@ import { Food } from "../types/api";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 import { DateTimePicker } from "../components/DateTimePicker";
-import { getCurrentLocalDateTime } from "../utils/timezone";
+import { getCurrentLocalDateTime, createLocalDateTime, localToUTC } from "../utils/timezone";
 
 interface FoodSearchProps {
 	onLoginRequired: () => void;
@@ -39,7 +39,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 	// Helper function to format datetime as meal name
 	const formatDateTimeAsName = (dateTimeString: string) => {
-		const date = new Date(dateTimeString);
+		const date = createLocalDateTime(dateTimeString);
 		const year = date.getFullYear();
 		const month = (date.getMonth() + 1).toString().padStart(2, "0");
 		const day = date.getDate().toString().padStart(2, "0");
@@ -131,13 +131,15 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					setMealName(mealData.name || "");
 					if (mealData.date) {
 						// Convert date to datetime format for the picker
-						const mealDateTime = new Date(mealData.date);
-						// Add current time if date doesn't include time
 						if (!mealData.date.includes("T")) {
-							const now = new Date();
-							mealDateTime.setHours(now.getHours(), now.getMinutes());
+							// If only date provided, use current local time
+							const currentTime = getCurrentLocalDateTime();
+							const timeOnly = currentTime.split("T")[1]; // Extract HH:MM
+							setMealTime(`${mealData.date}T${timeOnly}`);
+						} else {
+							// Already includes time
+							setMealTime(mealData.date);
 						}
-						setMealTime(mealDateTime.toISOString().slice(0, 16));
 					}
 
 					// Convert meal foods to cart format
@@ -307,9 +309,11 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 		try {
 			// Extract date and determine meal type from time
-			const mealDateTime = new Date(mealTime);
-			const mealDate = mealDateTime.toISOString().split("T")[0]; // YYYY-MM-DD format
+			const mealDateTime = createLocalDateTime(mealTime);
 			const hour = mealDateTime.getHours();
+			
+			// 将本地时间转换为UTC时间发送给后端
+			const utcDateTime = localToUTC(mealDateTime);
 
 			// Determine meal type based on time
 			let mealType: "breakfast" | "lunch" | "dinner" | "snack" = "snack";
@@ -345,7 +349,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			if (editingMealId) {
 				// Update existing meal
 				const updateData = {
-					date: mealDate,
+					date: utcDateTime,
 					meal_type: mealType,
 					name: finalMealName,
 					foods: foods
@@ -354,7 +358,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			} else {
 				// Create new meal
 				const createData = {
-					date: mealDate,
+					date: utcDateTime,
 					meal_type: mealType,
 					name: finalMealName,
 					foods: foods

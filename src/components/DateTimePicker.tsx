@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./DateTimePicker.css";
-import { getCurrentLocalDate, getCurrentLocalDateTime, isToday, isYesterday, isTomorrow, createLocalDate, formatDateToLocal } from "../utils/timezone";
+import { getCurrentLocalDate, getCurrentLocalDateTime, createLocalDate } from "../utils/timezone";
 
 interface DateTimePickerProps {
 	value: string; // ISO datetime string (YYYY-MM-DDTHH:mm)
@@ -13,6 +13,30 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 	onChange,
 	placeholder = "选择日期和时间"
 }) => {
+	// 本地工具函数
+	const formatDateToLocal = (date: Date): string => {
+		const year = date.getFullYear();
+		const month = (date.getMonth() + 1).toString().padStart(2, "0");
+		const day = date.getDate().toString().padStart(2, "0");
+		return `${year}-${month}-${day}`;
+	};
+
+	const isToday = (dateStr: string): boolean => {
+		const today = getCurrentLocalDate();
+		return dateStr === today;
+	};
+
+	const isYesterday = (dateStr: string): boolean => {
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
+		return dateStr === formatDateToLocal(yesterday);
+	};
+
+	const isTomorrow = (dateStr: string): boolean => {
+		const tomorrow = new Date();
+		tomorrow.setDate(tomorrow.getDate() + 1);
+		return dateStr === formatDateToLocal(tomorrow);
+	};
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedDate, setSelectedDate] = useState<string>("");
 	const [selectedTime, setSelectedTime] = useState<string>("");

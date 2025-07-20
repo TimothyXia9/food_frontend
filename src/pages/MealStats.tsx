@@ -3,7 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 import { mealService } from "../services/mealService";
 import { DateRangePicker } from "../components/DateRangePicker";
-import { getCurrentLocalDate } from "../utils/timezone";
+import { getCurrentLocalDate, formatUTCDateToLocal, formatUTCTimeToLocal } from "../utils/timezone";
 
 interface MealStatsProps {
 	onLoginRequired: () => void;
@@ -217,7 +217,9 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 	};
 
 	const formatDate = (dateString: string) => {
-		const date = new Date(dateString);
+		// 直接使用日期字符串，避免时区转换问题
+		const [year, month, day] = dateString.split("-");
+		const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
 		const options: Intl.DateTimeFormatOptions = {
 			year: "numeric",
 			month: "long",
@@ -331,12 +333,12 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 													<div className="meal-info">
 														<div className="meal-header">
 															<span className="meal-type">{getMealTypeDisplayName(meal.meal_type)}</span>
-															<span className="meal-time">{new Date(meal.created_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}</span>
+															<span className="meal-time">{formatUTCTimeToLocal(meal.created_at)}</span>
 														</div>
 														<div className="meal-name">{meal.name || "未命名餐食"}</div>
 														<div className="meal-datetime">
-															<span className="meal-date">📅 {meal.date}</span>
-															<span className="meal-created-time">🕐 {new Date(meal.created_at).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span>
+															<span className="meal-date">📅 {formatUTCDateToLocal(meal.date)}</span>
+															<span className="meal-created-time">🕐 {formatUTCTimeToLocal(meal.created_at)}</span>
 														</div>
 														<div className="meal-calories">{meal.total_calories.toFixed(1)} kcal</div>
 														<div className="meal-macros">
@@ -513,7 +515,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 							<div key={meal.id} className="recent-meal-item">
 								<div className="recent-meal-header">
 									<span className="meal-type">{getMealTypeDisplayName(meal.meal_type)}</span>
-									<span className="meal-date">{meal.date}</span>
+									<span className="meal-date">{formatUTCDateToLocal(meal.date)}</span>
 								</div>
 								<div className="recent-meal-name">{meal.name}</div>
 								<div className="recent-meal-calories">{meal.total_calories.toFixed(1)} kcal</div>
