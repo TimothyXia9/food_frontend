@@ -601,9 +601,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 	return (
 		<div className="food-search">
-			<div className="page-header">
-				<h2>🔍 添加食物</h2>
-			</div>
+
 
 			<div className="add-food-layout">
 				{/* Left side - Meal Cart */}
@@ -788,7 +786,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 						{viewMode === "user" && userFoods.length > 0 && (
 							<div className="user-foods-results">
-								<h3>我的自定义食物</h3>
+
 								<div className="results-grid">
 									{userFoods.map((food: Food) => (
 										<FoodItem
@@ -959,23 +957,14 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					padding: 1rem;
 				}
 
-				.page-header {
-					text-align: center;
-					margin-bottom: 1rem;
-				}
-
-				.page-header h2 {
-					margin: 0 0 0.5rem 0;
-					color: #2c3e50;
-					font-size: 2.2rem;
-				}
+				
 
 
 				.add-food-layout {
 					display: grid;
 					grid-template-columns: 400px 1fr;
-					gap: 2rem;
-					height: calc(100vh - 175px);
+					gap: 1rem;
+					height: calc(100vh - 105px);
 				}
 
 				.meal-cart-section {
@@ -1347,9 +1336,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						flex-direction: column;
 					}
 
-					.page-header p {
-						font-size: 1rem;
-					}
+					
 				}
 			`}</style>
 		</div>

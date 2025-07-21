@@ -168,7 +168,6 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 				.search-bar {
 					display: flex;
 					gap: 1rem;
-					margin-bottom: 1rem;
 				}
 
 				.search-input {

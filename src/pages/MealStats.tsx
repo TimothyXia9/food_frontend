@@ -255,9 +255,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 
 	return (
 		<div className="meal-stats">
-			<div className="stats-header">
-				<h2>📊 每餐统计</h2>
-			</div>
+
 
 			<div className="stats-controls">
 				<div className="date-controls-wrapper">
@@ -554,17 +552,6 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 					margin: 0 0 2rem 0;
 					color: #6c757d;
 					font-size: 1.1rem;
-				}
-
-				.stats-header {
-					text-align: center;
-					margin-bottom: 2rem;
-				}
-
-				.stats-header h2 {
-					margin: 0 0 1rem 0;
-					color: #2c3e50;
-					font-size: 2.5rem;
 				}
 
 				.stats-controls {
@@ -1134,10 +1121,6 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 						padding: 1rem;
 					}
 
-					.stats-header h1 {
-						font-size: 2rem;
-					}
-
 					.stats-main-layout {
 						grid-template-columns: 1fr;
 						gap: 1rem;
@@ -1218,23 +1201,6 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 					margin: 0 0 2rem 0;
 					color: #6c757d;
 					font-size: 1.1rem;
-				}
-
-				.stats-header {
-					text-align: center;
-					margin-bottom: 3rem;
-				}
-
-				.stats-header h1 {
-					margin: 0 0 1rem 0;
-					color: #2c3e50;
-					font-size: 2.5rem;
-				}
-
-				.stats-header p {
-					margin: 0;
-					color: #6c757d;
-					font-size: 1.2rem;
 				}
 
 				.stats-content {
@@ -1345,10 +1311,6 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 
 					.stats-content {
 						padding: 2rem 1rem;
-					}
-
-					.stats-header h1 {
-						font-size: 2rem;
 					}
 
 					.feature-list {
