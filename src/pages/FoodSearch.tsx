@@ -961,7 +961,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 				.page-header {
 					text-align: center;
-					margin-bottom: 2rem;
+					margin-bottom: 1rem;
 				}
 
 				.page-header h2 {
@@ -1345,10 +1345,6 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 					.cart-actions {
 						flex-direction: column;
-					}
-
-					.page-header h1 {
-						font-size: 1.8rem;
 					}
 
 					.page-header p {

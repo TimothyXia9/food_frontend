@@ -13,7 +13,7 @@ interface MealStatsProps {
 const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 	const { isAuthenticated } = useAuth();
 	const { error: showError, confirm } = useNotification();
-	
+
 	const [selectedDate, setSelectedDate] = React.useState(() => {
 		return getCurrentLocalDate();
 	});
@@ -32,7 +32,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 
 	const loadMealStatistics = React.useCallback(async () => {
 		if (!isAuthenticated) return;
-		
+
 		setLoading(true);
 		try {
 			if (!isSingleMode) {
@@ -62,12 +62,12 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 
 	const loadCurrentMeals = React.useCallback(async () => {
 		if (!isAuthenticated) return;
-		
+
 		setLoadingMeals(true);
 		try {
 			if (isSingleMode) {
 				// 单日模式：显示选定日期的所有食物篮
-				const response = await mealService.getUserMeals({ 
+				const response = await mealService.getUserMeals({
 					date: selectedDate,
 					page_size: 100
 				});
@@ -76,7 +76,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 				}
 			} else {
 				// 多日模式：显示时间段内所有食物篮
-				const response = await mealService.getUserMeals({ 
+				const response = await mealService.getUserMeals({
 					start_date: startDate,
 					end_date: endDate,
 					page_size: 100
@@ -94,7 +94,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 
 	const loadRecentMeals = async () => {
 		if (!isAuthenticated) return;
-		
+
 		try {
 			const response = await mealService.getRecentMeals(7);
 			if (response.success && response.data) {
@@ -130,11 +130,11 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 
 	const loadAllMeals = async () => {
 		if (!isAuthenticated) return;
-		
+
 		setLoadingMeals(true);
 		try {
 			// 显示所有：不传递任何日期参数
-			const response = await mealService.getUserMeals({ 
+			const response = await mealService.getUserMeals({
 				page_size: 100
 			});
 			if (response.success && response.data) {
@@ -153,7 +153,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 			const response = await mealService.getMealDetails(mealId);
 			if (response.success && response.data) {
 				const mealData = response.data as any; // Backend returns full meal data including date
-				
+
 				// Store meal data in sessionStorage for the food search page
 				sessionStorage.setItem("editingMeal", JSON.stringify({
 					id: mealData.id,
@@ -164,7 +164,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 					total_calories: mealData.total_calories,
 					notes: mealData.notes
 				}));
-				
+
 				// Navigate to food search page with meal editing context
 				if (onNavigate) {
 					// Use URL params for passing the edit meal id
@@ -201,7 +201,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 	const handleDeleteMeal = async (mealId: number) => {
 		const confirmed = await confirm("确定要删除这顿餐食吗？");
 		if (!confirmed) return;
-		
+
 		try {
 			const response = await mealService.deleteMeal(mealId);
 			if (response.success) {
@@ -256,8 +256,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 	return (
 		<div className="meal-stats">
 			<div className="stats-header">
-				<h1>📊 每餐统计</h1>
-				<p>查看您每餐的营养摄入情况和统计数据</p>
+				<h2>📊 每餐统计</h2>
 			</div>
 
 			<div className="stats-controls">
@@ -283,7 +282,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 						onModeChange={setIsSingleMode}
 						onApply={handleDateRangeApply}
 					/>
-					<button 
+					<button
 						type="button"
 						className="show-all-btn"
 						onClick={handleShowAll}
@@ -305,7 +304,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 						<div className="food-basket-column">
 							<div className="food-basket-header">
 								<h3>🍽️ 我的食物篮</h3>
-								<button 
+								<button
 									className="add-meal-btn"
 									onClick={() => {
 										if (onNavigate) {
@@ -318,7 +317,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 									+ 添加餐食
 								</button>
 							</div>
-							
+
 							<div className="meal-basket-content">
 								{loadingMeals ? (
 									<div className="loading-meals">
@@ -342,20 +341,20 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 														</div>
 														<div className="meal-calories">{meal.total_calories.toFixed(1)} kcal</div>
 														<div className="meal-macros">
-															蛋白质: {meal.total_protein.toFixed(1)}g | 
-															脂肪: {meal.total_fat.toFixed(1)}g | 
+															蛋白质: {meal.total_protein.toFixed(1)}g |
+															脂肪: {meal.total_fat.toFixed(1)}g |
 															碳水: {meal.total_carbs.toFixed(1)}g
 														</div>
 													</div>
 													<div className="meal-actions">
-														<button 
+														<button
 															className="edit-btn"
 															onClick={() => handleEditMeal(meal.id)}
 															title="编辑餐食"
 														>
 															✏️
 														</button>
-														<button 
+														<button
 															className="delete-btn"
 															onClick={() => handleDeleteMeal(meal.id)}
 															title="删除餐食"
@@ -369,7 +368,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 											<div className="empty-basket">
 												<div className="empty-icon">🍽️</div>
 												<p>今天还没有添加任何餐食</p>
-												<button 
+												<button
 													className="add-first-meal-btn"
 													onClick={() => {
 														if (onNavigate) {
@@ -562,16 +561,10 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 					margin-bottom: 2rem;
 				}
 
-				.stats-header h1 {
+				.stats-header h2 {
 					margin: 0 0 1rem 0;
 					color: #2c3e50;
 					font-size: 2.5rem;
-				}
-
-				.stats-header p {
-					margin: 0;
-					color: #6c757d;
-					font-size: 1.2rem;
 				}
 
 				.stats-controls {
@@ -579,7 +572,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 					border-radius: 8px;
 					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 					padding: 1.5rem;
-					margin-bottom: 2rem;
+					
 				}
 
 				.date-controls-wrapper {

@@ -59,15 +59,15 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 							onKeyPress={(e) => e.key === "Enter" && onSearch()}
 							disabled={loading}
 						/>
-						<button 
-							onClick={onSearch} 
-							className="btn btn-primary search-btn" 
+						<button
+							onClick={onSearch}
+							className="btn btn-primary search-btn"
 							disabled={loading}
 						>
 							{loading ? "搜索中..." : "搜索"}
 						</button>
 					</div>
-					
+
 					<div className="search-actions">
 						<button
 							onClick={() => {
@@ -118,14 +118,14 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 					flex-shrink: 0;
 					background: white;
 					border-bottom: 2px solid #e9ecef;
-					padding: 1.5rem;
+					padding: 0.5rem;
 					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 				}
 
 				.view-mode-selector {
 					display: flex;
 					gap: 0.5rem;
-					margin-bottom: 1rem;
+					margin-bottom: 0.5rem;
 					border-radius: 8px;
 					background: #f8f9fa;
 					padding: 0.5rem;
@@ -161,7 +161,7 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 				.search-section, .user-foods-section {
 					background: #f8f9fa;
 					border-radius: 8px;
-					padding: 1rem;
+					padding: 0.5rem;
 				}
 
 				.search-bar {
