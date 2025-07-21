@@ -957,9 +957,6 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					padding: 1rem;
 				}
 
-				
-
-
 				.add-food-layout {
 					display: grid;
 					grid-template-columns: 400px 1fr;
@@ -1190,21 +1187,6 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					padding: 1.5rem;
 				}
 
-				.meal-selector {
-					display: flex;
-					align-items: center;
-					gap: 0.5rem;
-					
-				}
-
-				.meal-selector select {
-					min-width: 120px;
-				}
-				.meal-selector .form-label {
-  white-space: nowrap; 
-  margin-bottom: 0; 
-}
-
 				.loading-message, .empty-message {
 					text-align: center;
 					color: #6c757d;
@@ -1316,14 +1298,6 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						order: 1;
 					}
 
-					.search-bar {
-						flex-direction: column;
-					}
-
-					.search-actions {
-						flex-direction: column;
-					}
-
 					.form-row {
 						grid-template-columns: 1fr;
 					}
@@ -1335,8 +1309,6 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					.cart-actions {
 						flex-direction: column;
 					}
-
-					
 				}
 			`}</style>
 		</div>
