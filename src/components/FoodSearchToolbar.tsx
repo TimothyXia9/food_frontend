@@ -66,9 +66,15 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 						>
 							{loading ? "搜索中..." : "搜索"}
 						</button>
+						<button
+							className="btn btn-warning"
+							onClick={() => isAuthenticated ? onCameraCapture() : onLoginRequired()}
+						>
+							📸 拍照识别
+						</button>
 					</div>
 
-					<div className="search-actions">
+					{/* <div className="search-actions">
 						<button
 							onClick={() => {
 								if (isAuthenticated) {
@@ -81,13 +87,8 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 						>
 							+ 创建自定义食物
 						</button>
-						<button
-							className="btn btn-warning"
-							onClick={() => isAuthenticated ? onCameraCapture() : onLoginRequired()}
-						>
-							📸 拍照识别
-						</button>
-					</div>
+
+					</div> */}
 				</div>
 			)}
 
