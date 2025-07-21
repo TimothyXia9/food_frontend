@@ -975,7 +975,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					display: grid;
 					grid-template-columns: 400px 1fr;
 					gap: 2rem;
-					height: calc(100vh - 200px);
+					height: calc(100vh - 175px);
 				}
 
 				.meal-cart-section {
