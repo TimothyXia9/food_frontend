@@ -737,7 +737,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									className="btn btn-primary save-btn"
 									disabled={!isAuthenticated || isSavingMeal}
 								>
-									{isSavingMeal 
+									{isSavingMeal
 										? (editingMealId ? "更新中..." : "保存中...")
 										: (editingMealId ? "更新食物篮" : "保存食物篮")
 									}
@@ -1389,12 +1389,6 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 		} finally {
 			setLoadingNutrition(false);
 		}
-	};
-
-	const handleCameraCapture = () => {
-		// 拍照识别功能 - 暂时显示提示
-		console.log("Camera capture functionality");
-		// TODO: 实现拍照识别功能
 	};
 
 	return (
