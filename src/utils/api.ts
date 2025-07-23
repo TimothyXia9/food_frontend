@@ -1,6 +1,6 @@
 import { ApiResponse } from "../types/api";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000/api/v1";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api/v1";
 
 class ApiClient {
 	private baseURL: string;

@@ -3,7 +3,7 @@ import { imageService } from "../services/imageService";
 import { useNotification } from "../contexts/NotificationContext";
 
 interface ImageUploadProps {
-	onImageUploaded: (imageId: number, results: any) => void;
+	onImageUploaded: (imageId: number, results: any, imagePreview?: string) => void;
 	onUploadStart?: () => void;
 	onUploadEnd?: () => void;
 	disabled?: boolean;
@@ -40,6 +40,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 			error("图片文件大小不能超过10MB");
 			return;
 		}
+
+		// 创建图片预览URL
+		const imagePreviewUrl = URL.createObjectURL(file);
 
 		try {
 			setUploading(true);
@@ -96,7 +99,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 					}))
 				};
 				
-				onImageUploaded(imageId, mockResults);
+				onImageUploaded(imageId, mockResults, imagePreviewUrl);
 			} else {
 				throw new Error("未能识别到食物关键词");
 			}
@@ -106,6 +109,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 			error(
 				err instanceof Error ? err.message : "图片处理失败，请重试"
 			);
+			// 清理预览URL
+			URL.revokeObjectURL(imagePreviewUrl);
 		} finally {
 			setUploading(false);
 			setAnalyzing(false);

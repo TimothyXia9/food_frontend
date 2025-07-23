@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getCurrentLocalDate } from "../utils/timezone";
 import ImageUpload from "../components/ImageUpload";
@@ -16,10 +16,32 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	// 图像识别相关状态
 	const [recognizedFoods, setRecognizedFoods] = useState<any[]>([]);
 	const [imageRecognitionHistory, setImageRecognitionHistory] = useState<any[]>([]);
+	const [currentImagePreview, setCurrentImagePreview] = useState<string | null>(null);
+	const [currentImageId, setCurrentImageId] = useState<number | null>(null);
+
+	// 清理资源
+	useEffect(() => {
+		return () => {
+			// 组件卸载时清理预览URL
+			if (currentImagePreview) {
+				URL.revokeObjectURL(currentImagePreview);
+			}
+		};
+	}, [currentImagePreview]);
 
 	// 处理图像识别结果
-	const handleImageRecognitionResults = (imageId: number, results: any) => {
+	const handleImageRecognitionResults = (imageId: number, results: any, imagePreview?: string) => {
 		console.log("Dashboard - Image recognition results:", { imageId, results });
+		
+		// 设置当前图片预览
+		if (imagePreview) {
+			// 清理之前的预览URL
+			if (currentImagePreview) {
+				URL.revokeObjectURL(currentImagePreview);
+			}
+			setCurrentImagePreview(imagePreview);
+			setCurrentImageId(imageId);
+		}
 		
 		if (results && results.keywords && results.keywords.length > 0) {
 			// 使用关键词创建简化的食物数据
@@ -67,6 +89,16 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		} else {
 			// 没有识别到食物
 			error("未能识别到食物，请尝试拍摄更清晰的图片");
+		}
+	};
+
+	// 清除当前图片预览
+	const clearCurrentImage = () => {
+		if (currentImagePreview) {
+			URL.revokeObjectURL(currentImagePreview);
+			setCurrentImagePreview(null);
+			setCurrentImageId(null);
+			setRecognizedFoods([]);
 		}
 	};
 
@@ -123,11 +155,36 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 					</div>
 					<div className="image-recognition-content">
 						<div className="upload-section">
-							<p className="upload-description">上传食物图片，AI会自动识别并分析营养成分</p>
-							<ImageUpload
-								onImageUploaded={handleImageRecognitionResults}
-								disabled={!isAuthenticated}
-							/>
+							{currentImagePreview ? (
+								<div className="image-preview-container">
+									<img 
+										src={currentImagePreview} 
+										alt="上传的食物图片" 
+										className="uploaded-image-preview"
+									/>
+									<div className="image-overlay">
+										<ImageUpload
+											onImageUploaded={handleImageRecognitionResults}
+											disabled={!isAuthenticated}
+										/>
+										<button 
+											className="btn btn-secondary clear-btn"
+											onClick={clearCurrentImage}
+											title="清除当前图片"
+										>
+											✕
+										</button>
+									</div>
+								</div>
+							) : (
+								<>
+									<p className="upload-description">上传食物图片，AI会自动识别并分析营养成分</p>
+									<ImageUpload
+										onImageUploaded={handleImageRecognitionResults}
+										disabled={!isAuthenticated}
+									/>
+								</>
+							)}
 						</div>
 						
 						{recognizedFoods.length > 0 && (
@@ -309,12 +366,77 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 					border: 2px dashed #e9ecef;
 					border-radius: 8px;
 					background: #f8f9fa;
+					position: relative;
+					min-height: 200px;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
 				}
 
 				.upload-description {
 					margin-bottom: 1rem;
 					color: #6c757d;
 					font-size: 0.9rem;
+				}
+
+				.image-preview-container {
+					position: relative;
+					width: 100%;
+					height: 100%;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+				}
+
+				.uploaded-image-preview {
+					max-width: 100%;
+					max-height: 300px;
+					border-radius: 8px;
+					box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+					object-fit: contain;
+				}
+
+				.image-overlay {
+					position: absolute;
+					bottom: 10px;
+					right: 10px;
+					background: rgba(255, 255, 255, 0.9);
+					border-radius: 8px;
+					padding: 0.5rem;
+					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+					display: flex;
+					gap: 0.5rem;
+					align-items: center;
+				}
+
+				.image-overlay .btn {
+					background: #007bff;
+					color: white;
+					border: none;
+					padding: 0.5rem 1rem;
+					border-radius: 6px;
+					font-size: 0.85rem;
+					cursor: pointer;
+					transition: all 0.3s ease;
+				}
+
+				.image-overlay .btn:hover:not(:disabled) {
+					background: #0056b3;
+					transform: translateY(-1px);
+				}
+
+				.clear-btn {
+					background: #6c757d !important;
+					color: white;
+					padding: 0.3rem 0.6rem !important;
+					font-size: 0.8rem !important;
+					min-width: auto;
+					line-height: 1;
+				}
+
+				.clear-btn:hover:not(:disabled) {
+					background: #5a6268 !important;
 				}
 
 				.recognition-results {
@@ -429,6 +551,22 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 					
 					.upload-section {
 						padding: 0.75rem;
+						min-height: 150px;
+					}
+
+					.uploaded-image-preview {
+						max-height: 200px;
+					}
+
+					.image-overlay {
+						bottom: 5px;
+						right: 5px;
+						padding: 0.25rem;
+					}
+
+					.image-overlay .btn {
+						padding: 0.4rem 0.8rem;
+						font-size: 0.8rem;
 					}
 				}
 			`}</style>
