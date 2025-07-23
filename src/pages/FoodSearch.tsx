@@ -35,6 +35,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const [viewMode, setViewMode] = React.useState<"search" | "user">("search");
 	const [userFoods, setUserFoods] = React.useState<Food[]>([]);
 	const [userFoodsLoading, setUserFoodsLoading] = React.useState(false);
+	const [isSavingMeal, setIsSavingMeal] = React.useState(false);
 
 	// Note: getCurrentLocalDateTime is now imported from utils/timezone
 
@@ -305,9 +306,15 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			return;
 		}
 
+		// 防抖保护：如果正在保存中，直接返回
+		if (isSavingMeal) {
+			return;
+		}
+
 		// Use datetime as name if no name is provided
 		const finalMealName = mealName || formatDateTimeAsName(mealTime);
 
+		setIsSavingMeal(true);
 		try {
 			// Extract date and determine meal type from time
 			const mealDateTime = createLocalDateTime(mealTime);
@@ -384,6 +391,8 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		} catch (error) {
 			console.error("Save meal error:", error);
 			showError(`${editingMealId ? "更新" : "保存"}食物篮时发生错误`);
+		} finally {
+			setIsSavingMeal(false);
 		}
 	};
 
@@ -726,9 +735,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 								<button
 									onClick={handleSaveMeal}
 									className="btn btn-primary save-btn"
-									disabled={!isAuthenticated}
+									disabled={!isAuthenticated || isSavingMeal}
 								>
-									{editingMealId ? "更新食物篮" : "保存食物篮"}
+									{isSavingMeal 
+										? (editingMealId ? "更新中..." : "保存中...")
+										: (editingMealId ? "更新食物篮" : "保存食物篮")
+									}
 								</button>
 							</div>
 						</div>
@@ -1170,6 +1182,13 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					padding: 0.75rem;
 					border-radius: 6px;
 					font-weight: 500;
+					transition: all 0.3s ease;
+				}
+
+				.save-btn:disabled {
+					opacity: 0.7;
+					cursor: not-allowed;
+					transform: none;
 				}
 
 				.food-search-section {
