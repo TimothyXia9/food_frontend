@@ -29,6 +29,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "build:prod": "REACT_APP_API_BASE_URL=https://your-production-domain.com/api/v1 react-scripts build",
     "test": "react-scripts test",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
