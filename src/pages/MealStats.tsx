@@ -343,6 +343,24 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 															脂肪: {meal.total_fat.toFixed(1)}g |
 															碳水: {meal.total_carbs.toFixed(1)}g
 														</div>
+														{meal.foods && meal.foods.length > 0 && (
+															<div className="meal-foods">
+																<div className="foods-header">包含食物:</div>
+																<div className="foods-list">
+																	{meal.foods.slice(0, 3).map((mealFood: any, index: number) => (
+																		<div key={index} className="food-item">
+																			<span className="food-name">{mealFood.food?.name || mealFood.name || "未知食物"}</span>
+																			<span className="food-quantity">{Math.round(mealFood.quantity)}g</span>
+																		</div>
+																	))}
+																	{meal.foods.length > 3 && (
+																		<div className="more-foods">
+																			还有 {meal.foods.length - 3} 种食物...
+																		</div>
+																	)}
+																</div>
+															</div>
+														)}
 													</div>
 													<div className="meal-actions">
 														<button
@@ -779,6 +797,62 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 				.meal-macros {
 					font-size: 0.8rem;
 					color: #6c757d;
+				}
+
+				.meal-foods {
+					margin-top: 0.75rem;
+					padding-top: 0.75rem;
+					border-top: 1px solid #e9ecef;
+				}
+
+				.foods-header {
+					font-size: 0.8rem;
+					font-weight: 600;
+					color: #495057;
+					margin-bottom: 0.5rem;
+				}
+
+				.foods-list {
+					display: flex;
+					flex-direction: column;
+					gap: 0.25rem;
+				}
+
+				.meal-foods .food-item {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					font-size: 0.75rem;
+					padding: 0.25rem 0;
+				}
+
+				.meal-foods .food-name {
+					color: #2c3e50;
+					font-weight: 500;
+					flex: 1;
+					margin-right: 0.5rem;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+
+				.meal-foods .food-quantity {
+					color: #7f8c8d;
+					font-size: 0.7rem;
+					background: #ecf0f1;
+					padding: 0.1rem 0.3rem;
+					border-radius: 3px;
+					white-space: nowrap;
+				}
+
+				.more-foods {
+					color: #95a5a6;
+					font-style: italic;
+					font-size: 0.7rem;
+					text-align: center;
+					padding: 0.25rem 0;
+					border-top: 1px dotted #dee2e6;
+					margin-top: 0.25rem;
 				}
 
 				.meal-actions {
