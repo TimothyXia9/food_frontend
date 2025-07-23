@@ -5,7 +5,6 @@ import LoginModal from "./components/LoginModal";
 import Dashboard from "./pages/Dashboard";
 import FoodSearch from "./pages/FoodSearch";
 import Profile from "./pages/Profile";
-import Statistics from "./pages/Statistics";
 import MealStats from "./pages/MealStats";
 import ApiTest from "./pages/ApiTest";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -43,8 +42,6 @@ function AppContent() {
 			return <MealStats onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
 		case "profile":
 			return <Profile onLoginRequired={handleLoginRequired} />;
-		case "statistics":
-			return <Statistics onLoginRequired={handleLoginRequired} />;
 		case "api-test":
 			return <ApiTest onLoginRequired={handleLoginRequired} />;
 		default:
