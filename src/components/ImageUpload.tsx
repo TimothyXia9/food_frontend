@@ -59,53 +59,47 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 			setUploading(false);
 			setAnalyzing(true);
 
-			// 步骤2: 开始图片分析
-			const analyzeResponse = await imageService.analyzeImage(imageId, "full");
+			// 步骤2: 分析获取食物关键词
+			info("正在分析图片中的食物...");
+			const analyzeResponse = await imageService.analyzeImage(imageId);
 			
-			if (!analyzeResponse.success) {
-				throw new Error("启动图片分析失败");
+			if (!analyzeResponse.success || !analyzeResponse.data) {
+				throw new Error("图片分析失败");
 			}
 
-			info("正在分析图片中的食物...");
-
-			// 步骤3: 轮询获取分析结果
-			let attempts = 0;
-			const maxAttempts = 30; // 最多等待30次，每次2秒 = 60秒
-			
-			const pollResults = async (): Promise<void> => {
-				try {
-					const resultsResponse = await imageService.getImageResults(imageId);
-					
-					if (resultsResponse.success && resultsResponse.data) {
-						const data = resultsResponse.data;
-						
-						if (data.processing_status === "completed") {
-							success("图片分析完成！");
-							setAnalyzing(false);
-							onUploadEnd?.();
-							onImageUploaded(imageId, data);
-							return;
-						} else if (data.processing_status === "failed") {
-							throw new Error("图片分析失败");
-						} else if (data.processing_status === "processing" || data.processing_status === "pending") {
-							attempts++;
-							if (attempts < maxAttempts) {
-								setTimeout(pollResults, 2000); // 2秒后重试
-								return;
-							} else {
-								throw new Error("图片分析超时，请稍后重试");
-							}
+			const data = analyzeResponse.data;
+			if (data.status === "completed" && data.keywords && data.keywords.length > 0) {
+				success("图片分析完成！");
+				setAnalyzing(false);
+				onUploadEnd?.();
+				
+				// 将关键词转换为模拟的识别结果格式
+				const mockResults = {
+					image_id: imageId,
+					processing_status: "completed" as const,
+					keywords: data.keywords,
+					results: data.keywords.map((keyword: string, index: number) => ({
+						id: index + 1,
+						food: {
+							id: index + 1,
+							name: keyword,
+							calories_per_100g: 100, // 模拟数据
+							protein_per_100g: 10,
+							fat_per_100g: 5,
+							carbs_per_100g: 20,
+							fiber_per_100g: 2,
+							sugar_per_100g: 5,
+							sodium_per_100g: 100,
+							serving_size: 100,
+							is_custom: false
 						}
-					}
-					
-					throw new Error("获取分析结果失败");
-				} catch (error) {
-					console.error("轮询结果失败:", error);
-					throw error;
-				}
-			};
-
-			await pollResults();
+					}))
+				};
+				
+				onImageUploaded(imageId, mockResults);
+			} else {
+				throw new Error("未能识别到食物关键词");
+			}
 
 		} catch (err) {
 			console.error("图片上传分析失败:", err);

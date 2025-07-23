@@ -35,7 +35,7 @@ function AppContent() {
 	const renderPage = () => {
 		switch (currentPage) {
 		case "food-search":
-			return <FoodSearch onLoginRequired={handleLoginRequired} />;
+			return <FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
 		case "dashboard":
 			return <Dashboard onLoginRequired={handleLoginRequired} />;
 		case "meal-stats":
@@ -45,7 +45,7 @@ function AppContent() {
 		case "api-test":
 			return <ApiTest onLoginRequired={handleLoginRequired} />;
 		default:
-			return <FoodSearch onLoginRequired={handleLoginRequired} />;
+			return <FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
 		}
 	};
 

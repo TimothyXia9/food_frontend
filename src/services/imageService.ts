@@ -7,10 +7,9 @@ class ImageService {
 		return apiClient.uploadFile<ImageUpload>("/images/upload/", file, additionalData);
 	}
 
-	async analyzeImage(imageId: number, analysisType: "full" | "quick" = "full"): Promise<ApiResponse<{ analysis_id: number; status: string; estimated_completion: string }>> {
-		return apiClient.post<{ analysis_id: number; status: string; estimated_completion: string }>("/images/analyze/", {
+	async analyzeImage(imageId: number, analysisType: "full" | "quick" = "full"): Promise<ApiResponse<{ analysis_id: number; status: string; keywords?: string[] }>> {
+		return apiClient.post<{ analysis_id: number; status: string; keywords?: string[] }>("/images/analyze/", {
 			image_id: imageId,
-			analysis_type: analysisType,
 		});
 	}
 

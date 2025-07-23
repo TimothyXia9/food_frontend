@@ -10,9 +10,10 @@ import { getCurrentLocalDateTime, createLocalDateTime, localToUTC } from "../uti
 
 interface FoodSearchProps {
 	onLoginRequired: () => void;
+	onNavigate?: (page: string) => void;
 }
 
-const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
+const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 	const { isAuthenticated } = useAuth();
 	const { success, error: showError, confirm } = useNotification();
 	const [searchQuery, setSearchQuery] = React.useState("");
@@ -603,9 +604,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	};
 
 	const handleCameraCapture = () => {
-		// 拍照识别功能 - 暂时显示提示
-		console.log("Camera capture functionality");
-		// TODO: 实现拍照识别功能
+		// 跳转到Dashboard进行拍照识别
+		if (onNavigate) {
+			onNavigate("dashboard");
+		} else {
+			console.log("Navigation function not provided");
+		}
 	};
 
 	return (

@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getCurrentLocalDate } from "../utils/timezone";
+import ImageUpload from "../components/ImageUpload";
+import { useNotification } from "../contexts/NotificationContext";
 
 interface DashboardProps {
 	onLoginRequired: () => void;
@@ -8,7 +10,65 @@ interface DashboardProps {
 
 const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	const { isAuthenticated } = useAuth();
+	const { success, error } = useNotification();
 	const todayDate = new Date(getCurrentLocalDate()).toLocaleDateString("zh-CN");
+	
+	// 图像识别相关状态
+	const [recognizedFoods, setRecognizedFoods] = useState<any[]>([]);
+	const [imageRecognitionHistory, setImageRecognitionHistory] = useState<any[]>([]);
+
+	// 处理图像识别结果
+	const handleImageRecognitionResults = (imageId: number, results: any) => {
+		console.log("Dashboard - Image recognition results:", { imageId, results });
+		
+		if (results && results.keywords && results.keywords.length > 0) {
+			// 使用关键词创建简化的食物数据
+			const recognizedFoods = results.keywords.map((keyword: string, index: number) => ({
+				id: index + 1,
+				name: keyword,
+				imageId,
+				recognizedAt: new Date().toLocaleString("zh-CN"),
+				calories_per_100g: 100, // 模拟数据
+				isKeyword: true // 标记这是关键词结果
+			}));
+			
+			setRecognizedFoods(recognizedFoods);
+			
+			// 添加到识别历史
+			const historyItem = {
+				imageId,
+				recognizedAt: new Date().toLocaleString("zh-CN"),
+				foodCount: recognizedFoods.length,
+				foods: results.keywords.join(", ")
+			};
+			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]); // 只保留最近5次
+			
+			// 显示成功消息
+			success(`识别到 ${recognizedFoods.length} 个食物关键词！`);
+		} else if (results && results.results && results.results.length > 0) {
+			// 处理完整的识别结果（向后兼容）
+			const recognizedFoods = results.results.map((result: any) => ({
+				...result.food,
+				imageId,
+				recognizedAt: new Date().toLocaleString("zh-CN")
+			}));
+			
+			setRecognizedFoods(recognizedFoods);
+			
+			const historyItem = {
+				imageId,
+				recognizedAt: new Date().toLocaleString("zh-CN"),
+				foodCount: recognizedFoods.length,
+				foods: recognizedFoods.map((food: any) => food.name).join(", ")
+			};
+			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]);
+			
+			success(`识别到 ${recognizedFoods.length} 种食物！`);
+		} else {
+			// 没有识别到食物
+			error("未能识别到食物，请尝试拍摄更清晰的图片");
+		}
+	};
 
 	// 模拟数据
 	const recentMeals = [
@@ -56,6 +116,61 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				<p className="date">{todayDate}</p>
 			</div>
 			<div className="dashboard-grid">
+				{/* 图像识别 */}
+				<div className="card image-recognition-card">
+					<div className="card-header">
+						<h3 className="card-title">📸 拍照识别食物</h3>
+					</div>
+					<div className="image-recognition-content">
+						<div className="upload-section">
+							<p className="upload-description">上传食物图片，AI会自动识别并分析营养成分</p>
+							<ImageUpload
+								onImageUploaded={handleImageRecognitionResults}
+								disabled={!isAuthenticated}
+							/>
+						</div>
+						
+						{recognizedFoods.length > 0 && (
+							<div className="recognition-results">
+								<h4>识别结果：</h4>
+								{recognizedFoods[0]?.isKeyword && (
+									<p className="keyword-hint">以下是识别到的食物关键词，可用于搜索更准确的食物信息</p>
+								)}
+								<div className="recognized-foods">
+									{recognizedFoods.map((food, index) => (
+										<div key={index} className={`recognized-food-item ${food.isKeyword ? 'keyword-item' : ''}`}>
+											<div className="food-name">{food.name}</div>
+											<div className="food-info">
+												{food.isKeyword ? (
+													<span className="keyword-label">搜索关键词</span>
+												) : (
+													food.calories_per_100g && (
+														<span className="calories">{food.calories_per_100g} kcal/100g</span>
+													)
+												)}
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+						)}
+						
+						{imageRecognitionHistory.length > 0 && (
+							<div className="recognition-history">
+								<h4>识别历史：</h4>
+								<div className="history-list">
+									{imageRecognitionHistory.map((item, index) => (
+										<div key={index} className="history-item">
+											<div className="history-time">{item.recognizedAt}</div>
+											<div className="history-foods">识别到 {item.foodCount} 种食物：{item.foods}</div>
+										</div>
+									))}
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+
 				{/* 今日餐食 */}
 				<div className="card meals-card">
 					<div className="card-header">
@@ -175,6 +290,146 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				.not-authenticated p {
 					margin-bottom: 2rem;
 					color: #7f8c8d;
+				}
+
+				/* 图像识别样式 */
+				.image-recognition-card {
+					margin-bottom: 1.5rem;
+				}
+
+				.image-recognition-content {
+					display: flex;
+					flex-direction: column;
+					gap: 1.5rem;
+				}
+
+				.upload-section {
+					text-align: center;
+					padding: 1rem;
+					border: 2px dashed #e9ecef;
+					border-radius: 8px;
+					background: #f8f9fa;
+				}
+
+				.upload-description {
+					margin-bottom: 1rem;
+					color: #6c757d;
+					font-size: 0.9rem;
+				}
+
+				.recognition-results {
+					padding: 1rem;
+					background: #e8f5e8;
+					border-radius: 8px;
+					border-left: 4px solid #28a745;
+				}
+
+				.recognition-results h4 {
+					margin: 0 0 0.75rem 0;
+					color: #155724;
+					font-size: 1rem;
+				}
+
+				.recognized-foods {
+					display: grid;
+					grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+					gap: 0.75rem;
+				}
+
+				.recognized-food-item {
+					padding: 0.75rem;
+					background: white;
+					border-radius: 6px;
+					border: 1px solid #c3e6cb;
+				}
+
+				.food-name {
+					font-weight: bold;
+					color: #155724;
+					margin-bottom: 0.25rem;
+				}
+
+				.food-info {
+					font-size: 0.85rem;
+					color: #6c757d;
+				}
+
+				.calories {
+					background: #d4edda;
+					padding: 0.2rem 0.4rem;
+					border-radius: 4px;
+					font-size: 0.8rem;
+				}
+
+				.keyword-hint {
+					margin-bottom: 0.75rem;
+					padding: 0.5rem;
+					background: #fff3cd;
+					border: 1px solid #ffeaa7;
+					border-radius: 4px;
+					font-size: 0.85rem;
+					color: #856404;
+				}
+
+				.keyword-item {
+					background: #f8f9ff;
+					border: 1px solid #c3d4f7;
+				}
+
+				.keyword-label {
+					background: #e3f2fd;
+					color: #1976d2;
+					padding: 0.2rem 0.4rem;
+					border-radius: 4px;
+					font-size: 0.8rem;
+					font-weight: 500;
+				}
+
+				.recognition-history {
+					padding: 1rem;
+					background: #f8f9fa;
+					border-radius: 8px;
+					border-left: 4px solid #6c757d;
+				}
+
+				.recognition-history h4 {
+					margin: 0 0 0.75rem 0;
+					color: #495057;
+					font-size: 1rem;
+				}
+
+				.history-list {
+					display: flex;
+					flex-direction: column;
+					gap: 0.5rem;
+				}
+
+				.history-item {
+					padding: 0.5rem;
+					background: white;
+					border-radius: 4px;
+					border: 1px solid #dee2e6;
+				}
+
+				.history-time {
+					font-size: 0.8rem;
+					color: #6c757d;
+					margin-bottom: 0.25rem;
+				}
+
+				.history-foods {
+					font-size: 0.85rem;
+					color: #495057;
+				}
+
+				@media (max-width: 768px) {
+					.recognized-foods {
+						grid-template-columns: 1fr;
+					}
+					
+					.upload-section {
+						padding: 0.75rem;
+					}
 				}
 			`}</style>
 		</div>
