@@ -45,6 +45,7 @@
 -   **样式方案**: Styled-JSX
 -   **代码规范**: ESLint + TypeScript ESLint
 -   **测试框架**: Jest + React Testing Library
+-   **分析工具**: Vercel Analytics + Speed Insights
 
 ## 📁 项目结构
 
@@ -76,6 +77,18 @@ src/
 ```bash
 npm install
 ```
+
+### 环境配置
+
+复制 `.env.example` 到 `.env` 并配置相关参数：
+
+```bash
+cp .env.example .env
+```
+
+主要配置项：
+- `REACT_APP_API_BASE_URL`: 后端API地址
+- `REACT_APP_ENABLE_ANALYTICS`: 是否启用Vercel Analytics (true/false)
 
 ### 开发模式
 

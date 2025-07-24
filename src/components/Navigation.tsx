@@ -1,4 +1,5 @@
 import React from "react";
+import { trackPageView } from "../utils/analytics";
 
 interface NavigationProps {
 	currentPage: string;
@@ -28,6 +29,7 @@ const Navigation = ({ currentPage, onNavigate, onLogout, onLoginRequired, isAuth
 							if (item.requiresAuth && !isAuthenticated) {
 								onLoginRequired();
 							} else {
+								trackPageView(item.key);
 								onNavigate(item.key);
 							}
 						}}

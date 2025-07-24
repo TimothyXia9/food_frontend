@@ -9,6 +9,8 @@ import MealStats from "./pages/MealStats";
 import ApiTest from "./pages/ApiTest";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 function AppContent() {
 	const [currentPage, setCurrentPage] = useState("food-search");
@@ -34,18 +36,18 @@ function AppContent() {
 
 	const renderPage = () => {
 		switch (currentPage) {
-		case "food-search":
-			return <FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
-		case "dashboard":
-			return <Dashboard onLoginRequired={handleLoginRequired} />;
-		case "meal-stats":
-			return <MealStats onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
-		case "profile":
-			return <Profile onLoginRequired={handleLoginRequired} />;
-		case "api-test":
-			return <ApiTest onLoginRequired={handleLoginRequired} />;
-		default:
-			return <FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
+			case "food-search":
+				return <FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
+			case "dashboard":
+				return <Dashboard onLoginRequired={handleLoginRequired} />;
+			case "meal-stats":
+				return <MealStats onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
+			case "profile":
+				return <Profile onLoginRequired={handleLoginRequired} />;
+			case "api-test":
+				return <ApiTest onLoginRequired={handleLoginRequired} />;
+			default:
+				return <FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
 		}
 	};
 
@@ -71,10 +73,15 @@ function AppContent() {
 }
 
 function App() {
+	// Enable analytics based on environment variable
+	const enableAnalytics = process.env.REACT_APP_ENABLE_ANALYTICS === "true";
+	
 	return (
 		<AuthProvider>
 			<NotificationProvider>
 				<AppContent />
+				{enableAnalytics && <Analytics />}
+				{enableAnalytics && <SpeedInsights />}
 			</NotificationProvider>
 		</AuthProvider>
 	);
