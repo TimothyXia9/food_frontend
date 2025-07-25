@@ -8,3 +8,5 @@
 public/favicon.png
 
 .prettierrc
+
+/.env.production
