@@ -5,7 +5,7 @@
 /build
 /dist
 
-eslint.config.js
-
 /build
 public/favicon.png
+
+.prettierrc

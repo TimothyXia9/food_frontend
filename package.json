@@ -24,6 +24,7 @@
     "@types/scheduler": "^0.26.0",
     "@types/styled-components": "^5.1.34",
     "eslint": "^8.57.1",
+    "prettier": "^3.6.2",
     "typescript": "^4.9.5",
     "typescript-eslint": "^8.36.0"
   },
@@ -35,7 +36,9 @@
     "test": "react-scripts test",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
-    "lint:fix": "eslint src/**/*.{js,jsx,ts,tsx} --fix"
+    "lint:fix": "eslint src/**/*.{js,jsx,ts,tsx} --fix",
+    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,json,css,md}",
+    "format:check": "prettier --check src/**/*.{js,jsx,ts,tsx,json,css,md}"
   },
   "browserslist": {
     "production": [
