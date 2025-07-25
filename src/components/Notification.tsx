@@ -28,16 +28,16 @@ const Notification: React.FC<NotificationProps> = ({
 
 	const getIcon = () => {
 		switch (type) {
-		case "success":
-			return "✓";
-		case "error":
-			return "✕";
-		case "warning":
-			return "⚠";
-		case "info":
-			return "ℹ";
-		default:
-			return "ℹ";
+			case "success":
+				return "✓";
+			case "error":
+				return "✕";
+			case "warning":
+				return "⚠";
+			case "info":
+				return "ℹ";
+			default:
+				return "ℹ";
 		}
 	};
 

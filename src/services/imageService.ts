@@ -7,30 +7,185 @@ class ImageService {
 		return apiClient.uploadFile<ImageUpload>("/images/upload/", file, additionalData);
 	}
 
-	async analyzeImage(imageId: number, analysisType: "full" | "quick" = "full"): Promise<ApiResponse<{ analysis_id: number; status: string; keywords?: string[] }>> {
-		return apiClient.post<{ analysis_id: number; status: string; keywords?: string[] }>("/images/analyze/", {
-			image_id: imageId,
-		});
+	async analyzeImage(
+		imageId: number,
+		analysisType: "full" | "quick" = "full"
+	): Promise<ApiResponse<{ analysis_id: number; status: string; keywords?: string[] }>> {
+		return apiClient.post<{ analysis_id: number; status: string; keywords?: string[] }>(
+			"/images/analyze/",
+			{
+				image_id: imageId,
+			}
+		);
+	}
+
+	async analyzeImageStreaming(
+		imageId: number,
+		onProgress: (data: {
+			step: string;
+			message?: string;
+			progress?: number;
+			foods?: any[];
+			portions?: any[];
+			stage_1?: any;
+			stage_2?: any;
+			error?: string;
+		}) => void,
+		abortController?: AbortController
+	): Promise<{ success: boolean; finalResult?: any; error?: string; cancelled?: boolean }> {
+		try {
+			const token = apiClient.getToken();
+			if (!token) {
+				throw new Error("No authentication token found");
+			}
+
+			const response = await fetch(
+				`${process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api/v1"}/images/analyze-stream/`,
+				{
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${token}`,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ image_id: imageId }),
+					signal: abortController?.signal,
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+
+			const reader = response.body?.getReader();
+			if (!reader) {
+				throw new Error("Unable to read response stream");
+			}
+
+			const decoder = new TextDecoder();
+			let finalResult: any = null;
+
+			try {
+				let reading = true;
+				while (reading) {
+					// Check if cancelled
+					if (abortController?.signal.aborted) {
+						throw new Error("Analysis cancelled by user");
+					}
+
+					const { done, value } = await reader.read();
+					if (done) {
+						reading = false;
+						break;
+					}
+
+					const chunk = decoder.decode(value);
+					const lines = chunk.split("\n");
+
+					for (const line of lines) {
+						if (line.startsWith("data: ")) {
+							try {
+								const data = JSON.parse(line.slice(6));
+								onProgress(data);
+
+								if (data.step === "complete") {
+									finalResult = data;
+								}
+
+								if (data.step === "error") {
+									throw new Error(data.error || "Analysis failed");
+								}
+							} catch (parseError) {
+								console.warn("Failed to parse SSE data:", line, parseError);
+							}
+						}
+					}
+				}
+			} finally {
+				reader.releaseLock();
+			}
+
+			return { success: true, finalResult };
+		} catch (error) {
+			console.error("Streaming analysis error:", error);
+
+			// Check if it was cancelled
+			if (
+				abortController?.signal.aborted ||
+				(error instanceof Error && error.message.includes("cancelled"))
+			) {
+				return {
+					success: false,
+					cancelled: true,
+					error: "Analysis cancelled by user",
+				};
+			}
+
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : "Unknown error",
+			};
+		}
 	}
 
 	async getImageResults(imageId: number): Promise<ApiResponse<ImageRecognition>> {
 		return apiClient.get<ImageRecognition>(`/images/${imageId}/results/`);
 	}
 
-	async confirmRecognitionResults(data: { result_id: number; is_confirmed: boolean; corrections?: any[] }): Promise<ApiResponse<{ result_id: number; confirmed: boolean; corrections_applied: number }>> {
-		return apiClient.post<{ result_id: number; confirmed: boolean; corrections_applied: number }>("/images/confirm/", data);
+	async confirmRecognitionResults(data: {
+		result_id: number;
+		is_confirmed: boolean;
+		corrections?: any[];
+	}): Promise<
+		ApiResponse<{ result_id: number; confirmed: boolean; corrections_applied: number }>
+	> {
+		return apiClient.post<{
+			result_id: number;
+			confirmed: boolean;
+			corrections_applied: number;
+		}>("/images/confirm/", data);
 	}
 
-	async createMealFromImage(data: { image_id: number; meal_type: string; date?: string; meal_name?: string }): Promise<ApiResponse<{ meal_id: number; image_id: number; foods_added: number; total_calories: number }>> {
-		return apiClient.post<{ meal_id: number; image_id: number; foods_added: number; total_calories: number }>("/images/create-meal/", data);
+	async createMealFromImage(data: {
+		image_id: number;
+		meal_type: string;
+		date?: string;
+		meal_name?: string;
+	}): Promise<
+		ApiResponse<{
+			meal_id: number;
+			image_id: number;
+			foods_added: number;
+			total_calories: number;
+		}>
+	> {
+		return apiClient.post<{
+			meal_id: number;
+			image_id: number;
+			foods_added: number;
+			total_calories: number;
+		}>("/images/create-meal/", data);
 	}
 
 	async deleteImage(imageId: number): Promise<ApiResponse<void>> {
 		return apiClient.delete<void>(`/images/${imageId}/delete/`);
 	}
 
-	async getUserImages(params?: { page?: number; page_size?: number; status?: string }): Promise<ApiResponse<{ images: ImageUpload[]; total_count: number; page: number; page_size: number; total_pages: number }>> {
-		return apiClient.get<{ images: ImageUpload[]; total_count: number; page: number; page_size: number; total_pages: number }>("/images/list/", params as unknown as Record<string, unknown>);
+	async getUserImages(params?: { page?: number; page_size?: number; status?: string }): Promise<
+		ApiResponse<{
+			images: ImageUpload[];
+			total_count: number;
+			page: number;
+			page_size: number;
+			total_pages: number;
+		}>
+	> {
+		return apiClient.get<{
+			images: ImageUpload[];
+			total_count: number;
+			page: number;
+			page_size: number;
+			total_pages: number;
+		}>("/images/list/", params as unknown as Record<string, unknown>);
 	}
 }
 

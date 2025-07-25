@@ -18,6 +18,13 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	const [imageRecognitionHistory, setImageRecognitionHistory] = useState<any[]>([]);
 	const [currentImagePreview, setCurrentImagePreview] = useState<string | null>(null);
 	const [currentImageId, setCurrentImageId] = useState<number | null>(null);
+	
+	// 流式分析状态
+	const [analysisProgress, setAnalysisProgress] = useState<number>(0);
+	const [analysisStep, setAnalysisStep] = useState<string>("");
+	const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+	const [detectedFoods, setDetectedFoods] = useState<any[]>([]);
+	const [estimatedPortions, setEstimatedPortions] = useState<any[]>([]);
 
 	// 清理资源
 	useEffect(() => {
@@ -29,18 +36,86 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		};
 	}, [currentImagePreview]);
 
+	// 处理图片预览（立即显示）
+	const handleImagePreview = (imagePreview: string) => {
+		// 清理之前的预览URL
+		if (currentImagePreview) {
+			URL.revokeObjectURL(currentImagePreview);
+		}
+		setCurrentImagePreview(imagePreview);
+		// 清空之前的识别结果
+		setRecognizedFoods([]);
+		setDetectedFoods([]);
+		setEstimatedPortions([]);
+		setAnalysisProgress(0);
+		setAnalysisStep("");
+		setIsAnalyzing(true);
+	};
+
+	// 处理流式分析进度
+	const handleStreamingProgress = (data: {
+		step: string;
+		message?: string;
+		progress?: number;
+		foods?: any[];
+		portions?: any[];
+		stage_1?: any;
+		stage_2?: any;
+	}) => {
+		console.log("Streaming progress:", data);
+		
+		setAnalysisStep(data.step);
+		
+		if (data.progress !== undefined) {
+			setAnalysisProgress(data.progress);
+		}
+		
+		switch (data.step) {
+			case "start":
+				setIsAnalyzing(true);
+				break;
+				
+			case "food_detection":
+				// 正在检测食物
+				break;
+				
+			case "food_detection_complete":
+				if (data.foods) {
+					setDetectedFoods(data.foods);
+				}
+				break;
+				
+			case "portion_estimation":
+				// 正在估算分量
+				break;
+				
+			case "complete":
+				setIsAnalyzing(false);
+				if (data.stage_1?.food_types) {
+					setDetectedFoods(data.stage_1.food_types);
+				}
+				if (data.stage_2?.food_portions) {
+					setEstimatedPortions(data.stage_2.food_portions);
+				}
+				break;
+				
+			case "error":
+				setIsAnalyzing(false);
+				error(data.message || "分析过程中出现错误");
+				break;
+		}
+	};
+
 	// 处理图像识别结果
 	const handleImageRecognitionResults = (imageId: number, results: any, imagePreview?: string) => {
 		console.log("Dashboard - Image recognition results:", { imageId, results });
 		
-		// 设置当前图片预览
-		if (imagePreview) {
-			// 清理之前的预览URL
-			if (currentImagePreview) {
-				URL.revokeObjectURL(currentImagePreview);
-			}
+		// 设置当前图片ID
+		setCurrentImageId(imageId);
+		
+		// 如果还没有预览图（备用处理）
+		if (imagePreview && !currentImagePreview) {
 			setCurrentImagePreview(imagePreview);
-			setCurrentImageId(imageId);
 		}
 		
 		if (results && results.keywords && results.keywords.length > 0) {
@@ -165,7 +240,10 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 									<div className="image-overlay">
 										<ImageUpload
 											onImageUploaded={handleImageRecognitionResults}
+											onImagePreview={handleImagePreview}
+											onStreamingProgress={handleStreamingProgress}
 											disabled={!isAuthenticated}
+											useStreaming={true}
 										/>
 										<button 
 											className="btn btn-secondary clear-btn"
@@ -181,11 +259,60 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 									<p className="upload-description">上传食物图片，AI会自动识别并分析营养成分</p>
 									<ImageUpload
 										onImageUploaded={handleImageRecognitionResults}
+										onImagePreview={handleImagePreview}
+										onStreamingProgress={handleStreamingProgress}
 										disabled={!isAuthenticated}
+										useStreaming={true}
 									/>
 								</>
 							)}
 						</div>
+						
+						{/* 流式分析进度显示 */}
+						{isAnalyzing && (
+							<div className="analysis-progress">
+								<div className="progress-header">
+									<h4>分析进度：{analysisStep === "food_detection" ? "识别食物中..." : analysisStep === "portion_estimation" ? "估算分量中..." : "处理中..."}</h4>
+									<div className="progress-percentage">{analysisProgress}%</div>
+								</div>
+								<div className="progress-bar">
+									<div className="progress-fill" style={{width: `${analysisProgress}%`}}></div>
+								</div>
+								
+								{/* 显示已检测到的食物 */}
+								{detectedFoods.length > 0 && (
+									<div className="detected-foods">
+										<h5>检测到的食物：</h5>
+										<div className="foods-list">
+											{detectedFoods.map((food, index) => (
+												<span key={index} className="food-item">
+													{food.name} 
+													{food.confidence && (
+														<span className="confidence">({Math.round(food.confidence * 100)}%)</span>
+													)}
+												</span>
+											))}
+										</div>
+									</div>
+								)}
+								
+								{/* 显示估算的分量 */}
+								{estimatedPortions.length > 0 && (
+									<div className="estimated-portions">
+										<h5>估算分量：</h5>
+										<div className="portions-list">
+											{estimatedPortions.map((portion, index) => (
+												<div key={index} className="portion-item">
+													<span className="food-name">{portion.name}:</span>
+													<span className="portion-amount">{portion.estimated_grams}g</span>
+													<span className="portion-desc">({portion.portion_description})</span>
+												</div>
+											))}
+										</div>
+									</div>
+								)}
+							</div>
+						)}
 						
 						{recognizedFoods.length > 0 && (
 							<div className="recognition-results">
@@ -201,9 +328,26 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 												{food.isKeyword ? (
 													<span className="keyword-label">搜索关键词</span>
 												) : (
-													food.calories_per_100g && (
-														<span className="calories">{food.calories_per_100g} kcal/100g</span>
-													)
+													<div className="food-details">
+														{food.estimated_grams && (
+															<div className="weight-recommendation">
+																<span className="weight-label">推荐重量：</span>
+																<span className="weight-amount">{food.estimated_grams}g</span>
+																{food.cooking_method && (
+																	<span className="cooking-method">({food.cooking_method})</span>
+																)}
+															</div>
+														)}
+														{food.confidence && (
+															<div className="confidence-score">
+																<span className="confidence-label">置信度：</span>
+																<span className="confidence-value">{Math.round(food.confidence * 100)}%</span>
+															</div>
+														)}
+														{food.calories_per_100g && (
+															<span className="calories">{food.calories_per_100g} kcal/100g</span>
+														)}
+													</div>
 												)}
 											</div>
 										</div>
@@ -476,11 +620,69 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 					color: #6c757d;
 				}
 
+				.food-details {
+					display: flex;
+					flex-direction: column;
+					gap: 0.5rem;
+				}
+
+				.weight-recommendation {
+					display: flex;
+					align-items: center;
+					gap: 0.5rem;
+					flex-wrap: wrap;
+				}
+
+				.weight-label {
+					font-size: 0.8rem;
+					color: #495057;
+					font-weight: 500;
+				}
+
+				.weight-amount {
+					background: #28a745;
+					color: white;
+					padding: 0.2rem 0.5rem;
+					border-radius: 4px;
+					font-size: 0.8rem;
+					font-weight: bold;
+				}
+
+				.cooking-method {
+					font-size: 0.75rem;
+					color: #6c757d;
+					font-style: italic;
+					background: #f8f9fa;
+					padding: 0.1rem 0.3rem;
+					border-radius: 3px;
+				}
+
+				.confidence-score {
+					display: flex;
+					align-items: center;
+					gap: 0.3rem;
+				}
+
+				.confidence-label {
+					font-size: 0.75rem;
+					color: #6c757d;
+				}
+
+				.confidence-value {
+					background: #17a2b8;
+					color: white;
+					padding: 0.1rem 0.3rem;
+					border-radius: 3px;
+					font-size: 0.75rem;
+					font-weight: 500;
+				}
+
 				.calories {
 					background: #d4edda;
 					padding: 0.2rem 0.4rem;
 					border-radius: 4px;
 					font-size: 0.8rem;
+					align-self: flex-start;
 				}
 
 				.keyword-hint {
@@ -542,6 +744,116 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				.history-foods {
 					font-size: 0.85rem;
 					color: #495057;
+				}
+
+				/* 流式分析进度样式 */
+				.analysis-progress {
+					padding: 1rem;
+					background: #f8f9fa;
+					border-radius: 8px;
+					border-left: 4px solid #007bff;
+					margin-bottom: 1rem;
+				}
+
+				.progress-header {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					margin-bottom: 0.5rem;
+				}
+
+				.progress-header h4 {
+					margin: 0;
+					color: #495057;
+					font-size: 1rem;
+				}
+
+				.progress-percentage {
+					font-weight: bold;
+					color: #007bff;
+				}
+
+				.progress-bar {
+					width: 100%;
+					height: 8px;
+					background: #e9ecef;
+					border-radius: 4px;
+					overflow: hidden;
+					margin-bottom: 1rem;
+				}
+
+				.progress-fill {
+					height: 100%;
+					background: linear-gradient(90deg, #007bff, #0056b3);
+					transition: width 0.3s ease;
+				}
+
+				.detected-foods, .estimated-portions {
+					margin-top: 1rem;
+					padding-top: 1rem;
+					border-top: 1px solid #dee2e6;
+				}
+
+				.detected-foods h5, .estimated-portions h5 {
+					margin: 0 0 0.5rem 0;
+					color: #343a40;
+					font-size: 0.9rem;
+				}
+
+				.foods-list {
+					display: flex;
+					flex-wrap: wrap;
+					gap: 0.5rem;
+				}
+
+				.food-item {
+					background: #e3f2fd;
+					color: #1976d2;
+					padding: 0.25rem 0.5rem;
+					border-radius: 4px;
+					font-size: 0.8rem;
+					border: 1px solid #bbdefb;
+				}
+
+				.confidence {
+					opacity: 0.7;
+					font-size: 0.7rem;
+				}
+
+				.portions-list {
+					display: flex;
+					flex-direction: column;
+					gap: 0.5rem;
+				}
+
+				.portion-item {
+					display: flex;
+					gap: 0.5rem;
+					align-items: center;
+					padding: 0.5rem;
+					background: #fff3e0;
+					border: 1px solid #ffcc02;
+					border-radius: 4px;
+					font-size: 0.85rem;
+				}
+
+				.food-name {
+					font-weight: bold;
+					color: #e65100;
+				}
+
+				.portion-amount {
+					background: #ff9800;
+					color: white;
+					padding: 0.2rem 0.4rem;
+					border-radius: 3px;
+					font-size: 0.8rem;
+					font-weight: bold;
+				}
+
+				.portion-desc {
+					color: #757575;
+					font-style: italic;
 				}
 
 				@media (max-width: 768px) {
