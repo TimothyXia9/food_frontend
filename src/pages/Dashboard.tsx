@@ -195,7 +195,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 								)}
 								<div className="recognized-foods">
 									{recognizedFoods.map((food, index) => (
-										<div key={index} className={`recognized-food-item ${food.isKeyword ? 'keyword-item' : ''}`}>
+										<div key={index} className={`recognized-food-item ${food.isKeyword ? "keyword-item" : ""}`}>
 											<div className="food-name">{food.name}</div>
 											<div className="food-info">
 												{food.isKeyword ? (
