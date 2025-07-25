@@ -10,7 +10,7 @@ import ApiTest from "./pages/ApiTest";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
+
 
 function AppContent() {
 	const [currentPage, setCurrentPage] = useState("food-search");
@@ -75,13 +75,12 @@ function AppContent() {
 function App() {
 	// Enable analytics based on environment variable
 	const enableAnalytics = process.env.REACT_APP_ENABLE_ANALYTICS === "true";
-	
+
 	return (
 		<AuthProvider>
 			<NotificationProvider>
 				<AppContent />
 				{enableAnalytics && <Analytics />}
-				{enableAnalytics && <SpeedInsights />}
 			</NotificationProvider>
 		</AuthProvider>
 	);
