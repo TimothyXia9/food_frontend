@@ -39,7 +39,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 			setLoading(true);
 			setError(null);
 			const response = await userService.getProfile();
-			
+
 			if (response.success && response.data) {
 				const profileData = {
 					username: response.data.user.username,
@@ -76,7 +76,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 		try {
 			setSaving(true);
 			setError(null);
-			
+
 			const updateData = {
 				nickname: editProfile.username,
 				date_of_birth: editProfile.date_of_birth,
@@ -87,7 +87,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 			};
 
 			const response = await userService.updateProfile(updateData);
-			
+
 			if (response.success) {
 				setProfile({ ...editProfile });
 				setIsEditing(false);
@@ -171,8 +171,8 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 						</button>
 					</div>
 				)}
-				<button 
-					onClick={() => setIsEditing(!isEditing)} 
+				<button
+					onClick={() => setIsEditing(!isEditing)}
 					className={`btn ${isEditing ? "btn-secondary" : "btn-primary"}`}
 					disabled={saving}
 				>
@@ -190,22 +190,52 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 						<div className="edit-form">
 							<div className="form-group">
 								<label className="form-label">用户名</label>
-								<input type="text" value={editProfile.username} onChange={(e) => setEditProfile({ ...editProfile, username: e.target.value })} className="form-input" />
+								<input
+									type="text"
+									value={editProfile.username}
+									onChange={e =>
+										setEditProfile({ ...editProfile, username: e.target.value })
+									}
+									className="form-input"
+								/>
 							</div>
 
 							<div className="form-group">
 								<label className="form-label">邮箱</label>
-								<input type="email" value={editProfile.email} onChange={(e) => setEditProfile({ ...editProfile, email: e.target.value })} className="form-input" />
+								<input
+									type="email"
+									value={editProfile.email}
+									onChange={e =>
+										setEditProfile({ ...editProfile, email: e.target.value })
+									}
+									className="form-input"
+								/>
 							</div>
 
 							<div className="form-group">
 								<label className="form-label">出生日期</label>
-								<input type="date" value={editProfile.date_of_birth} onChange={(e) => setEditProfile({ ...editProfile, date_of_birth: e.target.value })} className="form-input" />
+								<input
+									type="date"
+									value={editProfile.date_of_birth}
+									onChange={e =>
+										setEditProfile({
+											...editProfile,
+											date_of_birth: e.target.value,
+										})
+									}
+									className="form-input"
+								/>
 							</div>
 
 							<div className="form-group">
 								<label className="form-label">性别</label>
-								<select value={editProfile.gender} onChange={(e) => setEditProfile({ ...editProfile, gender: e.target.value })} className="form-input">
+								<select
+									value={editProfile.gender}
+									onChange={e =>
+										setEditProfile({ ...editProfile, gender: e.target.value })
+									}
+									className="form-input"
+								>
 									<option value="Male">男</option>
 									<option value="Female">女</option>
 									<option value="Other">其他</option>
@@ -213,10 +243,18 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 							</div>
 
 							<div className="form-actions">
-								<button onClick={handleCancel} className="btn btn-secondary" disabled={saving}>
+								<button
+									onClick={handleCancel}
+									className="btn btn-secondary"
+									disabled={saving}
+								>
 									取消
 								</button>
-								<button onClick={handleSave} className="btn btn-primary" disabled={saving}>
+								<button
+									onClick={handleSave}
+									className="btn btn-primary"
+									disabled={saving}
+								>
 									{saving ? "保存中..." : "保存"}
 								</button>
 							</div>
@@ -234,7 +272,13 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 							</div>
 							<div className="info-item">
 								<span className="info-label">性别</span>
-								<span className="info-value">{profile.gender === "Male" ? "男" : profile.gender === "Female" ? "女" : "其他"}</span>
+								<span className="info-value">
+									{profile.gender === "Male"
+										? "男"
+										: profile.gender === "Female"
+											? "女"
+											: "其他"}
+								</span>
 							</div>
 						</div>
 					)}
@@ -249,17 +293,48 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 						<div className="edit-form">
 							<div className="form-group">
 								<label className="form-label">身高 (cm)</label>
-								<input type="number" value={editProfile.height} onChange={(e) => setEditProfile({ ...editProfile, height: Number(e.target.value) })} className="form-input" />
+								<input
+									type="number"
+									value={editProfile.height}
+									onChange={e =>
+										setEditProfile({
+											...editProfile,
+											height: Number(e.target.value),
+										})
+									}
+									className="form-input"
+								/>
 							</div>
 
 							<div className="form-group">
 								<label className="form-label">体重 (kg)</label>
-								<input type="number" step="0.1" value={editProfile.weight} onChange={(e) => setEditProfile({ ...editProfile, weight: Number(e.target.value) })} className="form-input" />
+								<input
+									type="number"
+									step="0.1"
+									value={editProfile.weight}
+									onChange={e =>
+										setEditProfile({
+											...editProfile,
+											weight: Number(e.target.value),
+										})
+									}
+									className="form-input"
+								/>
 							</div>
 
 							<div className="form-group">
 								<label className="form-label">每日卡路里目标</label>
-								<input type="number" value={editProfile.daily_calorie_goal} onChange={(e) => setEditProfile({ ...editProfile, daily_calorie_goal: Number(e.target.value) })} className="form-input" />
+								<input
+									type="number"
+									value={editProfile.daily_calorie_goal}
+									onChange={e =>
+										setEditProfile({
+											...editProfile,
+											daily_calorie_goal: Number(e.target.value),
+										})
+									}
+									className="form-input"
+								/>
 							</div>
 						</div>
 					) : (
@@ -284,7 +359,9 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 								<div className="stat-item">
 									<div className="stat-icon">🎯</div>
 									<div className="stat-info">
-										<span className="stat-value">{profile.daily_calorie_goal}</span>
+										<span className="stat-value">
+											{profile.daily_calorie_goal}
+										</span>
 										<span className="stat-unit">kcal</span>
 									</div>
 								</div>
@@ -310,19 +387,31 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 
 						<div className="bmi-scale">
 							<div className="scale-item">
-								<div className="scale-color" style={{ backgroundColor: "#3498db" }}></div>
+								<div
+									className="scale-color"
+									style={{ backgroundColor: "#3498db" }}
+								></div>
 								<span>偏瘦 (&lt;18.5)</span>
 							</div>
 							<div className="scale-item">
-								<div className="scale-color" style={{ backgroundColor: "#2ecc71" }}></div>
+								<div
+									className="scale-color"
+									style={{ backgroundColor: "#2ecc71" }}
+								></div>
 								<span>正常 (18.5-24.9)</span>
 							</div>
 							<div className="scale-item">
-								<div className="scale-color" style={{ backgroundColor: "#f39c12" }}></div>
+								<div
+									className="scale-color"
+									style={{ backgroundColor: "#f39c12" }}
+								></div>
 								<span>超重 (25-29.9)</span>
 							</div>
 							<div className="scale-item">
-								<div className="scale-color" style={{ backgroundColor: "#e74c3c" }}></div>
+								<div
+									className="scale-color"
+									style={{ backgroundColor: "#e74c3c" }}
+								></div>
 								<span>肥胖 (≥30)</span>
 							</div>
 						</div>

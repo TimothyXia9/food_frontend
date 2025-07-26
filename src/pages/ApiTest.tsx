@@ -92,7 +92,9 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 
 	// Food Service Tests
 	const testSearchFoods = () => {
-		return runTest("搜索食物 (GET /foods/search/)", () => foodService.searchFoods({ query: "apple", page_size: 10 }));
+		return runTest("搜索食物 (GET /foods/search/)", () =>
+			foodService.searchFoods({ query: "apple", page_size: 10 })
+		);
 	};
 
 	const testGetFoodDetails = () => {
@@ -112,31 +114,39 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			sugar_per_100g: 2,
 			sodium_per_100g: 100,
 		};
-		return runTest("创建自定义食物 (POST /foods/create/)", () => foodService.createCustomFood(foodData));
+		return runTest("创建自定义食物 (POST /foods/create/)", () =>
+			foodService.createCustomFood(foodData)
+		);
 	};
 
 	// USDA API Tests
 	const testSearchUSDAFoods = () => {
 		return runTest("搜索USDA食物 (GET /foods/usda/search/)", async () => {
-			const response = await fetch("http://localhost:8000/api/v1/foods/usda/search/?query=apple&page_size=5", {
-				method: "GET",
-				headers: {
-					"Authorization": `Bearer ${authService.getCurrentToken()}`,
-					"Content-Type": "application/json",
-				},
-			});
+			const response = await fetch(
+				"http://localhost:8000/api/v1/foods/usda/search/?query=apple&page_size=5",
+				{
+					method: "GET",
+					headers: {
+						Authorization: `Bearer ${authService.getCurrentToken()}`,
+						"Content-Type": "application/json",
+					},
+				}
+			);
 			return response.json();
 		});
 	};
 
 	const testGetUSDANutrition = () => {
 		return runTest("获取USDA营养信息 (GET /foods/usda/nutrition/{fdc_id}/)", async () => {
-			const response = await fetch("http://localhost:8000/api/v1/foods/usda/nutrition/1102702/", {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
+			const response = await fetch(
+				"http://localhost:8000/api/v1/foods/usda/nutrition/1102702/",
+				{
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				}
+			);
 			return response.json();
 		});
 	};
@@ -146,12 +156,12 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			const response = await fetch("http://localhost:8000/api/v1/foods/usda/create/", {
 				method: "POST",
 				headers: {
-					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					Authorization: `Bearer ${authService.getCurrentToken()}`,
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
 					fdc_id: "1102702",
-					custom_name: "Test Apple from USDA"
+					custom_name: "Test Apple from USDA",
 				}),
 			});
 			return response.json();
@@ -159,12 +169,16 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testGetSearchHistory = () => {
-		return runTest("获取搜索历史 (GET /foods/search/history/)", () => foodService.getSearchHistory(10));
+		return runTest("获取搜索历史 (GET /foods/search/history/)", () =>
+			foodService.getSearchHistory(10)
+		);
 	};
 
 	// Meal Service Tests
 	const testGetMealsByDate = () => {
-		return runTest("获取用户餐食 (GET /meals/list/)", () => mealService.getUserMeals({ date: "2024-01-15" }));
+		return runTest("获取用户餐食 (GET /meals/list/)", () =>
+			mealService.getUserMeals({ date: "2024-01-15" })
+		);
 	};
 
 	const testCreateMeal = () => {
@@ -183,7 +197,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			const response = await fetch("http://localhost:8000/api/v1/meals/1/", {
 				method: "GET",
 				headers: {
-					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					Authorization: `Bearer ${authService.getCurrentToken()}`,
 					"Content-Type": "application/json",
 				},
 			});
@@ -196,7 +210,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			const response = await fetch("http://localhost:8000/api/v1/meals/recent/?limit=5", {
 				method: "GET",
 				headers: {
-					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					Authorization: `Bearer ${authService.getCurrentToken()}`,
 					"Content-Type": "application/json",
 				},
 			});
@@ -209,12 +223,12 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			const response = await fetch("http://localhost:8000/api/v1/meals/1/add-food/", {
 				method: "POST",
 				headers: {
-					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					Authorization: `Bearer ${authService.getCurrentToken()}`,
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
 					food_id: 2,
-					quantity: 100
+					quantity: 100,
 				}),
 			});
 			return response.json();
@@ -226,7 +240,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			const response = await fetch("http://localhost:8000/api/v1/meals/plan/", {
 				method: "POST",
 				headers: {
-					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					Authorization: `Bearer ${authService.getCurrentToken()}`,
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
@@ -235,8 +249,8 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 					meal_template: {
 						breakfast: [{ food_id: 1, quantity: 150 }],
 						lunch: [{ food_id: 2, quantity: 200 }],
-						dinner: [{ food_id: 3, quantity: 180 }]
-					}
+						dinner: [{ food_id: 3, quantity: 180 }],
+					},
 				}),
 			});
 			return response.json();
@@ -245,23 +259,29 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 
 	// Statistics Service Tests
 	const testGetDailySummary = () => {
-		return runTest("获取每日汇总 (GET /meals/daily-summary/)", () => statisticsService.getDailySummary({ date: "2024-01-15" }));
+		return runTest("获取每日汇总 (GET /meals/daily-summary/)", () =>
+			statisticsService.getDailySummary({ date: "2024-01-15" })
+		);
 	};
 
 	const testGetNutritionStats = () => {
-		return runTest("获取营养统计 (GET /meals/nutrition-stats/)", () => statisticsService.getNutritionStats({ start_date: "2024-01-15", period: "weekly" }));
+		return runTest("获取营养统计 (GET /meals/nutrition-stats/)", () =>
+			statisticsService.getNutritionStats({ start_date: "2024-01-15", period: "weekly" })
+		);
 	};
 
 	const testRecordWeight = () => {
 		const weightData = {
 			date: "2024-01-15",
 			weight: 70.5,
-			notes: "Morning weight"
+			notes: "Morning weight",
 		};
-		return runTest("记录体重 (POST /meals/record-weight/)", () => statisticsService.recordWeight(weightData));
+		return runTest("记录体重 (POST /meals/record-weight/)", () =>
+			statisticsService.recordWeight(weightData)
+		);
 	};
 
-	// Image Service Tests  
+	// Image Service Tests
 	const testUploadImage = () => {
 		return runTest("上传图片 (POST /images/upload/)", async () => {
 			// Create a mock image file
@@ -273,18 +293,18 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 				ctx.fillStyle = "#FF0000";
 				ctx.fillRect(0, 0, 100, 100);
 			}
-			
-			return new Promise((resolve) => {
-				canvas.toBlob((blob) => {
+
+			return new Promise(resolve => {
+				canvas.toBlob(blob => {
 					if (blob) {
 						const formData = new FormData();
 						formData.append("image", blob, "test-image.jpg");
 						formData.append("notes", "Test image upload");
-						
+
 						fetch("http://localhost:8000/api/v1/images/upload/", {
 							method: "POST",
 							headers: {
-								"Authorization": `Bearer ${authService.getCurrentToken()}`,
+								Authorization: `Bearer ${authService.getCurrentToken()}`,
 							},
 							body: formData,
 						})
@@ -304,12 +324,12 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			const response = await fetch("http://localhost:8000/api/v1/images/analyze/", {
 				method: "POST",
 				headers: {
-					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					Authorization: `Bearer ${authService.getCurrentToken()}`,
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
 					image_id: 1,
-					analysis_type: "full"
+					analysis_type: "full",
 				}),
 			});
 			return response.json();
@@ -321,7 +341,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			const response = await fetch("http://localhost:8000/api/v1/images/1/results/", {
 				method: "GET",
 				headers: {
-					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					Authorization: `Bearer ${authService.getCurrentToken()}`,
 					"Content-Type": "application/json",
 				},
 			});
@@ -331,13 +351,16 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 
 	const testGetUserImages = () => {
 		return runTest("获取用户图片 (GET /images/list/)", async () => {
-			const response = await fetch("http://localhost:8000/api/v1/images/list/?page=1&page_size=10", {
-				method: "GET",
-				headers: {
-					"Authorization": `Bearer ${authService.getCurrentToken()}`,
-					"Content-Type": "application/json",
-				},
-			});
+			const response = await fetch(
+				"http://localhost:8000/api/v1/images/list/?page=1&page_size=10",
+				{
+					method: "GET",
+					headers: {
+						Authorization: `Bearer ${authService.getCurrentToken()}`,
+						"Content-Type": "application/json",
+					},
+				}
+			);
 			return response.json();
 		});
 	};
@@ -347,13 +370,13 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			const response = await fetch("http://localhost:8000/api/v1/images/confirm/", {
 				method: "POST",
 				headers: {
-					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					Authorization: `Bearer ${authService.getCurrentToken()}`,
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
 					result_id: 1,
 					is_confirmed: true,
-					corrections: []
+					corrections: [],
 				}),
 			});
 			return response.json();
@@ -365,14 +388,14 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			const response = await fetch("http://localhost:8000/api/v1/images/create-meal/", {
 				method: "POST",
 				headers: {
-					"Authorization": `Bearer ${authService.getCurrentToken()}`,
+					Authorization: `Bearer ${authService.getCurrentToken()}`,
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
 					image_id: 1,
 					meal_type: "breakfast",
 					date: "2024-01-15",
-					meal_name: "Test Breakfast from Image"
+					meal_name: "Test Breakfast from Image",
 				}),
 			});
 			return response.json();
@@ -399,9 +422,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 					<button onClick={clearResults} className="btn btn-secondary">
 						清空结果
 					</button>
-					<span className="test-count">
-						测试结果: {results.length}
-					</span>
+					<span className="test-count">测试结果: {results.length}</span>
 				</div>
 			</div>
 
@@ -410,16 +431,28 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 				<div className="test-section">
 					<h3>认证服务 (Authentication)</h3>
 					<div className="test-buttons">
-						<button onClick={testAuthStatus} className="btn btn-info" disabled={loading}>
+						<button
+							onClick={testAuthStatus}
+							className="btn btn-info"
+							disabled={loading}
+						>
 							检查认证状态
 						</button>
-						<button onClick={testRegister} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testRegister}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							测试注册
 						</button>
 						<button onClick={testLogin} className="btn btn-primary" disabled={loading}>
 							测试登录
 						</button>
-						<button onClick={testRefreshToken} className="btn btn-warning" disabled={loading}>
+						<button
+							onClick={testRefreshToken}
+							className="btn btn-warning"
+							disabled={loading}
+						>
 							刷新令牌
 						</button>
 						<button onClick={testLogout} className="btn btn-danger" disabled={loading}>
@@ -432,10 +465,18 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 				<div className="test-section">
 					<h3>用户服务 (User Service)</h3>
 					<div className="test-buttons">
-						<button onClick={testGetProfile} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testGetProfile}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							获取用户资料
 						</button>
-						<button onClick={testUpdateProfile} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testUpdateProfile}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							更新用户资料
 						</button>
 					</div>
@@ -445,16 +486,32 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 				<div className="test-section">
 					<h3>食物服务 (Food Service)</h3>
 					<div className="test-buttons">
-						<button onClick={testSearchFoods} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testSearchFoods}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							搜索食物
 						</button>
-						<button onClick={testGetFoodDetails} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testGetFoodDetails}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							获取食物详情
 						</button>
-						<button onClick={testCreateCustomFood} className="btn btn-success" disabled={loading}>
+						<button
+							onClick={testCreateCustomFood}
+							className="btn btn-success"
+							disabled={loading}
+						>
 							创建自定义食物
 						</button>
-						<button onClick={testGetSearchHistory} className="btn btn-info" disabled={loading}>
+						<button
+							onClick={testGetSearchHistory}
+							className="btn btn-info"
+							disabled={loading}
+						>
 							获取搜索历史
 						</button>
 					</div>
@@ -464,13 +521,25 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 				<div className="test-section">
 					<h3>USDA集成服务 (USDA Integration)</h3>
 					<div className="test-buttons">
-						<button onClick={testSearchUSDAFoods} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testSearchUSDAFoods}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							搜索USDA食物
 						</button>
-						<button onClick={testGetUSDANutrition} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testGetUSDANutrition}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							获取USDA营养信息
 						</button>
-						<button onClick={testCreateFoodFromUSDA} className="btn btn-success" disabled={loading}>
+						<button
+							onClick={testCreateFoodFromUSDA}
+							className="btn btn-success"
+							disabled={loading}
+						>
 							从USDA创建食物
 						</button>
 					</div>
@@ -480,22 +549,46 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 				<div className="test-section">
 					<h3>餐食服务 (Meal Service)</h3>
 					<div className="test-buttons">
-						<button onClick={testGetMealsByDate} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testGetMealsByDate}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							获取日期餐食
 						</button>
-						<button onClick={testCreateMeal} className="btn btn-success" disabled={loading}>
+						<button
+							onClick={testCreateMeal}
+							className="btn btn-success"
+							disabled={loading}
+						>
 							创建餐食
 						</button>
-						<button onClick={testGetMealDetails} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testGetMealDetails}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							获取餐食详情
 						</button>
-						<button onClick={testGetRecentMeals} className="btn btn-info" disabled={loading}>
+						<button
+							onClick={testGetRecentMeals}
+							className="btn btn-info"
+							disabled={loading}
+						>
 							获取最近餐食
 						</button>
-						<button onClick={testAddFoodToMeal} className="btn btn-warning" disabled={loading}>
+						<button
+							onClick={testAddFoodToMeal}
+							className="btn btn-warning"
+							disabled={loading}
+						>
 							添加食物到餐食
 						</button>
-						<button onClick={testCreateMealPlan} className="btn btn-success" disabled={loading}>
+						<button
+							onClick={testCreateMealPlan}
+							className="btn btn-success"
+							disabled={loading}
+						>
 							创建餐食计划
 						</button>
 					</div>
@@ -505,13 +598,25 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 				<div className="test-section">
 					<h3>统计服务 (Statistics Service)</h3>
 					<div className="test-buttons">
-						<button onClick={testGetDailySummary} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testGetDailySummary}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							获取每日汇总
 						</button>
-						<button onClick={testGetNutritionStats} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testGetNutritionStats}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							获取营养统计
 						</button>
-						<button onClick={testRecordWeight} className="btn btn-success" disabled={loading}>
+						<button
+							onClick={testRecordWeight}
+							className="btn btn-success"
+							disabled={loading}
+						>
 							记录体重
 						</button>
 					</div>
@@ -521,22 +626,46 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 				<div className="test-section">
 					<h3>图片服务 (Image Service)</h3>
 					<div className="test-buttons">
-						<button onClick={testUploadImage} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testUploadImage}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							上传图片
 						</button>
-						<button onClick={testAnalyzeImage} className="btn btn-warning" disabled={loading}>
+						<button
+							onClick={testAnalyzeImage}
+							className="btn btn-warning"
+							disabled={loading}
+						>
 							分析图片
 						</button>
-						<button onClick={testGetImageResults} className="btn btn-info" disabled={loading}>
+						<button
+							onClick={testGetImageResults}
+							className="btn btn-info"
+							disabled={loading}
+						>
 							获取图片分析结果
 						</button>
-						<button onClick={testGetUserImages} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testGetUserImages}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							获取用户图片
 						</button>
-						<button onClick={testConfirmFoodRecognition} className="btn btn-success" disabled={loading}>
+						<button
+							onClick={testConfirmFoodRecognition}
+							className="btn btn-success"
+							disabled={loading}
+						>
 							确认食物识别
 						</button>
-						<button onClick={testCreateMealFromImage} className="btn btn-success" disabled={loading}>
+						<button
+							onClick={testCreateMealFromImage}
+							className="btn btn-success"
+							disabled={loading}
+						>
 							从图片创建餐食
 						</button>
 					</div>
@@ -549,7 +678,10 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 				{loading && <div className="loading">测试中...</div>}
 				<div className="results-list">
 					{results.map(result => (
-						<div key={result.id} className={`result-item ${result.success ? "success" : "error"}`}>
+						<div
+							key={result.id}
+							className={`result-item ${result.success ? "success" : "error"}`}
+						>
 							<div className="result-header">
 								<span className="result-name">{result.testName}</span>
 								<span className="result-status">
@@ -559,7 +691,9 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 							</div>
 							<div className="result-content">
 								{result.success ? (
-									<pre className="result-data">{JSON.stringify(result.data, null, 2)}</pre>
+									<pre className="result-data">
+										{JSON.stringify(result.data, null, 2)}
+									</pre>
 								) : (
 									<pre className="result-error">{result.error}</pre>
 								)}

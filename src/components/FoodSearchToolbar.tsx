@@ -53,10 +53,10 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 						<input
 							type="text"
 							value={searchQuery}
-							onChange={(e) => onSearchQueryChange(e.target.value)}
+							onChange={e => onSearchQueryChange(e.target.value)}
 							placeholder="搜索食物..."
 							className="search-input"
-							onKeyPress={(e) => e.key === "Enter" && onSearch()}
+							onKeyPress={e => e.key === "Enter" && onSearch()}
 							disabled={loading}
 						/>
 						<button
@@ -68,7 +68,9 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 						</button>
 						<button
 							className="btn btn-warning"
-							onClick={() => isAuthenticated ? onCameraCapture() : onLoginRequired()}
+							onClick={() =>
+								isAuthenticated ? onCameraCapture() : onLoginRequired()
+							}
 						>
 							📸 拍照识别
 						</button>

@@ -103,7 +103,10 @@ describe("AuthService", () => {
 
 			expect(mockedApiClient.post).toHaveBeenCalledWith("/auth/login", loginData);
 			expect(mockedApiClient.setToken).toHaveBeenCalledWith("mock-token");
-			expect(localStorageMock.setItem).toHaveBeenCalledWith("refresh_token", "mock-refresh-token");
+			expect(localStorageMock.setItem).toHaveBeenCalledWith(
+				"refresh_token",
+				"mock-refresh-token"
+			);
 			expect(result).toEqual(mockResponse);
 		});
 	});
@@ -134,7 +137,10 @@ describe("AuthService", () => {
 				refresh_token: "mock-refresh-token",
 			});
 			expect(mockedApiClient.setToken).toHaveBeenCalledWith("new-mock-token");
-			expect(localStorageMock.setItem).toHaveBeenCalledWith("refresh_token", "new-mock-refresh-token");
+			expect(localStorageMock.setItem).toHaveBeenCalledWith(
+				"refresh_token",
+				"new-mock-refresh-token"
+			);
 			expect(result).toEqual(mockResponse);
 		});
 

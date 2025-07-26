@@ -50,7 +50,7 @@ class ApiClient {
 
 		try {
 			const response = await fetch(url, config);
-			
+
 			// Handle 401 errors with token refresh
 			if (response.status === 401 && !isRetry && !endpoint.includes("/auth/")) {
 				try {
@@ -67,7 +67,8 @@ class ApiClient {
 			const data = await response.json();
 
 			if (!response.ok) {
-				const errorMessage = data.detail || data.error?.message || data.message || `HTTP ${response.status}`;
+				const errorMessage =
+					data.detail || data.error?.message || data.message || `HTTP ${response.status}`;
 				const error = new Error(errorMessage);
 				// Attach the full response data to the error for better handling
 				(error as any).response = { data, status: response.status };

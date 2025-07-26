@@ -50,11 +50,7 @@ const Notification: React.FC<NotificationProps> = ({
 			<div className="notification__content">
 				<span className="notification__icon">{getIcon()}</span>
 				<span className="notification__message">{message}</span>
-				<button 
-					className="notification__close"
-					onClick={handleClick}
-					aria-label="关闭通知"
-				>
+				<button className="notification__close" onClick={handleClick} aria-label="关闭通知">
 					×
 				</button>
 			</div>

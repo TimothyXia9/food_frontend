@@ -6,8 +6,8 @@ This document outlines the RESTful API design for the calorie tracking web appli
 
 ## Base URL
 
--   Development: `http://localhost:8000/api/v1`
--   Production: `https://api.calotracker.com/v1`
+- Development: `http://localhost:8000/api/v1`
+- Production: `https://api.calotracker.com/v1`
 
 ## Authentication
 
@@ -197,9 +197,9 @@ GET /foods/search?query=<query>&page=<page>&page_size=<page_size>
 
 **Query Parameters:**
 
--   `query`: Search query (required)
--   `page`: Page number (default: 1)
--   `page_size`: Number of results per page (default: 20, max: 100)
+- `query`: Search query (required)
+- `page`: Page number (default: 1)
+- `page_size`: Number of results per page (default: 20, max: 100)
 
 **Response:**
 
@@ -277,8 +277,8 @@ GET /foods/usda/search?query=<query>&page_size=<page_size>
 
 **Query Parameters:**
 
--   `query`: Search query (required)
--   `page_size`: Number of results (default: 25, max: 100)
+- `query`: Search query (required)
+- `page_size`: Number of results (default: 25, max: 100)
 
 **Response:**
 
@@ -416,8 +416,8 @@ GET /meals?date=<YYYY-MM-DD>&meal_type=<type>
 
 **Query Parameters:**
 
--   `date`: Target date (default: today)
--   `meal_type`: Filter by meal type (optional)
+- `date`: Target date (default: today)
+- `meal_type`: Filter by meal type (optional)
 
 **Response:**
 
@@ -856,40 +856,40 @@ GET /search/history?limit=<limit>
 
 ## Rate Limiting
 
--   General API: 100 requests per minute
--   Image Upload: 10 requests per minute
--   Authentication: 5 requests per minute
+- General API: 100 requests per minute
+- Image Upload: 10 requests per minute
+- Authentication: 5 requests per minute
 
 ## File Upload Limits
 
--   Maximum file size: 10MB
--   Supported formats: JPG, PNG, WEBP
--   Maximum dimensions: 4096x4096 pixels
+- Maximum file size: 10MB
+- Supported formats: JPG, PNG, WEBP
+- Maximum dimensions: 4096x4096 pixels
 
 ## Pagination
 
 For endpoints that return lists, pagination is implemented using:
 
--   `limit`: Number of items per page (default: 20, max: 100)
--   `offset`: Number of items to skip (default: 0)
+- `limit`: Number of items per page (default: 20, max: 100)
+- `offset`: Number of items to skip (default: 0)
 
 ## Data Validation
 
 ### Common Validations
 
--   `username`: 3-150 characters, alphanumeric and underscore
--   `email`: Valid email format
--   `password`: Minimum 8 characters
--   `date`: ISO date format (YYYY-MM-DD)
--   `weight`: 1-999 kg
--   `height`: 50-300 cm
--   `calories`: 0-9999 per 100g
--   `quantity`: 0.1-9999 grams
+- `username`: 3-150 characters, alphanumeric and underscore
+- `email`: Valid email format
+- `password`: Minimum 8 characters
+- `date`: ISO date format (YYYY-MM-DD)
+- `weight`: 1-999 kg
+- `height`: 50-300 cm
+- `calories`: 0-9999 per 100g
+- `quantity`: 0.1-9999 grams
 
 ## WebSocket Events (Future Enhancement)
 
 For real-time updates:
 
--   `image_processing_complete`: When image recognition is finished
--   `meal_updated`: When meal is modified by user
--   `daily_goal_achieved`: When daily calorie goal is met
+- `image_processing_complete`: When image recognition is finished
+- `meal_updated`: When meal is modified by user
+- `daily_goal_achieved`: When daily calorie goal is met

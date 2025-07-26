@@ -20,7 +20,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
-		setFormData((prev) => ({
+		setFormData(prev => ({
 			...prev,
 			[name]: value,
 		}));
@@ -65,7 +65,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		
+
 		if (!validateForm()) return;
 
 		setLoading(true);
@@ -73,14 +73,14 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 
 		try {
 			let success = false;
-			
+
 			if (isLogin) {
 				// 登录
 				success = await login({
 					username: formData.username,
 					password: formData.password,
 				});
-				
+
 				if (!success) {
 					setError("登录失败，请检查用户名和密码");
 				}
@@ -92,7 +92,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 					password: formData.password,
 					nickname: formData.nickname,
 				});
-				
+
 				if (!success) {
 					setError("注册失败，用户名或邮箱可能已存在");
 				}
@@ -118,8 +118,8 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 				</div>
 
 				<div className="login-tabs">
-					<button 
-						className={`tab-btn ${isLogin ? "active" : ""}`} 
+					<button
+						className={`tab-btn ${isLogin ? "active" : ""}`}
 						onClick={() => {
 							setIsLogin(true);
 							setError(null);
@@ -134,8 +134,8 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 					>
 						登录
 					</button>
-					<button 
-						className={`tab-btn ${!isLogin ? "active" : ""}`} 
+					<button
+						className={`tab-btn ${!isLogin ? "active" : ""}`}
 						onClick={() => {
 							setIsLogin(false);
 							setError(null);
@@ -152,11 +152,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 					</button>
 				</div>
 				<form onSubmit={handleSubmit} className="login-form">
-					{error && (
-						<div className="error-message">
-							{error}
-						</div>
-					)}
+					{error && <div className="error-message">{error}</div>}
 
 					<div className="demo-info">
 						<h4>演示账号</h4>
@@ -166,14 +162,14 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 
 					<div className="form-group">
 						<label className="form-label">用户名</label>
-						<input 
-							type="text" 
-							name="username" 
-							value={formData.username} 
-							onChange={handleInputChange} 
-							className="form-input" 
-							placeholder="请输入用户名" 
-							required 
+						<input
+							type="text"
+							name="username"
+							value={formData.username}
+							onChange={handleInputChange}
+							className="form-input"
+							placeholder="请输入用户名"
+							required
 							disabled={loading}
 						/>
 					</div>
@@ -182,28 +178,28 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 						<>
 							<div className="form-group">
 								<label className="form-label">邮箱地址</label>
-								<input 
-									type="email" 
-									name="email" 
-									value={formData.email} 
-									onChange={handleInputChange} 
-									className="form-input" 
-									placeholder="请输入邮箱地址" 
-									required 
+								<input
+									type="email"
+									name="email"
+									value={formData.email}
+									onChange={handleInputChange}
+									className="form-input"
+									placeholder="请输入邮箱地址"
+									required
 									disabled={loading}
 								/>
 							</div>
 
 							<div className="form-group">
 								<label className="form-label">昵称</label>
-								<input 
-									type="text" 
-									name="nickname" 
-									value={formData.nickname} 
-									onChange={handleInputChange} 
-									className="form-input" 
-									placeholder="请输入昵称" 
-									required 
+								<input
+									type="text"
+									name="nickname"
+									value={formData.nickname}
+									onChange={handleInputChange}
+									className="form-input"
+									placeholder="请输入昵称"
+									required
 									disabled={loading}
 								/>
 							</div>
@@ -212,14 +208,14 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 
 					<div className="form-group">
 						<label className="form-label">密码</label>
-						<input 
-							type="password" 
-							name="password" 
-							value={formData.password} 
-							onChange={handleInputChange} 
-							className="form-input" 
-							placeholder={isLogin ? "请输入密码" : "请输入密码 (至少8个字符)"} 
-							required 
+						<input
+							type="password"
+							name="password"
+							value={formData.password}
+							onChange={handleInputChange}
+							className="form-input"
+							placeholder={isLogin ? "请输入密码" : "请输入密码 (至少8个字符)"}
+							required
 							disabled={loading}
 						/>
 					</div>
@@ -227,24 +223,27 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 					{!isLogin && (
 						<div className="form-group">
 							<label className="form-label">确认密码</label>
-							<input 
-								type="password" 
-								name="confirmPassword" 
-								value={formData.confirmPassword} 
-								onChange={handleInputChange} 
-								className="form-input" 
-								placeholder="请再次输入密码" 
-								required 
+							<input
+								type="password"
+								name="confirmPassword"
+								value={formData.confirmPassword}
+								onChange={handleInputChange}
+								className="form-input"
+								placeholder="请再次输入密码"
+								required
 								disabled={loading}
 							/>
 						</div>
 					)}
 
-					<button type="submit" className="btn btn-primary login-submit" disabled={loading}>
-						{loading ? "处理中..." : (isLogin ? "登录" : "注册")}
+					<button
+						type="submit"
+						className="btn btn-primary login-submit"
+						disabled={loading}
+					>
+						{loading ? "处理中..." : isLogin ? "登录" : "注册"}
 					</button>
 				</form>
-
 			</div>
 
 			<style>{`

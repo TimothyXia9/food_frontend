@@ -7,14 +7,13 @@ interface LoginModalProps {
 	onSuccess?: () => void;
 }
 
-
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) => {
 	const [activeTab, setActiveTab] = useState<"login" | "register">("login");
 	const [formData, setFormData] = useState({
 		username: "",
 		email: "",
 		password: "",
-		nickname: ""
+		nickname: "",
 	});
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -24,7 +23,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 		const { name, value } = e.target;
 		setFormData(prev => ({
 			...prev,
-			[name]: value
+			[name]: value,
 		}));
 		setError("");
 	};
@@ -36,18 +35,18 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 
 		try {
 			let success = false;
-			
+
 			if (activeTab === "login") {
 				success = await login({
 					username: formData.username,
-					password: formData.password
+					password: formData.password,
 				});
 			} else {
 				success = await register({
 					username: formData.username,
 					email: formData.email,
 					password: formData.password,
-					nickname: formData.nickname
+					nickname: formData.nickname,
 				});
 			}
 
@@ -58,10 +57,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 					username: "",
 					email: "",
 					password: "",
-					nickname: ""
+					nickname: "",
 				});
 			} else {
-				setError(activeTab === "login" ? "登录失败，请检查用户名和密码" : "注册失败，请检查信息");
+				setError(
+					activeTab === "login" ? "登录失败，请检查用户名和密码" : "注册失败，请检查信息"
+				);
 			}
 		} catch (err) {
 			setError("网络错误，请稍后重试");
@@ -77,7 +78,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 			username: "",
 			email: "",
 			password: "",
-			nickname: ""
+			nickname: "",
 		});
 	};
 
@@ -85,22 +86,22 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 
 	return (
 		<div className="modal-overlay" onClick={onClose}>
-			<div className="modal-content" onClick={(e) => e.stopPropagation()}>
+			<div className="modal-content" onClick={e => e.stopPropagation()}>
 				<div className="modal-header">
-					<h2 className="modal-title">
-						{activeTab === "login" ? "登录" : "注册"}
-					</h2>
-					<button className="close-button" onClick={onClose}>×</button>
+					<h2 className="modal-title">{activeTab === "login" ? "登录" : "注册"}</h2>
+					<button className="close-button" onClick={onClose}>
+						×
+					</button>
 				</div>
 
 				<div className="tab-container">
-					<button 
+					<button
 						className={`tab ${activeTab === "login" ? "active" : ""}`}
 						onClick={() => handleTabChange("login")}
 					>
 						登录
 					</button>
-					<button 
+					<button
 						className={`tab ${activeTab === "register" ? "active" : ""}`}
 						onClick={() => handleTabChange("register")}
 					>
@@ -110,7 +111,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 
 				<form className="login-form" onSubmit={handleSubmit}>
 					<div className="form-group">
-						<label className="form-label" htmlFor="username">用户名</label>
+						<label className="form-label" htmlFor="username">
+							用户名
+						</label>
 						<input
 							className="form-input"
 							id="username"
@@ -125,7 +128,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 					{activeTab === "register" && (
 						<>
 							<div className="form-group">
-								<label className="form-label" htmlFor="email">邮箱</label>
+								<label className="form-label" htmlFor="email">
+									邮箱
+								</label>
 								<input
 									className="form-input"
 									id="email"
@@ -138,7 +143,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 							</div>
 
 							<div className="form-group">
-								<label className="form-label" htmlFor="nickname">昵称</label>
+								<label className="form-label" htmlFor="nickname">
+									昵称
+								</label>
 								<input
 									className="form-input"
 									id="nickname"
@@ -153,7 +160,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 					)}
 
 					<div className="form-group">
-						<label className="form-label" htmlFor="password">密码</label>
+						<label className="form-label" htmlFor="password">
+							密码
+						</label>
 						<input
 							className="form-input"
 							id="password"
@@ -168,11 +177,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 					{error && <div className="error-message">{error}</div>}
 
 					<button className="submit-button" type="submit" disabled={loading}>
-						{loading ? "处理中..." : (activeTab === "login" ? "登录" : "注册")}
+						{loading ? "处理中..." : activeTab === "login" ? "登录" : "注册"}
 					</button>
 				</form>
 			</div>
-			
+
 			<style jsx>{`
 				.modal-overlay {
 					position: fixed;

@@ -94,7 +94,7 @@ describe("ApiClient", () => {
 				expect.objectContaining({
 					headers: expect.objectContaining({
 						"Content-Type": "application/json",
-						"Authorization": "Bearer test-token",
+						Authorization: "Bearer test-token",
 					}),
 				})
 			);
@@ -187,9 +187,10 @@ describe("ApiClient", () => {
 		it("should throw error when response is not ok", async () => {
 			const mockResponse = {
 				ok: false,
-				json: () => Promise.resolve({
-					error: { message: "Not found" }
-				}),
+				json: () =>
+					Promise.resolve({
+						error: { message: "Not found" },
+					}),
 			};
 			mockedFetch.mockResolvedValue(mockResponse as Response);
 
@@ -246,7 +247,7 @@ describe("ApiClient", () => {
 
 			const [, config] = mockedFetch.mock.calls[0];
 			const formData = config?.body as FormData;
-			
+
 			// Note: In a real test environment, you'd need to mock FormData properly
 			// This is a simplified test
 			expect(formData).toBeInstanceOf(FormData);

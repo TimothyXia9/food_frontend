@@ -125,7 +125,11 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	};
 
 	// 处理图像识别结果
-	const handleImageRecognitionResults = (imageId: number, results: any, imagePreview?: string) => {
+	const handleImageRecognitionResults = (
+		imageId: number,
+		results: any,
+		imagePreview?: string
+	) => {
 		console.log("Dashboard - Image recognition results:", { imageId, results });
 
 		// 设置当前图片ID
@@ -144,16 +148,15 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				imageId,
 				recognizedAt: new Date().toLocaleString("zh-CN"),
 				calories_per_100g: 100, // 模拟数据
-				isKeyword: true // 标记这是关键词结果
+				isKeyword: true, // 标记这是关键词结果
 			}));
-
 
 			// 添加到识别历史
 			const historyItem = {
 				imageId,
 				recognizedAt: new Date().toLocaleString("zh-CN"),
 				foodCount: recognizedFoods.length,
-				foods: results.keywords.join(", ")
+				foods: results.keywords.join(", "),
 			};
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]); // 只保留最近5次
 
@@ -168,15 +171,14 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				cooking_method: portion.cooking_method,
 				imageId,
 				recognizedAt: new Date().toLocaleString("zh-CN"),
-				isKeyword: false
+				isKeyword: false,
 			}));
-
 
 			const historyItem = {
 				imageId,
 				recognizedAt: new Date().toLocaleString("zh-CN"),
 				foodCount: recognizedFoods.length,
-				foods: recognizedFoods.map((food: any) => food.name).join(", ")
+				foods: recognizedFoods.map((food: any) => food.name).join(", "),
 			};
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]);
 
@@ -186,15 +188,14 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			const recognizedFoods = results.results.map((result: any) => ({
 				...result.food,
 				imageId,
-				recognizedAt: new Date().toLocaleString("zh-CN")
+				recognizedAt: new Date().toLocaleString("zh-CN"),
 			}));
-
 
 			const historyItem = {
 				imageId,
 				recognizedAt: new Date().toLocaleString("zh-CN"),
 				foodCount: recognizedFoods.length,
-				foods: recognizedFoods.map((food: any) => food.name).join(", ")
+				foods: recognizedFoods.map((food: any) => food.name).join(", "),
 			};
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]);
 
@@ -294,7 +295,9 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 								</div>
 							) : (
 								<>
-									<p className="upload-description">上传食物图片，AI会自动识别并分析营养成分</p>
+									<p className="upload-description">
+										上传食物图片，AI会自动识别并分析营养成分
+									</p>
 									<ImageUpload
 										onImageUploaded={handleImageRecognitionResults}
 										onImagePreview={handleImagePreview}
@@ -310,11 +313,21 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 						{isAnalyzing && (
 							<div className="analysis-progress">
 								<div className="progress-header">
-									<h4>分析进度：{analysisStep === "food_detection" ? "识别食物中..." : analysisStep === "portion_estimation" ? "估算分量中..." : "处理中..."}</h4>
+									<h4>
+										分析进度：
+										{analysisStep === "food_detection"
+											? "识别食物中..."
+											: analysisStep === "portion_estimation"
+												? "估算分量中..."
+												: "处理中..."}
+									</h4>
 									<div className="progress-percentage">{analysisProgress}%</div>
 								</div>
 								<div className="progress-bar">
-									<div className="progress-fill" style={{ width: `${analysisProgress}%` }}></div>
+									<div
+										className="progress-fill"
+										style={{ width: `${analysisProgress}%` }}
+									></div>
 								</div>
 
 								{/* 显示已检测到的食物 */}
@@ -326,7 +339,9 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 												<span key={index} className="food-item">
 													{food.name}
 													{food.confidence && (
-														<span className="confidence">({Math.round(food.confidence * 100)}%)</span>
+														<span className="confidence">
+															({Math.round(food.confidence * 100)}%)
+														</span>
 													)}
 												</span>
 											))}
@@ -334,17 +349,22 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 									</div>
 								)}
 
-
 								{estimatedPortions.length > 0 && (
 									<div className="estimated-portions">
 										<h5>估算分量：</h5>
 										<div className="portions-list">
 											{estimatedPortions.map((portion, index) => (
 												<div key={index} className="portion-item">
-													<span className="food-name">{portion.name}:</span>
-													<span className="portion-amount">{portion.estimated_grams}g</span>
+													<span className="food-name">
+														{portion.name}:
+													</span>
+													<span className="portion-amount">
+														{portion.estimated_grams}g
+													</span>
 													{portion.cooking_method && (
-														<span className="portion-desc">({portion.cooking_method})</span>
+														<span className="portion-desc">
+															({portion.cooking_method})
+														</span>
 													)}
 												</div>
 											))}
@@ -364,10 +384,16 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 											<div className="food-info">
 												<div className="food-details">
 													<div className="weight-recommendation">
-														<span className="weight-label">识别重量：</span>
-														<span className="weight-amount">{portion.estimated_grams}g</span>
+														<span className="weight-label">
+															识别重量：
+														</span>
+														<span className="weight-amount">
+															{portion.estimated_grams}g
+														</span>
 														{portion.cooking_method && (
-															<span className="cooking-method">({portion.cooking_method})</span>
+															<span className="cooking-method">
+																({portion.cooking_method})
+															</span>
 														)}
 													</div>
 												</div>
@@ -385,7 +411,9 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 									{imageRecognitionHistory.map((item, index) => (
 										<div key={index} className="history-item">
 											<div className="history-time">{item.recognizedAt}</div>
-											<div className="history-foods">识别到 {item.foodCount} 种食物：{item.foods}</div>
+											<div className="history-foods">
+												识别到 {item.foodCount} 种食物：{item.foods}
+											</div>
 										</div>
 									))}
 								</div>
@@ -400,13 +428,15 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 						<h3 className="card-title">今日餐食</h3>
 						<button
 							className="btn btn-primary"
-							onClick={() => isAuthenticated ? console.log("Add meal") : onLoginRequired()}
+							onClick={() =>
+								isAuthenticated ? console.log("Add meal") : onLoginRequired()
+							}
 						>
 							+ 添加食物篮
 						</button>
 					</div>
 					<div className="meals-list">
-						{recentMeals.map((meal) => (
+						{recentMeals.map(meal => (
 							<div key={meal.id} className="meal-item">
 								<div className="meal-info">
 									<div className="meal-type">{meal.type}</div>

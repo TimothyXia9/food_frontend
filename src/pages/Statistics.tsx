@@ -9,7 +9,9 @@ interface StatisticsProps {
 const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 	const { isAuthenticated } = useAuth();
 	const [selectedPeriod, setSelectedPeriod] = React.useState<"week" | "month" | "year">("week");
-	const [currentDate, setCurrentDate] = React.useState(createLocalDate(new Date().toISOString().split("T")[0]));
+	const [currentDate, setCurrentDate] = React.useState(
+		createLocalDate(new Date().toISOString().split("T")[0])
+	);
 	const weeklyData = [
 		{ date: "2024-01-15", calories: 1800, weight: 70.5, goal: 2000 },
 		{ date: "2024-01-16", calories: 2100, weight: 70.3, goal: 2000 },
@@ -27,11 +29,35 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 	};
 	const achievements = [
 		{ id: 1, title: "连续记录7天", description: "坚持记录饮食7天", achieved: true, icon: "🏆" },
-		{ id: 2, title: "达到卡路里目标", description: "单日卡路里摄入达标", achieved: true, icon: "🎯" },
-		{ id: 3, title: "蛋白质达标", description: "单日蛋白质摄入达标", achieved: true, icon: "💪" },
+		{
+			id: 2,
+			title: "达到卡路里目标",
+			description: "单日卡路里摄入达标",
+			achieved: true,
+			icon: "🎯",
+		},
+		{
+			id: 3,
+			title: "蛋白质达标",
+			description: "单日蛋白质摄入达标",
+			achieved: true,
+			icon: "💪",
+		},
 		{ id: 4, title: "体重下降", description: "相比上周体重下降", achieved: true, icon: "📉" },
-		{ id: 5, title: "连续记录30天", description: "坚持记录饮食30天", achieved: false, icon: "🔥" },
-		{ id: 6, title: "完美一周", description: "一周内每天都达到目标", achieved: false, icon: "⭐" },
+		{
+			id: 5,
+			title: "连续记录30天",
+			description: "坚持记录饮食30天",
+			achieved: false,
+			icon: "🔥",
+		},
+		{
+			id: 6,
+			title: "完美一周",
+			description: "一周内每天都达到目标",
+			achieved: false,
+			icon: "⭐",
+		},
 	];
 	const getDateRange = () => {
 		const formatDate = (date: Date) => {
@@ -50,9 +76,15 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 	const calculateStats = () => {
 		const totalCalories = weeklyData.reduce((sum, day) => sum + day.calories, 0);
 		const avgCalories = Math.round(totalCalories / weeklyData.length);
-		const avgWeight = Math.round((weeklyData.reduce((sum, day) => sum + day.weight, 0) / weeklyData.length) * 10) / 10;
-		const daysOnTarget = weeklyData.filter((day) => day.calories >= day.goal * 0.9 && day.calories <= day.goal * 1.1).length;
-		const weightChange = Math.round((weeklyData[weeklyData.length - 1].weight - weeklyData[0].weight) * 10) / 10;
+		const avgWeight =
+			Math.round(
+				(weeklyData.reduce((sum, day) => sum + day.weight, 0) / weeklyData.length) * 10
+			) / 10;
+		const daysOnTarget = weeklyData.filter(
+			day => day.calories >= day.goal * 0.9 && day.calories <= day.goal * 1.1
+		).length;
+		const weightChange =
+			Math.round((weeklyData[weeklyData.length - 1].weight - weeklyData[0].weight) * 10) / 10;
 
 		return {
 			avgCalories,
@@ -94,24 +126,35 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 				<h1>数据统计</h1>
 
 				<div className="period-selector">
-					<button className={`period-btn ${selectedPeriod === "week" ? "active" : ""}`} onClick={() => setSelectedPeriod("week")}>
+					<button
+						className={`period-btn ${selectedPeriod === "week" ? "active" : ""}`}
+						onClick={() => setSelectedPeriod("week")}
+					>
 						周
 					</button>
-					<button className={`period-btn ${selectedPeriod === "month" ? "active" : ""}`} onClick={() => setSelectedPeriod("month")}>
+					<button
+						className={`period-btn ${selectedPeriod === "month" ? "active" : ""}`}
+						onClick={() => setSelectedPeriod("month")}
+					>
 						月
 					</button>
-					<button className={`period-btn ${selectedPeriod === "year" ? "active" : ""}`} onClick={() => setSelectedPeriod("year")}>
+					<button
+						className={`period-btn ${selectedPeriod === "year" ? "active" : ""}`}
+						onClick={() => setSelectedPeriod("year")}
+					>
 						年
 					</button>
 				</div>
 			</div>
 			<div className="date-navigation">
 				<button onClick={() => navigateDate("prev")} className="nav-btn">
-					← 上一{selectedPeriod === "week" ? "周" : selectedPeriod === "month" ? "月" : "年"}
+					← 上一
+					{selectedPeriod === "week" ? "周" : selectedPeriod === "month" ? "月" : "年"}
 				</button>
 				<h2 className="current-period">{getDateRange()}</h2>
 				<button onClick={() => navigateDate("next")} className="nav-btn">
-					下一{selectedPeriod === "week" ? "周" : selectedPeriod === "month" ? "月" : "年"} →
+					下一
+					{selectedPeriod === "week" ? "周" : selectedPeriod === "month" ? "月" : "年"} →
 				</button>
 			</div>
 			<div className="stats-grid">
@@ -149,7 +192,9 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 						<div className="overview-item">
 							<div className="overview-icon">📈</div>
 							<div className="overview-info">
-								<span className={`overview-value ${stats.weightChange < 0 ? "negative" : "positive"}`}>
+								<span
+									className={`overview-value ${stats.weightChange < 0 ? "negative" : "positive"}`}
+								>
 									{stats.weightChange > 0 ? "+" : ""}
 									{stats.weightChange}
 								</span>
@@ -172,8 +217,16 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 									const isAboveGoal = day.calories > day.goal;
 									return (
 										<div key={index} className="chart-bar-container">
-											<div className={`chart-bar ${isAboveGoal ? "above-goal" : "below-goal"}`} style={{ height: `${height}%` }} title={`${day.calories} kcal`}></div>
-											<div className="chart-label">{new Date(day.date).toLocaleDateString("zh-CN", { weekday: "short" })}</div>
+											<div
+												className={`chart-bar ${isAboveGoal ? "above-goal" : "below-goal"}`}
+												style={{ height: `${height}%` }}
+												title={`${day.calories} kcal`}
+											></div>
+											<div className="chart-label">
+												{new Date(day.date).toLocaleDateString("zh-CN", {
+													weekday: "short",
+												})}
+											</div>
 										</div>
 									);
 								})}
@@ -210,7 +263,9 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 								<div key={key} className="trend-item">
 									<div className="trend-header">
 										<span className="trend-label">{labels[key]}</span>
-										<span className={`trend-indicator ${data.trend}`}>{data.trend === "up" ? "↗️" : "↘️"}</span>
+										<span className={`trend-indicator ${data.trend}`}>
+											{data.trend === "up" ? "↗️" : "↘️"}
+										</span>
 									</div>
 									<div className="trend-values">
 										<span className="trend-current">{data.current}g</span>
@@ -228,12 +283,17 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 					</div>
 
 					<div className="achievements-grid">
-						{achievements.map((achievement) => (
-							<div key={achievement.id} className={`achievement-item ${achievement.achieved ? "achieved" : "locked"}`}>
+						{achievements.map(achievement => (
+							<div
+								key={achievement.id}
+								className={`achievement-item ${achievement.achieved ? "achieved" : "locked"}`}
+							>
 								<div className="achievement-icon">{achievement.icon}</div>
 								<div className="achievement-info">
 									<h4 className="achievement-title">{achievement.title}</h4>
-									<p className="achievement-description">{achievement.description}</p>
+									<p className="achievement-description">
+										{achievement.description}
+									</p>
 								</div>
 								{achievement.achieved && <div className="achievement-badge">✓</div>}
 							</div>

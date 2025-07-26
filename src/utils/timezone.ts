@@ -10,7 +10,7 @@
  */
 export const utcToLocal = (utcTimeString: string): Date => {
 	if (!utcTimeString) return new Date();
-	
+
 	// 确保UTC时间字符串正确解析
 	let timeStr = utcTimeString;
 	if (!timeStr.endsWith("Z") && !timeStr.includes("+") && !timeStr.includes("-", 10)) {
@@ -69,7 +69,10 @@ export const createLocalDateTime = (dateTimeString: string): Date => {
  * @param options - 格式化选项
  * @returns 格式化后的本地时间字符串
  */
-export const formatUTCToLocal = (utcTimeString: string, options?: Intl.DateTimeFormatOptions): string => {
+export const formatUTCToLocal = (
+	utcTimeString: string,
+	options?: Intl.DateTimeFormatOptions
+): string => {
 	const localDate = utcToLocal(utcTimeString);
 	return localDate.toLocaleString("zh-CN", options);
 };
@@ -91,9 +94,9 @@ export const formatUTCDateToLocal = (utcTimeString: string): string => {
  */
 export const formatUTCTimeToLocal = (utcTimeString: string): string => {
 	const localDate = utcToLocal(utcTimeString);
-	return localDate.toLocaleTimeString("zh-CN", { 
-		hour: "2-digit", 
-		minute: "2-digit" 
+	return localDate.toLocaleTimeString("zh-CN", {
+		hour: "2-digit",
+		minute: "2-digit",
 	});
 };
 
@@ -123,15 +126,17 @@ export const createLocalDate = (dateString: string): Date => {
  * @param dateString YYYY-MM-DD格式的本地日期字符串
  * @returns { start_datetime_utc: string, end_datetime_utc: string }
  */
-export const localDateToUTCRange = (dateString: string): { start_datetime_utc: string, end_datetime_utc: string } => {
+export const localDateToUTCRange = (
+	dateString: string
+): { start_datetime_utc: string; end_datetime_utc: string } => {
 	// 创建本地日期的开始和结束时间
 	const startLocal = new Date(`${dateString}T00:00:00`);
 	const endLocal = new Date(`${dateString}T23:59:59`);
-	
+
 	// 转换为 UTC
 	return {
 		start_datetime_utc: localToUTC(startLocal),
-		end_datetime_utc: localToUTC(endLocal)
+		end_datetime_utc: localToUTC(endLocal),
 	};
 };
 
@@ -141,14 +146,17 @@ export const localDateToUTCRange = (dateString: string): { start_datetime_utc: s
  * @param endDate YYYY-MM-DD格式的结束日期
  * @returns { start_datetime_utc: string, end_datetime_utc: string }
  */
-export const localDateRangeToUTCRange = (startDate: string, endDate: string): { start_datetime_utc: string, end_datetime_utc: string } => {
+export const localDateRangeToUTCRange = (
+	startDate: string,
+	endDate: string
+): { start_datetime_utc: string; end_datetime_utc: string } => {
 	// 创建本地日期范围
 	const startLocal = new Date(`${startDate}T00:00:00`);
 	const endLocal = new Date(`${endDate}T23:59:59`);
-	
+
 	// 转换为 UTC
 	return {
 		start_datetime_utc: localToUTC(startLocal),
-		end_datetime_utc: localToUTC(endLocal)
+		end_datetime_utc: localToUTC(endLocal),
 	};
 };

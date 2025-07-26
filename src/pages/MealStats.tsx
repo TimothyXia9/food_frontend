@@ -69,7 +69,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 				// 单日模式：显示选定日期的所有食物篮
 				const response = await mealService.getUserMeals({
 					date: selectedDate,
-					page_size: 100
+					page_size: 100,
 				});
 				if (response.success && response.data) {
 					setCurrentMeals(response.data.meals || []);
@@ -79,7 +79,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 				const response = await mealService.getUserMeals({
 					start_date: startDate,
 					end_date: endDate,
-					page_size: 100
+					page_size: 100,
 				});
 				if (response.success && response.data) {
 					setCurrentMeals(response.data.meals || []);
@@ -135,7 +135,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 		try {
 			// 显示所有：不传递任何日期参数
 			const response = await mealService.getUserMeals({
-				page_size: 100
+				page_size: 100,
 			});
 			if (response.success && response.data) {
 				setCurrentMeals(response.data.meals || []);
@@ -155,15 +155,18 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 				const mealData = response.data as any; // Backend returns full meal data including date
 
 				// Store meal data in sessionStorage for the food search page
-				sessionStorage.setItem("editingMeal", JSON.stringify({
-					id: mealData.id,
-					name: mealData.name,
-					date: mealData.date,
-					meal_type: mealData.meal_type,
-					foods: mealData.foods || [],
-					total_calories: mealData.total_calories,
-					notes: mealData.notes
-				}));
+				sessionStorage.setItem(
+					"editingMeal",
+					JSON.stringify({
+						id: mealData.id,
+						name: mealData.name,
+						date: mealData.date,
+						meal_type: mealData.meal_type,
+						foods: mealData.foods || [],
+						total_calories: mealData.total_calories,
+						notes: mealData.notes,
+					})
+				);
 
 				// Navigate to food search page with meal editing context
 				if (onNavigate) {
@@ -224,7 +227,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 			year: "numeric",
 			month: "long",
 			day: "numeric",
-			weekday: "long"
+			weekday: "long",
 		};
 		return date.toLocaleDateString("zh-CN", options);
 	};
@@ -234,7 +237,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 			breakfast: "早餐",
 			lunch: "午餐",
 			dinner: "晚餐",
-			snack: "零食"
+			snack: "零食",
 		};
 		return names[mealType] || mealType;
 	};
@@ -255,21 +258,19 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 
 	return (
 		<div className="meal-stats">
-
-
 			<div className="stats-controls">
 				<div className="date-controls-wrapper">
 					<DateRangePicker
 						startDate={isSingleMode ? selectedDate : startDate}
 						endDate={isSingleMode ? selectedDate : endDate}
-						onStartDateChange={(date) => {
+						onStartDateChange={date => {
 							if (isSingleMode) {
 								setSelectedDate(date);
 							} else {
 								setStartDate(date);
 							}
 						}}
-						onEndDateChange={(date) => {
+						onEndDateChange={date => {
 							if (isSingleMode) {
 								setSelectedDate(date);
 							} else {
@@ -280,11 +281,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 						onModeChange={setIsSingleMode}
 						onApply={handleDateRangeApply}
 					/>
-					<button
-						type="button"
-						className="show-all-btn"
-						onClick={handleShowAll}
-					>
+					<button type="button" className="show-all-btn" onClick={handleShowAll}>
 						显示所有
 					</button>
 				</div>
@@ -329,33 +326,77 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 												<div key={meal.id} className="meal-basket-item">
 													<div className="meal-info">
 														<div className="meal-header">
-															<span className="meal-type">{getMealTypeDisplayName(meal.meal_type)}</span>
-															<span className="meal-time">{formatUTCTimeToLocal(meal.created_at)}</span>
+															<span className="meal-type">
+																{getMealTypeDisplayName(
+																	meal.meal_type
+																)}
+															</span>
+															<span className="meal-time">
+																{formatUTCTimeToLocal(
+																	meal.created_at
+																)}
+															</span>
 														</div>
-														<div className="meal-name">{meal.name || "未命名餐食"}</div>
+														<div className="meal-name">
+															{meal.name || "未命名餐食"}
+														</div>
 														<div className="meal-datetime">
-															<span className="meal-date">📅 {formatUTCDateToLocal(meal.date)}</span>
-															<span className="meal-created-time">🕐 {formatUTCTimeToLocal(meal.created_at)}</span>
+															<span className="meal-date">
+																📅 {formatUTCDateToLocal(meal.date)}
+															</span>
+															<span className="meal-created-time">
+																🕐{" "}
+																{formatUTCTimeToLocal(
+																	meal.created_at
+																)}
+															</span>
 														</div>
-														<div className="meal-calories">{meal.total_calories.toFixed(1)} kcal</div>
+														<div className="meal-calories">
+															{meal.total_calories.toFixed(1)} kcal
+														</div>
 														<div className="meal-macros">
-															蛋白质: {meal.total_protein.toFixed(1)}g |
-															脂肪: {meal.total_fat.toFixed(1)}g |
+															蛋白质: {meal.total_protein.toFixed(1)}g
+															| 脂肪: {meal.total_fat.toFixed(1)}g |
 															碳水: {meal.total_carbs.toFixed(1)}g
 														</div>
 														{meal.foods && meal.foods.length > 0 && (
 															<div className="meal-foods">
-																<div className="foods-header">包含食物:</div>
+																<div className="foods-header">
+																	包含食物:
+																</div>
 																<div className="foods-list">
-																	{meal.foods.slice(0, 3).map((mealFood: any, index: number) => (
-																		<div key={index} className="food-item">
-																			<span className="food-name">{mealFood.food?.name || mealFood.name || "未知食物"}</span>
-																			<span className="food-quantity">{Math.round(mealFood.quantity)}g</span>
-																		</div>
-																	))}
+																	{meal.foods
+																		.slice(0, 3)
+																		.map(
+																			(
+																				mealFood: any,
+																				index: number
+																			) => (
+																				<div
+																					key={index}
+																					className="food-item"
+																				>
+																					<span className="food-name">
+																						{mealFood
+																							.food
+																							?.name ||
+																							mealFood.name ||
+																							"未知食物"}
+																					</span>
+																					<span className="food-quantity">
+																						{Math.round(
+																							mealFood.quantity
+																						)}
+																						g
+																					</span>
+																				</div>
+																			)
+																		)}
 																	{meal.foods.length > 3 && (
 																		<div className="more-foods">
-																			还有 {meal.foods.length - 3} 种食物...
+																			还有{" "}
+																			{meal.foods.length - 3}{" "}
+																			种食物...
 																		</div>
 																	)}
 																</div>
@@ -372,7 +413,9 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 														</button>
 														<button
 															className="delete-btn"
-															onClick={() => handleDeleteMeal(meal.id)}
+															onClick={() =>
+																handleDeleteMeal(meal.id)
+															}
 															title="删除餐食"
 														>
 															🗑️
@@ -408,107 +451,197 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 							{mealStatistics ? (
 								<>
 									<div className="stats-overview">
-										<h3>📅 {!isSingleMode ? `${startDate} 至 ${endDate}` : formatDate(selectedDate)} 统计概览</h3>
+										<h3>
+											📅{" "}
+											{!isSingleMode
+												? `${startDate} 至 ${endDate}`
+												: formatDate(selectedDate)}{" "}
+											统计概览
+										</h3>
 										<div className="overview-grid">
 											<div className="overview-item">
 												<div className="overview-icon">🍽️</div>
 												<div className="overview-data">
-													<span className="overview-number">{!isSingleMode ? mealStatistics.stats?.date_range?.days_count || 0 : mealStatistics.summary?.total_meals || 0}</span>
-													<span className="overview-label">{!isSingleMode ? "天数" : "餐次"}</span>
+													<span className="overview-number">
+														{!isSingleMode
+															? mealStatistics.stats?.date_range
+																	?.days_count || 0
+															: mealStatistics.summary?.total_meals ||
+																0}
+													</span>
+													<span className="overview-label">
+														{!isSingleMode ? "天数" : "餐次"}
+													</span>
 												</div>
 											</div>
 											<div className="overview-item">
 												<div className="overview-icon">🔥</div>
 												<div className="overview-data">
-													<span className="overview-number">{!isSingleMode ? mealStatistics.stats?.totals?.calories || 0 : mealStatistics.summary?.total_calories || 0}</span>
+													<span className="overview-number">
+														{!isSingleMode
+															? mealStatistics.stats?.totals
+																	?.calories || 0
+															: mealStatistics.summary
+																	?.total_calories || 0}
+													</span>
 													<span className="overview-label">卡路里</span>
 												</div>
 											</div>
 											<div className="overview-item">
 												<div className="overview-icon">🥩</div>
 												<div className="overview-data">
-													<span className="overview-number">{!isSingleMode ? mealStatistics.stats?.totals?.protein || 0 : mealStatistics.summary?.total_protein || 0}g</span>
+													<span className="overview-number">
+														{!isSingleMode
+															? mealStatistics.stats?.totals
+																	?.protein || 0
+															: mealStatistics.summary
+																	?.total_protein || 0}
+														g
+													</span>
 													<span className="overview-label">蛋白质</span>
 												</div>
 											</div>
 											<div className="overview-item">
 												<div className="overview-icon">🥑</div>
 												<div className="overview-data">
-													<span className="overview-number">{!isSingleMode ? mealStatistics.stats?.totals?.fat || 0 : mealStatistics.summary?.total_fat || 0}g</span>
+													<span className="overview-number">
+														{!isSingleMode
+															? mealStatistics.stats?.totals?.fat || 0
+															: mealStatistics.summary?.total_fat ||
+																0}
+														g
+													</span>
 													<span className="overview-label">脂肪</span>
 												</div>
 											</div>
 											<div className="overview-item">
 												<div className="overview-icon">🍞</div>
 												<div className="overview-data">
-													<span className="overview-number">{!isSingleMode ? mealStatistics.stats?.totals?.carbs || 0 : mealStatistics.summary?.total_carbs || 0}g</span>
-													<span className="overview-label">碳水化合物</span>
+													<span className="overview-number">
+														{!isSingleMode
+															? mealStatistics.stats?.totals?.carbs ||
+																0
+															: mealStatistics.summary?.total_carbs ||
+																0}
+														g
+													</span>
+													<span className="overview-label">
+														碳水化合物
+													</span>
 												</div>
 											</div>
 										</div>
 									</div>
 
-									{isSingleMode && mealStatistics.meal_breakdown && Object.keys(mealStatistics.meal_breakdown).length > 0 && (
-										<div className="meal-breakdown">
-											<h3>🍽️ 各餐营养分布</h3>
-											<div className="breakdown-grid">
-												{Object.entries(mealStatistics.meal_breakdown).map(([mealType, data]: [string, any]) => (
-													<div key={mealType} className="breakdown-item">
-														<div className="breakdown-header">
-															<h4>{getMealTypeDisplayName(mealType)}</h4>
-															<span className="meal-count">{data.count} 餐</span>
+									{isSingleMode &&
+										mealStatistics.meal_breakdown &&
+										Object.keys(mealStatistics.meal_breakdown).length > 0 && (
+											<div className="meal-breakdown">
+												<h3>🍽️ 各餐营养分布</h3>
+												<div className="breakdown-grid">
+													{Object.entries(
+														mealStatistics.meal_breakdown
+													).map(([mealType, data]: [string, any]) => (
+														<div
+															key={mealType}
+															className="breakdown-item"
+														>
+															<div className="breakdown-header">
+																<h4>
+																	{getMealTypeDisplayName(
+																		mealType
+																	)}
+																</h4>
+																<span className="meal-count">
+																	{data.count} 餐
+																</span>
+															</div>
+															<div className="breakdown-nutrition">
+																<div className="nutrition-item">
+																	<span className="nutrition-label">
+																		卡路里:
+																	</span>
+																	<span className="nutrition-value">
+																		{data.calories.toFixed(1)}{" "}
+																		kcal
+																	</span>
+																</div>
+																<div className="nutrition-item">
+																	<span className="nutrition-label">
+																		蛋白质:
+																	</span>
+																	<span className="nutrition-value">
+																		{data.protein.toFixed(1)}g
+																	</span>
+																</div>
+																<div className="nutrition-item">
+																	<span className="nutrition-label">
+																		脂肪:
+																	</span>
+																	<span className="nutrition-value">
+																		{data.fat.toFixed(1)}g
+																	</span>
+																</div>
+																<div className="nutrition-item">
+																	<span className="nutrition-label">
+																		碳水:
+																	</span>
+																	<span className="nutrition-value">
+																		{data.carbs.toFixed(1)}g
+																	</span>
+																</div>
+															</div>
 														</div>
-														<div className="breakdown-nutrition">
-															<div className="nutrition-item">
-																<span className="nutrition-label">卡路里:</span>
-																<span className="nutrition-value">{data.calories.toFixed(1)} kcal</span>
-															</div>
-															<div className="nutrition-item">
-																<span className="nutrition-label">蛋白质:</span>
-																<span className="nutrition-value">{data.protein.toFixed(1)}g</span>
-															</div>
-															<div className="nutrition-item">
-																<span className="nutrition-label">脂肪:</span>
-																<span className="nutrition-value">{data.fat.toFixed(1)}g</span>
-															</div>
-															<div className="nutrition-item">
-																<span className="nutrition-label">碳水:</span>
-																<span className="nutrition-value">{data.carbs.toFixed(1)}g</span>
-															</div>
-														</div>
-													</div>
-												))}
+													))}
+												</div>
 											</div>
-										</div>
-									)}
+										)}
 
-									{mealStatistics.top_foods && mealStatistics.top_foods.length > 0 && (
-										<div className="top-foods">
-											<h3>🥇 当日热量来源食物</h3>
-											<div className="foods-list">
-												{mealStatistics.top_foods.map((food: any, index: number) => (
-													<div key={index} className="food-item">
-														<div className="food-rank">#{index + 1}</div>
-														<div className="food-info">
-															<div className="food-name">{food.name}</div>
-															<div className="food-stats">
-																{food.total_quantity}g • {food.total_calories.toFixed(1)} kcal
-																{food.frequency > 1 && <span className="frequency"> • {food.frequency}次</span>}
+									{mealStatistics.top_foods &&
+										mealStatistics.top_foods.length > 0 && (
+											<div className="top-foods">
+												<h3>🥇 当日热量来源食物</h3>
+												<div className="foods-list">
+													{mealStatistics.top_foods.map(
+														(food: any, index: number) => (
+															<div key={index} className="food-item">
+																<div className="food-rank">
+																	#{index + 1}
+																</div>
+																<div className="food-info">
+																	<div className="food-name">
+																		{food.name}
+																	</div>
+																	<div className="food-stats">
+																		{food.total_quantity}g •{" "}
+																		{food.total_calories.toFixed(
+																			1
+																		)}{" "}
+																		kcal
+																		{food.frequency > 1 && (
+																			<span className="frequency">
+																				{" "}
+																				• {food.frequency}次
+																			</span>
+																		)}
+																	</div>
+																</div>
 															</div>
-														</div>
-													</div>
-												))}
+														)
+													)}
+												</div>
 											</div>
-										</div>
-									)}
+										)}
 
-									{isSingleMode && mealStatistics.summary && mealStatistics.summary.total_meals === 0 && (
-										<div className="no-meals">
-											<div className="no-meals-icon">🍽️</div>
-											<h3>暂无餐食数据</h3>
-											<p>选择的日期还没有添加任何餐食</p>
-										</div>
-									)}
+									{isSingleMode &&
+										mealStatistics.summary &&
+										mealStatistics.summary.total_meals === 0 && (
+											<div className="no-meals">
+												<div className="no-meals-icon">🍽️</div>
+												<h3>暂无餐食数据</h3>
+												<p>选择的日期还没有添加任何餐食</p>
+											</div>
+										)}
 								</>
 							) : (
 								<div className="no-data">
@@ -529,11 +662,17 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 						{recentMeals.slice(0, 6).map((meal: any) => (
 							<div key={meal.id} className="recent-meal-item">
 								<div className="recent-meal-header">
-									<span className="meal-type">{getMealTypeDisplayName(meal.meal_type)}</span>
-									<span className="meal-date">{formatUTCDateToLocal(meal.date)}</span>
+									<span className="meal-type">
+										{getMealTypeDisplayName(meal.meal_type)}
+									</span>
+									<span className="meal-date">
+										{formatUTCDateToLocal(meal.date)}
+									</span>
 								</div>
 								<div className="recent-meal-name">{meal.name}</div>
-								<div className="recent-meal-calories">{meal.total_calories.toFixed(1)} kcal</div>
+								<div className="recent-meal-calories">
+									{meal.total_calories.toFixed(1)} kcal
+								</div>
 							</div>
 						))}
 					</div>

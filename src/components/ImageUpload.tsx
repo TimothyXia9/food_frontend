@@ -65,7 +65,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 			// 步骤1: 上传图片
 			info("正在上传图片...");
 			const uploadResponse = await imageService.uploadImage(file);
-			
+
 			if (!uploadResponse.success || !uploadResponse.data) {
 				throw new Error("图片上传失败");
 			}
@@ -77,20 +77,17 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 			setAnalyzing(true);
 
 			if (useStreaming) {
-				// 使用流式分析
-				info("开始分析图片...");
-				
 				// 创建取消控制器
 				abortControllerRef.current = new AbortController();
-				
+
 				const streamResult = await imageService.analyzeImageStreaming(
-					imageId, 
-					(data) => {
+					imageId,
+					data => {
 						// 处理流式进度更新
 						if (data.message) {
 							info(data.message);
 						}
-						
+
 						onStreamingProgress?.(data);
 					},
 					abortControllerRef.current
@@ -103,7 +100,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 					success("图片分析完成！");
 					setAnalyzing(false);
 					onUploadEnd?.();
-					
+
 					// 使用流式分析的结果
 					const finalData = streamResult.finalResult;
 					const mockResults = {
@@ -111,36 +108,40 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 						processing_status: "completed" as const,
 						streaming_result: finalData,
 						// 保持向后兼容性
-						keywords: finalData.stage_1?.food_types?.map((food: any) => food.name) || [],
-						results: finalData.stage_1?.food_types?.map((food: any, index: number) => {
-							// 找到对应的分量信息
-							const portionInfo = finalData.stage_2?.food_portions?.find((portion: any) => 
-								portion.name === food.name
-							);
-							
-							return {
-								id: index + 1,
-								food: {
+						keywords:
+							finalData.stage_1?.food_types?.map((food: any) => food.name) || [],
+						results:
+							finalData.stage_1?.food_types?.map((food: any, index: number) => {
+								// 找到对应的分量信息
+								const portionInfo = finalData.stage_2?.food_portions?.find(
+									(portion: any) => portion.name === food.name
+								);
+
+								return {
 									id: index + 1,
-									name: food.name,
-									confidence: food.confidence,
-									estimated_grams: portionInfo?.estimated_grams || 100,
-									cooking_method: portionInfo?.cooking_method || "",
-									portion_description: portionInfo?.portion_description || `约${portionInfo?.estimated_grams || 100}克`,
-									calories_per_100g: 100, // 模拟数据
-									protein_per_100g: 10,
-									fat_per_100g: 5,
-									carbs_per_100g: 20,
-									fiber_per_100g: 2,
-									sugar_per_100g: 5,
-									sodium_per_100g: 100,
-									serving_size: portionInfo?.estimated_grams || 100,
-									is_custom: false
-								}
-							};
-						}) || []
+									food: {
+										id: index + 1,
+										name: food.name,
+										confidence: food.confidence,
+										estimated_grams: portionInfo?.estimated_grams || 100,
+										cooking_method: portionInfo?.cooking_method || "",
+										portion_description:
+											portionInfo?.portion_description ||
+											`约${portionInfo?.estimated_grams || 100}克`,
+										calories_per_100g: 100, // 模拟数据
+										protein_per_100g: 10,
+										fat_per_100g: 5,
+										carbs_per_100g: 20,
+										fiber_per_100g: 2,
+										sugar_per_100g: 5,
+										sodium_per_100g: 100,
+										serving_size: portionInfo?.estimated_grams || 100,
+										is_custom: false,
+									},
+								};
+							}) || [],
 					};
-					
+
 					onImageUploaded(imageId, mockResults, imagePreviewUrl);
 				} else {
 					throw new Error(streamResult.error || "流式分析失败");
@@ -149,7 +150,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 				// 使用传统分析方式（向后兼容）
 				info("正在分析图片中的食物...");
 				const analyzeResponse = await imageService.analyzeImage(imageId);
-				
+
 				if (!analyzeResponse.success || !analyzeResponse.data) {
 					throw new Error("图片分析失败");
 				}
@@ -159,7 +160,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 					success("图片分析完成！");
 					setAnalyzing(false);
 					onUploadEnd?.();
-					
+
 					// 将关键词转换为模拟的识别结果格式
 					const mockResults = {
 						image_id: imageId,
@@ -178,32 +179,29 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 								sugar_per_100g: 5,
 								sodium_per_100g: 100,
 								serving_size: 100,
-								is_custom: false
-							}
-						}))
+								is_custom: false,
+							},
+						})),
 					};
-					
+
 					onImageUploaded(imageId, mockResults, imagePreviewUrl);
 				} else {
 					throw new Error("未能识别到食物关键词");
 				}
 			}
-
 		} catch (err) {
 			console.error("图片上传分析失败:", err);
-			error(
-				err instanceof Error ? err.message : "图片处理失败，请重试"
-			);
+			error(err instanceof Error ? err.message : "图片处理失败，请重试");
 			// 清理预览URL
 			URL.revokeObjectURL(imagePreviewUrl);
 		} finally {
 			setUploading(false);
 			setAnalyzing(false);
 			onUploadEnd?.();
-			
+
 			// 清理取消控制器
 			abortControllerRef.current = null;
-			
+
 			// 清空文件输入
 			if (fileInputRef.current) {
 				fileInputRef.current.value = "";
@@ -219,11 +217,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 	};
 
 	const isProcessing = uploading || analyzing;
-	const buttonText = uploading 
-		? "上传中..." 
-		: analyzing 
-			? "分析中..." 
-			: "📸 拍照识别";
+	const buttonText = uploading ? "上传中..." : analyzing ? "分析中..." : "📸 拍照识别";
 
 	return (
 		<div className="image-upload">
@@ -242,7 +236,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 				>
 					{buttonText}
 				</button>
-				
+
 				{analyzing && (
 					<button
 						className="btn btn-secondary cancel-btn"
@@ -253,7 +247,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 					</button>
 				)}
 			</div>
-			
+
 			<style>{`
 				.image-upload .upload-buttons {
 					display: flex;

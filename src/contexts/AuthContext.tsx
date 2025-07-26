@@ -7,7 +7,12 @@ interface AuthContextType {
 	isAuthenticated: boolean;
 	loading: boolean;
 	login: (credentials: { username: string; password: string }) => Promise<boolean>;
-	register: (data: { username: string; email: string; password: string; nickname: string }) => Promise<boolean>;
+	register: (data: {
+		username: string;
+		email: string;
+		password: string;
+		nickname: string;
+	}) => Promise<boolean>;
 	logout: () => Promise<void>;
 }
 
@@ -52,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 							console.error("Failed to parse saved user:", error);
 						}
 					}
-					
+
 					// Verify token is still valid by making a profile request
 					try {
 						const response = await authService.getCurrentUser();
@@ -97,7 +102,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		}
 	};
 
-	const register = async (data: { username: string; email: string; password: string; nickname: string }): Promise<boolean> => {
+	const register = async (data: {
+		username: string;
+		email: string;
+		password: string;
+		nickname: string;
+	}): Promise<boolean> => {
 		try {
 			const response = await authService.register(data);
 			if (response.success && response.data) {

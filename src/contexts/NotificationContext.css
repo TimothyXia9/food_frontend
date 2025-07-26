@@ -96,15 +96,15 @@
 		width: 95%;
 		max-width: none;
 	}
-	
+
 	.confirm-dialog__content {
 		padding: 20px;
 	}
-	
+
 	.confirm-dialog__buttons {
 		flex-direction: column;
 	}
-	
+
 	.confirm-dialog__button {
 		width: 100%;
 	}

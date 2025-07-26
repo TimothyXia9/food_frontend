@@ -30,9 +30,10 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 	const [confirmDialog, setConfirmDialog] = useState<{
 		message: string;
 		resolve: (value: boolean) => void;
-			} | null>(null);
+	} | null>(null);
 
-	const generateId = () => `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+	const generateId = () =>
+		`notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 	const addNotification = useCallback((notification: Omit<NotificationData, "id">) => {
 		const id = generateId();
@@ -48,34 +49,49 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 		setNotifications(prev => prev.filter(notification => notification.id !== id));
 	}, []);
 
-	const success = useCallback((message: string, duration?: number) => {
-		addNotification({ type: "success", message, duration });
-	}, [addNotification]);
+	const success = useCallback(
+		(message: string, duration?: number) => {
+			addNotification({ type: "success", message, duration });
+		},
+		[addNotification]
+	);
 
-	const error = useCallback((message: string, duration?: number) => {
-		addNotification({ type: "error", message, duration });
-	}, [addNotification]);
+	const error = useCallback(
+		(message: string, duration?: number) => {
+			addNotification({ type: "error", message, duration });
+		},
+		[addNotification]
+	);
 
-	const warning = useCallback((message: string, duration?: number) => {
-		addNotification({ type: "warning", message, duration });
-	}, [addNotification]);
+	const warning = useCallback(
+		(message: string, duration?: number) => {
+			addNotification({ type: "warning", message, duration });
+		},
+		[addNotification]
+	);
 
-	const info = useCallback((message: string, duration?: number) => {
-		addNotification({ type: "info", message, duration });
-	}, [addNotification]);
+	const info = useCallback(
+		(message: string, duration?: number) => {
+			addNotification({ type: "info", message, duration });
+		},
+		[addNotification]
+	);
 
 	const confirm = useCallback((message: string): Promise<boolean> => {
-		return new Promise((resolve) => {
+		return new Promise(resolve => {
 			setConfirmDialog({ message, resolve });
 		});
 	}, []);
 
-	const handleConfirmClose = useCallback((confirmed: boolean) => {
-		if (confirmDialog) {
-			confirmDialog.resolve(confirmed);
-			setConfirmDialog(null);
-		}
-	}, [confirmDialog]);
+	const handleConfirmClose = useCallback(
+		(confirmed: boolean) => {
+			if (confirmDialog) {
+				confirmDialog.resolve(confirmed);
+				setConfirmDialog(null);
+			}
+		},
+		[confirmDialog]
+	);
 
 	const contextValue: NotificationContextType = {
 		addNotification,
@@ -90,15 +106,9 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 	return (
 		<NotificationContext.Provider value={contextValue}>
 			{children}
-			<NotificationContainer
-				notifications={notifications}
-				onClose={removeNotification}
-			/>
+			<NotificationContainer notifications={notifications} onClose={removeNotification} />
 			{confirmDialog && (
-				<ConfirmDialog
-					message={confirmDialog.message}
-					onClose={handleConfirmClose}
-				/>
+				<ConfirmDialog message={confirmDialog.message} onClose={handleConfirmClose} />
 			)}
 		</NotificationContext.Provider>
 	);

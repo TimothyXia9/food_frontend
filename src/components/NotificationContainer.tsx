@@ -17,12 +17,8 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({
 
 	return (
 		<div className="notification-container">
-			{notifications.map((notification) => (
-				<Notification
-					key={notification.id}
-					{...notification}
-					onClose={onClose}
-				/>
+			{notifications.map(notification => (
+				<Notification key={notification.id} {...notification} onClose={onClose} />
 			))}
 		</div>
 	);

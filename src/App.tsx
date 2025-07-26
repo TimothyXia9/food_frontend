@@ -11,7 +11,6 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { Analytics } from "@vercel/analytics/react";
 
-
 function AppContent() {
 	const [currentPage, setCurrentPage] = useState("food-search");
 	const [showLoginModal, setShowLoginModal] = useState(false);
@@ -37,17 +36,23 @@ function AppContent() {
 	const renderPage = () => {
 		switch (currentPage) {
 			case "food-search":
-				return <FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
+				return (
+					<FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />
+				);
 			case "dashboard":
 				return <Dashboard onLoginRequired={handleLoginRequired} />;
 			case "meal-stats":
-				return <MealStats onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
+				return (
+					<MealStats onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />
+				);
 			case "profile":
 				return <Profile onLoginRequired={handleLoginRequired} />;
 			case "api-test":
 				return <ApiTest onLoginRequired={handleLoginRequired} />;
 			default:
-				return <FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />;
+				return (
+					<FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />
+				);
 		}
 	};
 
@@ -60,9 +65,7 @@ function AppContent() {
 				onLoginRequired={handleLoginRequired}
 				isAuthenticated={isAuthenticated}
 			/>
-			<main className="main-content">
-				{renderPage()}
-			</main>
+			<main className="main-content">{renderPage()}</main>
 			<LoginModal
 				isOpen={showLoginModal}
 				onClose={() => setShowLoginModal(false)}

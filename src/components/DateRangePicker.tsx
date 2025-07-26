@@ -19,7 +19,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 	onEndDateChange,
 	isSingleMode,
 	onModeChange,
-	onApply
+	onApply,
 }) => {
 	// 本地的日期格式化函数
 	const formatDateToLocal = (date: Date): string => {
@@ -127,7 +127,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 				isInRange: false,
 				isRangeStart: false,
 				isRangeEnd: false,
-				fullDate: formatDateToLocal(prevDate)
+				fullDate: formatDateToLocal(prevDate),
 			});
 		}
 
@@ -138,21 +138,25 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 		for (let day = 1; day <= daysInMonth; day++) {
 			const dateObj = new Date(year, month, day);
 			const dateStr = formatDateToLocal(dateObj);
-			
+
 			const isStart = dateStr === tempStartDate;
 			const isEnd = dateStr === tempEndDate;
-			const isInRange = !isSingleMode && tempStartDate && tempEndDate && 
-				dateStr >= tempStartDate && dateStr <= tempEndDate;
+			const isInRange =
+				!isSingleMode &&
+				tempStartDate &&
+				tempEndDate &&
+				dateStr >= tempStartDate &&
+				dateStr <= tempEndDate;
 
 			days.push({
 				date: day,
 				isCurrentMonth: true,
 				isToday: dateStr === todayStr,
-				isSelected: isSingleMode ? dateStr === tempStartDate : (isStart || isEnd),
+				isSelected: isSingleMode ? dateStr === tempStartDate : isStart || isEnd,
 				isInRange: isInRange && !isStart && !isEnd,
 				isRangeStart: isStart,
 				isRangeEnd: isEnd,
-				fullDate: dateStr
+				fullDate: dateStr,
 			});
 		}
 
@@ -168,7 +172,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 				isInRange: false,
 				isRangeStart: false,
 				isRangeEnd: false,
-				fullDate: formatDateToLocal(nextDate)
+				fullDate: formatDateToLocal(nextDate),
 			});
 		}
 
@@ -199,12 +203,12 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 				// Handle end date selection
 				let newStartDate = tempStartDate;
 				let newEndDate = dateStr;
-				
+
 				// Auto-swap if end date is earlier than start date
 				if (newEndDate < newStartDate) {
 					[newStartDate, newEndDate] = [newEndDate, newStartDate];
 				}
-				
+
 				setTempStartDate(newStartDate);
 				setTempEndDate(newEndDate);
 				setSelectionStep("start");
@@ -238,7 +242,6 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 		}
 	};
 
-
 	// Quick selection handlers
 	const handleQuickSelect = (type: "week" | "month") => {
 		const today = new Date();
@@ -262,21 +265,18 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
 		setTempStartDate(startStr);
 		setTempEndDate(endStr);
-		
+
 		// Switch to multi-day mode if not already
 		if (isSingleMode) {
 			onModeChange(false);
 		}
-		
+
 		setSelectionStep("start");
 	};
 
 	return (
 		<div className="date-range-picker" ref={containerRef}>
-			<div
-				className="date-range-picker-trigger"
-				onClick={() => setIsOpen(!isOpen)}
-			>
+			<div className="date-range-picker-trigger" onClick={() => setIsOpen(!isOpen)}>
 				<span className="date-range-value">{formatDisplayValue()}</span>
 				<svg className="date-range-picker-icon" width="16" height="16" viewBox="0 0 16 16">
 					<path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1H2zm13 3H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5z" />
@@ -288,14 +288,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 					<div className="date-range-picker-header">
 						<h3>选择统计时间</h3>
 						<div className="mode-toggle">
-							<button 
+							<button
 								type="button"
 								className={`mode-btn ${isSingleMode ? "active" : ""}`}
 								onClick={() => handleModeChange(true)}
 							>
 								单日
 							</button>
-							<button 
+							<button
 								type="button"
 								className={`mode-btn ${!isSingleMode ? "active" : ""}`}
 								onClick={() => handleModeChange(false)}
@@ -311,14 +311,14 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 							<div className="quick-select-section">
 								<label className="section-label">快速选择</label>
 								<div className="quick-select-buttons">
-									<button 
+									<button
 										type="button"
 										className="quick-select-btn"
 										onClick={() => handleQuickSelect("week")}
 									>
 										前一周
 									</button>
-									<button 
+									<button
 										type="button"
 										className="quick-select-btn"
 										onClick={() => handleQuickSelect("month")}
@@ -332,9 +332,11 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 						{/* Calendar Section */}
 						<div className="calendar-section">
 							<label className="section-label">
-								{isSingleMode ? "选择日期" : 
-									selectionStep === "start" ? "选择开始日期" : "选择结束日期"
-								}
+								{isSingleMode
+									? "选择日期"
+									: selectionStep === "start"
+										? "选择开始日期"
+										: "选择结束日期"}
 							</label>
 
 							{/* Calendar Header */}
@@ -350,14 +352,11 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 								</button>
 
 								<span className="month-year">
-									{currentMonth.getFullYear()}年{(currentMonth.getMonth() + 1).toString().padStart(2, "0")}月
+									{currentMonth.getFullYear()}年
+									{(currentMonth.getMonth() + 1).toString().padStart(2, "0")}月
 								</span>
 
-								<button
-									type="button"
-									className="nav-btn"
-									onClick={goToNextMonth}
-								>
+								<button type="button" className="nav-btn" onClick={goToNextMonth}>
 									<svg width="16" height="16" viewBox="0 0 16 16">
 										<path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
 									</svg>
@@ -381,13 +380,13 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 									<button
 										key={index}
 										type="button"
-										className={`calendar-day ${day.isCurrentMonth ? "current-month" : "other-month"
-										} ${day.isToday ? "today" : ""
-										} ${day.isSelected ? "selected" : ""
-										} ${day.isInRange ? "in-range" : ""
-										} ${day.isRangeStart ? "range-start" : ""
-										} ${day.isRangeEnd ? "range-end" : ""
-										}`}
+										className={`calendar-day ${
+											day.isCurrentMonth ? "current-month" : "other-month"
+										} ${day.isToday ? "today" : ""} ${
+											day.isSelected ? "selected" : ""
+										} ${day.isInRange ? "in-range" : ""} ${
+											day.isRangeStart ? "range-start" : ""
+										} ${day.isRangeEnd ? "range-end" : ""}`}
 										onClick={() => handleCalendarDateSelect(day.fullDate)}
 									>
 										{day.date}
@@ -401,14 +400,20 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 							<div className="selection-status">
 								<div className="status-item">
 									<span className="status-label">开始日期:</span>
-									<span className="status-value">{formatSingleDate(tempStartDate)}</span>
+									<span className="status-value">
+										{formatSingleDate(tempStartDate)}
+									</span>
 								</div>
 								<div className="status-item">
 									<span className="status-label">结束日期:</span>
-									<span className="status-value">{formatSingleDate(tempEndDate)}</span>
+									<span className="status-value">
+										{formatSingleDate(tempEndDate)}
+									</span>
 								</div>
 								<div className="status-hint">
-									{selectionStep === "start" ? "点击日历选择开始日期" : "点击日历选择结束日期"}
+									{selectionStep === "start"
+										? "点击日历选择开始日期"
+										: "点击日历选择结束日期"}
 								</div>
 							</div>
 						)}
@@ -422,11 +427,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 						>
 							取消
 						</button>
-						<button
-							type="button"
-							className="apply-btn"
-							onClick={handleApply}
-						>
+						<button type="button" className="apply-btn" onClick={handleApply}>
 							应用
 						</button>
 					</div>

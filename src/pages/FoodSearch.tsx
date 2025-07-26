@@ -60,21 +60,25 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 			return {
 				cart: savedCart ? JSON.parse(savedCart) : [],
 				name: savedName || "",
-				time: savedTime || getCurrentLocalDateTime()
+				time: savedTime || getCurrentLocalDateTime(),
 			};
 		} catch (error) {
 			console.error("Error loading meal cart from storage:", error);
 			return {
 				cart: [],
 				name: "",
-				time: getCurrentLocalDateTime()
+				time: getCurrentLocalDateTime(),
 			};
 		}
 	};
 
 	// Initialize state with data from localStorage or editing meal (only if authenticated)
-	const initialData = isAuthenticated ? loadMealCartFromStorage() : { cart: [], name: "", time: getCurrentLocalDateTime() };
-	const [mealCart, setMealCart] = React.useState<{ food: Food, quantity: number, updated?: boolean }[]>(initialData.cart);
+	const initialData = isAuthenticated
+		? loadMealCartFromStorage()
+		: { cart: [], name: "", time: getCurrentLocalDateTime() };
+	const [mealCart, setMealCart] = React.useState<
+		{ food: Food; quantity: number; updated?: boolean }[]
+	>(initialData.cart);
 	const [mealName, setMealName] = React.useState(initialData.name);
 	const [mealTime, setMealTime] = React.useState(initialData.time);
 	const [editingMealId, setEditingMealId] = React.useState<number | null>(null);
@@ -160,10 +164,10 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 								sodium_per_100g: 0,
 								serving_size: 100,
 								is_custom: false,
-								is_usda: false
+								is_usda: false,
 							} as Food,
 							quantity: mealFood.quantity,
-							updated: false
+							updated: false,
 						}));
 						setMealCart(cartItems);
 					}
@@ -269,16 +273,16 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 			handleRemoveFromCart(foodId);
 			return;
 		}
-		setMealCart(mealCart.map(item =>
-			item.food.id === foodId ? { ...item, quantity: newQuantity, updated: false } : item
-		));
+		setMealCart(
+			mealCart.map(item =>
+				item.food.id === foodId ? { ...item, quantity: newQuantity, updated: false } : item
+			)
+		);
 	};
 
 	const clearUpdatedStatus = (foodId: number) => {
 		setMealCart(prevCart =>
-			prevCart.map(item =>
-				item.food.id === foodId ? { ...item, updated: false } : item
-			)
+			prevCart.map(item => (item.food.id === foodId ? { ...item, updated: false } : item))
 		);
 	};
 
@@ -342,17 +346,16 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 						food_id: -1, // Placeholder for non-existent food
 						quantity: item.quantity,
 						fdc_id: item.food.fdc_id,
-						name: item.food.name
+						name: item.food.name,
 					};
 				} else {
 					// For regular foods, send the actual food_id
 					return {
 						food_id: item.food.id,
-						quantity: item.quantity
+						quantity: item.quantity,
 					};
 				}
 			});
-
 
 			let response;
 			if (editingMealId) {
@@ -361,7 +364,7 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 					date: utcDateTime,
 					meal_type: mealType,
 					name: finalMealName,
-					foods: foods
+					foods: foods,
 				};
 				response = await mealService.updateMeal(editingMealId, updateData);
 			} else {
@@ -370,7 +373,7 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 					date: utcDateTime,
 					meal_type: mealType,
 					name: finalMealName,
-					foods: foods
+					foods: foods,
 				};
 				response = await mealService.createMeal(createData);
 			}
@@ -387,7 +390,9 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 				localStorage.removeItem("mealTime");
 				sessionStorage.removeItem("editingMeal");
 			} else {
-				showError(response.error?.message || `${editingMealId ? "更新" : "保存"}食物篮失败`);
+				showError(
+					response.error?.message || `${editingMealId ? "更新" : "保存"}食物篮失败`
+				);
 			}
 		} catch (error) {
 			console.error("Save meal error:", error);
@@ -398,19 +403,22 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 	};
 
 	const getTotalNutrition = () => {
-		return mealCart.reduce((total, item) => {
-			const calories = (item.food.calories_per_100g * item.quantity) / 100;
-			const protein = ((item.food.protein_per_100g || 0) * item.quantity) / 100;
-			const fat = ((item.food.fat_per_100g || 0) * item.quantity) / 100;
-			const carbs = ((item.food.carbs_per_100g || 0) * item.quantity) / 100;
+		return mealCart.reduce(
+			(total, item) => {
+				const calories = (item.food.calories_per_100g * item.quantity) / 100;
+				const protein = ((item.food.protein_per_100g || 0) * item.quantity) / 100;
+				const fat = ((item.food.fat_per_100g || 0) * item.quantity) / 100;
+				const carbs = ((item.food.carbs_per_100g || 0) * item.quantity) / 100;
 
-			return {
-				calories: total.calories + calories,
-				protein: total.protein + protein,
-				fat: total.fat + fat,
-				carbs: total.carbs + carbs
-			};
-		}, { calories: 0, protein: 0, fat: 0, carbs: 0 });
+				return {
+					calories: total.calories + calories,
+					protein: total.protein + protein,
+					fat: total.fat + fat,
+					carbs: total.carbs + carbs,
+				};
+			},
+			{ calories: 0, protein: 0, fat: 0, carbs: 0 }
+		);
 	};
 	const handleCustomFoodSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -448,8 +456,10 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 					const updatedFood: Food = {
 						...editingFood,
 						name: response.data.name || foodData.name,
-						calories_per_100g: response.data.calories_per_100g || foodData.calories_per_100g,
-						protein_per_100g: response.data.protein_per_100g || foodData.protein_per_100g,
+						calories_per_100g:
+							response.data.calories_per_100g || foodData.calories_per_100g,
+						protein_per_100g:
+							response.data.protein_per_100g || foodData.protein_per_100g,
 						fat_per_100g: response.data.fat_per_100g || foodData.fat_per_100g,
 						carbs_per_100g: response.data.carbs_per_100g || foodData.carbs_per_100g,
 						fiber_per_100g: response.data.fiber_per_100g || foodData.fiber_per_100g,
@@ -479,7 +489,9 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 					handleLoadUserFoods();
 				}
 			} else {
-				setErrorMessage(response.error?.message || (isEditingUserFood ? "更新失败" : "创建失败"));
+				setErrorMessage(
+					response.error?.message || (isEditingUserFood ? "更新失败" : "创建失败")
+				);
 			}
 		} catch (error) {
 			setErrorMessage("创建时发生错误");
@@ -570,7 +582,9 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 				const impacts = [];
 
 				if (response.data?.removed_from_meals) {
-					impacts.push(`从 ${response.data.meal_count} 个餐食的 ${response.data.meal_foods_count} 条记录中移除`);
+					impacts.push(
+						`从 ${response.data.meal_count} 个餐食的 ${response.data.meal_foods_count} 条记录中移除`
+					);
 				}
 
 				if (isInCart) {
@@ -614,8 +628,6 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 
 	return (
 		<div className="food-search">
-
-
 			<div className="add-food-layout">
 				{/* Left side - Meal Cart */}
 				<div className="meal-cart-section">
@@ -626,7 +638,7 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 							<input
 								type="text"
 								value={mealName}
-								onChange={(e) => setMealName(e.target.value)}
+								onChange={e => setMealName(e.target.value)}
 								placeholder={"输入食物篮名称 (默认: 创建时间)"}
 								className="meal-name-input"
 							/>
@@ -653,18 +665,30 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 							</div>
 						) : (
 							<div className="cart-items">
-								{mealCart.map((item) => (
-									<div key={item.food.id} className={`cart-item ${item.updated ? "updated" : ""}`}>
+								{mealCart.map(item => (
+									<div
+										key={item.food.id}
+										className={`cart-item ${item.updated ? "updated" : ""}`}
+									>
 										<div className="cart-item-info">
 											<h4>
 												{item.food.name}
 												{item.updated && (
-													<span className="updated-badge" title="营养信息已更新">
+													<span
+														className="updated-badge"
+														title="营养信息已更新"
+													>
 														🔄
 													</span>
 												)}
 											</h4>
-											<p>{Math.round((item.food.calories_per_100g * item.quantity) / 100)} kcal</p>
+											<p>
+												{Math.round(
+													(item.food.calories_per_100g * item.quantity) /
+														100
+												)}{" "}
+												kcal
+											</p>
 											{item.updated && (
 												<p className="updated-text">营养信息已更新</p>
 											)}
@@ -682,7 +706,12 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 											<input
 												type="number"
 												value={item.quantity}
-												onChange={(e) => handleUpdateCartQuantity(item.food.id, Number(e.target.value))}
+												onChange={e =>
+													handleUpdateCartQuantity(
+														item.food.id,
+														Number(e.target.value)
+													)
+												}
 												min="1"
 												className="quantity-input-small"
 											/>
@@ -710,19 +739,27 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 										<div className="nutrition-totals">
 											<div className="total-item">
 												<span className="total-label">总卡路里:</span>
-												<span className="total-value">{Math.round(totals.calories)} kcal</span>
+												<span className="total-value">
+													{Math.round(totals.calories)} kcal
+												</span>
 											</div>
 											<div className="total-item">
 												<span className="total-label">蛋白质:</span>
-												<span className="total-value">{Math.round(totals.protein * 10) / 10}g</span>
+												<span className="total-value">
+													{Math.round(totals.protein * 10) / 10}g
+												</span>
 											</div>
 											<div className="total-item">
 												<span className="total-label">脂肪:</span>
-												<span className="total-value">{Math.round(totals.fat * 10) / 10}g</span>
+												<span className="total-value">
+													{Math.round(totals.fat * 10) / 10}g
+												</span>
 											</div>
 											<div className="total-item">
 												<span className="total-label">碳水:</span>
-												<span className="total-value">{Math.round(totals.carbs * 10) / 10}g</span>
+												<span className="total-value">
+													{Math.round(totals.carbs * 10) / 10}g
+												</span>
 											</div>
 										</div>
 									);
@@ -742,9 +779,12 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 									disabled={!isAuthenticated || isSavingMeal}
 								>
 									{isSavingMeal
-										? (editingMealId ? "更新中..." : "保存中...")
-										: (editingMealId ? "更新食物篮" : "保存食物篮")
-									}
+										? editingMealId
+											? "更新中..."
+											: "保存中..."
+										: editingMealId
+											? "更新食物篮"
+											: "保存食物篮"}
 								</button>
 							</div>
 						</div>
@@ -779,7 +819,10 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 
 						{!userFoodsLoading && viewMode === "user" && userFoods.length === 0 && (
 							<div className="empty-message">
-								<p>您还没有创建任何自定义食物。点击上方工具栏中的"+ 创建自定义食物"按钮创建您的第一个自定义食物！</p>
+								<p>
+									您还没有创建任何自定义食物。点击上方工具栏中的"+
+									创建自定义食物"按钮创建您的第一个自定义食物！
+								</p>
 							</div>
 						)}
 
@@ -794,7 +837,13 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 								<h3>搜索结果</h3>
 								<div className="results-grid">
 									{searchResults.map((food: Food) => (
-										<FoodItem key={food.id} food={food} onAdd={handleAddFood} onLoginRequired={onLoginRequired} onCopy={handleCopyFood} />
+										<FoodItem
+											key={food.id}
+											food={food}
+											onAdd={handleAddFood}
+											onLoginRequired={onLoginRequired}
+											onCopy={handleCopyFood}
+										/>
 									))}
 								</div>
 							</div>
@@ -802,7 +851,6 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 
 						{viewMode === "user" && userFoods.length > 0 && (
 							<div className="user-foods-results">
-
 								<div className="results-grid">
 									{userFoods.map((food: Food) => (
 										<FoodItem
@@ -831,13 +879,15 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 									? `编辑食物: ${editingFood.name}`
 									: editingFood
 										? `复制并编辑: ${editingFood.name}`
-										: "创建自定义食物"
-								}
+										: "创建自定义食物"}
 							</h3>
-							<button onClick={() => {
-								setShowAddFoodForm(false);
-								resetForm();
-							}} className="close-btn">
+							<button
+								onClick={() => {
+									setShowAddFoodForm(false);
+									resetForm();
+								}}
+								className="close-btn"
+							>
 								×
 							</button>
 						</div>
@@ -852,7 +902,9 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 								<input
 									type="text"
 									value={customFood.name}
-									onChange={(e) => setCustomFood({ ...customFood, name: e.target.value })}
+									onChange={e =>
+										setCustomFood({ ...customFood, name: e.target.value })
+									}
 									className="form-input"
 									required
 									disabled={loading}
@@ -865,7 +917,9 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 								<input
 									type="number"
 									value={customFood.calories}
-									onChange={(e) => setCustomFood({ ...customFood, calories: e.target.value })}
+									onChange={e =>
+										setCustomFood({ ...customFood, calories: e.target.value })
+									}
 									className="form-input"
 									required
 									disabled={loading}
@@ -880,7 +934,12 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 										type="number"
 										step="0.1"
 										value={customFood.protein}
-										onChange={(e) => setCustomFood({ ...customFood, protein: e.target.value })}
+										onChange={e =>
+											setCustomFood({
+												...customFood,
+												protein: e.target.value,
+											})
+										}
 										className="form-input"
 										disabled={loading}
 									/>
@@ -894,7 +953,9 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 										type="number"
 										step="0.1"
 										value={customFood.fat}
-										onChange={(e) => setCustomFood({ ...customFood, fat: e.target.value })}
+										onChange={e =>
+											setCustomFood({ ...customFood, fat: e.target.value })
+										}
 										className="form-input"
 										disabled={loading}
 									/>
@@ -905,7 +966,9 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 										type="number"
 										step="0.1"
 										value={customFood.carbs}
-										onChange={(e) => setCustomFood({ ...customFood, carbs: e.target.value })}
+										onChange={e =>
+											setCustomFood({ ...customFood, carbs: e.target.value })
+										}
 										className="form-input"
 										disabled={loading}
 									/>
@@ -919,7 +982,9 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 										type="number"
 										step="0.1"
 										value={customFood.fiber}
-										onChange={(e) => setCustomFood({ ...customFood, fiber: e.target.value })}
+										onChange={e =>
+											setCustomFood({ ...customFood, fiber: e.target.value })
+										}
 										className="form-input"
 										disabled={loading}
 									/>
@@ -930,7 +995,9 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 										type="number"
 										step="0.1"
 										value={customFood.sugar}
-										onChange={(e) => setCustomFood({ ...customFood, sugar: e.target.value })}
+										onChange={e =>
+											setCustomFood({ ...customFood, sugar: e.target.value })
+										}
 										className="form-input"
 										disabled={loading}
 									/>
@@ -944,7 +1011,9 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 										type="number"
 										step="0.1"
 										value={customFood.sodium}
-										onChange={(e) => setCustomFood({ ...customFood, sodium: e.target.value })}
+										onChange={e =>
+											setCustomFood({ ...customFood, sodium: e.target.value })
+										}
 										className="form-input"
 										disabled={loading}
 									/>
@@ -952,14 +1021,29 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 							</div>
 
 							<div className="form-actions">
-								<button type="button" onClick={() => {
-									setShowAddFoodForm(false);
-									resetForm();
-								}} className="btn btn-secondary" disabled={loading}>
+								<button
+									type="button"
+									onClick={() => {
+										setShowAddFoodForm(false);
+										resetForm();
+									}}
+									className="btn btn-secondary"
+									disabled={loading}
+								>
 									取消
 								</button>
-								<button type="submit" className="btn btn-primary" disabled={loading}>
-									{loading ? (editingFood && editingFood.is_custom ? "更新中..." : "创建中...") : (editingFood && editingFood.is_custom ? "更新" : "创建")}
+								<button
+									type="submit"
+									className="btn btn-primary"
+									disabled={loading}
+								>
+									{loading
+										? editingFood && editingFood.is_custom
+											? "更新中..."
+											: "创建中..."
+										: editingFood && editingFood.is_custom
+											? "更新"
+											: "创建"}
 								</button>
 							</div>
 						</form>
@@ -1348,7 +1432,15 @@ interface FoodItemProps {
 	showEditActions?: boolean;
 }
 
-const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, showEditActions = false }: FoodItemProps) => {
+const FoodItem = ({
+	food,
+	onAdd,
+	onLoginRequired,
+	onCopy,
+	onEdit,
+	onDelete,
+	showEditActions = false,
+}: FoodItemProps) => {
 	const [quantity, setQuantity] = React.useState(100);
 	const [showDetails, setShowDetails] = React.useState(false);
 	const [nutritionData, setNutritionData] = React.useState<Food | null>(null);
@@ -1358,7 +1450,8 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 	// Use nutrition data if available, otherwise use food data
 	const activeFood = nutritionData || food;
 	const calculatedCalories = Math.round((activeFood.calories_per_100g * quantity) / 100);
-	const calculatedProtein = Math.round(((activeFood.protein_per_100g * quantity) / 100) * 10) / 10;
+	const calculatedProtein =
+		Math.round(((activeFood.protein_per_100g * quantity) / 100) * 10) / 10;
 	const calculatedFat = Math.round(((activeFood.fat_per_100g * quantity) / 100) * 10) / 10;
 	const calculatedCarbs = Math.round(((activeFood.carbs_per_100g * quantity) / 100) * 10) / 10;
 
@@ -1384,7 +1477,7 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 					sodium_per_100g: response.data.nutrients.sodium,
 					is_custom: false,
 					is_usda: true,
-					fdc_id: response.data.fdc_id
+					fdc_id: response.data.fdc_id,
 				};
 				setNutritionData(nutritionFood);
 			}
@@ -1408,9 +1501,7 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 
 			<div className="food-nutrition">
 				<div className="nutrition-summary">
-					<span className="calories">
-						{activeFood.calories_per_100g || 0} kcal/100g
-					</span>
+					<span className="calories">{activeFood.calories_per_100g || 0} kcal/100g</span>
 					<div className="nutrition-actions">
 						{food.is_usda && activeFood.calories_per_100g === 0 && (
 							<button
@@ -1421,7 +1512,10 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 								{loadingNutrition ? "获取中..." : "获取营养"}
 							</button>
 						)}
-						<button onClick={() => setShowDetails(!showDetails)} className="details-btn">
+						<button
+							onClick={() => setShowDetails(!showDetails)}
+							className="details-btn"
+						>
 							{showDetails ? "收起" : "详情"}
 						</button>
 					</div>
@@ -1447,10 +1541,14 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 								</div>
 								<div className="usda-info">
 									<span className="info-text">✅ 来源于美国农业部营养数据库</span>
-									<span className="readonly-text">🔒 此为USDA官方数据，无法直接编辑</span>
+									<span className="readonly-text">
+										🔒 此为USDA官方数据，无法直接编辑
+									</span>
 								</div>
 								<div className="usda-actions">
-									<small className="copy-hint">💡 如需修改营养信息，请点击"复制为自定义"按钮</small>
+									<small className="copy-hint">
+										💡 如需修改营养信息，请点击"复制为自定义"按钮
+									</small>
 								</div>
 							</div>
 						)}
@@ -1461,7 +1559,13 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 			<div className="add-section">
 				<div className="quantity-input">
 					<label>数量 (g):</label>
-					<input type="number" value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} min="1" className="quantity-field" />
+					<input
+						type="number"
+						value={quantity}
+						onChange={e => setQuantity(Number(e.target.value))}
+						min="1"
+						className="quantity-field"
+					/>
 				</div>
 
 				<div className="calculated-nutrition">
@@ -1470,13 +1574,16 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 						<span className="calc-label">kcal</span>
 					</div>
 					<div className="calc-details">
-						蛋白质: {calculatedProtein}g | 脂肪: {calculatedFat}g | 碳水: {calculatedCarbs}g
+						蛋白质: {calculatedProtein}g | 脂肪: {calculatedFat}g | 碳水:{" "}
+						{calculatedCarbs}g
 					</div>
 				</div>
 
 				<div className="food-actions">
 					<button
-						onClick={() => isAuthenticated ? onAdd(food, quantity) : onLoginRequired()}
+						onClick={() =>
+							isAuthenticated ? onAdd(food, quantity) : onLoginRequired()
+						}
 						className="btn btn-primary add-btn"
 					>
 						添加
@@ -1487,13 +1594,20 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 								<>
 									{/* USDA foods are read-only, only allow copying */}
 									<button
-										onClick={() => isAuthenticated ? onCopy(food) : onLoginRequired()}
+										onClick={() =>
+											isAuthenticated ? onCopy(food) : onLoginRequired()
+										}
 										className="btn btn-info copy-btn"
 										title="复制为自定义食物"
 									>
 										📋 复制为自定义
 									</button>
-									<span className="readonly-badge" title="USDA食物为只读，不可编辑">🔒 只读</span>
+									<span
+										className="readonly-badge"
+										title="USDA食物为只读，不可编辑"
+									>
+										🔒 只读
+									</span>
 								</>
 							) : (
 								<>
@@ -1517,7 +1631,7 @@ const FoodItem = ({ food, onAdd, onLoginRequired, onCopy, onEdit, onDelete, show
 						</>
 					) : (
 						<button
-							onClick={() => isAuthenticated ? onCopy(food) : onLoginRequired()}
+							onClick={() => (isAuthenticated ? onCopy(food) : onLoginRequired())}
 							className="btn btn-secondary copy-btn"
 							title="复制为自定义食物"
 						>

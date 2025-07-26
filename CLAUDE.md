@@ -15,25 +15,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a calorie tracking web application where users can upload images or text to calculate calories and record dietary information. The project uses:
 
--   **Frontend**: React
--   **Backend**: Python Django
+- **Frontend**: React
+- **Backend**: Python Django
 
 ## Key Features
 
--   Upload images or text to record dietary information
--   Automatic food recognition and calorie calculation
--   Historical records and statistics viewing
--   Custom food uploads and modifications
--   User registration and login system
+- Upload images or text to record dietary information
+- Automatic food recognition and calorie calculation
+- Historical records and statistics viewing
+- Custom food uploads and modifications
+- User registration and login system
 
 ## Project Structure
 
 The frontend React application with TypeScript is implemented with the following structure:
 
--   **Frontend React application** - User interface with complete API integration
--   **Backend Django application** - Data processing and business logic (implemented)
--   **Image processing and food recognition** - API endpoints defined
--   **User authentication and data management** - Full service layer implemented
+- **Frontend React application** - User interface with complete API integration
+- **Backend Django application** - Data processing and business logic (implemented)
+- **Image processing and food recognition** - API endpoints defined
+- **User authentication and data management** - Full service layer implemented
 
 ### Frontend Structure
 
@@ -60,10 +60,10 @@ src/
 
 ### Prerequisites
 
--   Node.js 18+ and npm
--   Python 3.12+ and pip
--   OpenAI API Key(s) (required for image recognition features)
--   USDA FoodData Central API Key (optional, for enhanced food nutrition data)
+- Node.js 18+ and npm
+- Python 3.12+ and pip
+- OpenAI API Key(s) (required for image recognition features)
+- USDA FoodData Central API Key (optional, for enhanced food nutrition data)
 
 ### Frontend Setup (React + TypeScript)
 
@@ -129,35 +129,35 @@ npm start
 
 ### Access URLs
 
--   Frontend: http://localhost:3000
--   Backend API: http://localhost:8000
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
 
 ## Development Commands
 
 ### Frontend Commands
 
--   `npm start` - Start React development server
--   `npm test` - Run React tests
--   `npm run build` - Build React for production
--   `npm test -- --watchAll=false` - Run tests once
+- `npm start` - Start React development server
+- `npm test` - Run React tests
+- `npm run build` - Build React for production
+- `npm test -- --watchAll=false` - Run tests once
 
 ### Backend Commands
 
--   `python manage.py runserver` - Start Django development server
--   `python manage.py migrate` - Run database migrations
--   `python manage.py makemigrations` - Create new migrations
--   `python manage.py test` - Run Django tests
--   `python manage.py createsuperuser` - Create admin user
+- `python manage.py runserver` - Start Django development server
+- `python manage.py migrate` - Run database migrations
+- `python manage.py makemigrations` - Create new migrations
+- `python manage.py test` - Run Django tests
+- `python manage.py createsuperuser` - Create admin user
 
 ### Testing & Development Scripts
 
--   `cd testing && python test_image_recognition.py` - Test OpenAI image recognition (legacy)
--   `cd testing && python test_usda_nutrition.py` - Test USDA nutrition data
--   `cd testing && python test_async_performance.py` - Test async performance
--   `python manage.py test_openai_service --image path/to/image.jpg` - Test new OpenAI service
--   `python manage.py test_openai_service --test-chat` - Test basic chat completion
--   `python manage.py test_openai_service --test-vision --image path/to/image.jpg` - Test vision completion
--   `python manage.py test_openai_service --test-analyzer --image path/to/image.jpg` - Test two-stage food analyzer
+- `cd testing && python test_image_recognition.py` - Test OpenAI image recognition (legacy)
+- `cd testing && python test_usda_nutrition.py` - Test USDA nutrition data
+- `cd testing && python test_async_performance.py` - Test async performance
+- `python manage.py test_openai_service --image path/to/image.jpg` - Test new OpenAI service
+- `python manage.py test_openai_service --test-chat` - Test basic chat completion
+- `python manage.py test_openai_service --test-vision --image path/to/image.jpg` - Test vision completion
+- `python manage.py test_openai_service --test-analyzer --image path/to/image.jpg` - Test two-stage food analyzer
 
 ## Frontend API Implementation
 
@@ -166,32 +166,27 @@ The frontend includes complete API service layer implementation with real API in
 ### Available Services
 
 1. **Authentication Service** (`authService`)
-
     - User registration and login
     - JWT token management
     - Automatic token refresh
     - Logout functionality
 
 2. **User Service** (`userService`)
-
     - Get user profile information
     - Update user profile and preferences
 
 3. **Food Service** (`foodService`)
-
     - Search food database
     - Get detailed food information
     - Create and manage custom foods
     - Food category management
 
 4. **Meal Service** (`mealService`)
-
     - Create and manage meals
     - Add/remove foods from meals
     - Track daily meal intake
 
 5. **Statistics Service** (`statisticsService`)
-
     - Daily calorie summaries
     - Weekly and monthly statistics
     - Weight tracking
@@ -260,34 +255,34 @@ backend/
 
 ### Django Apps Architecture
 
--   **accounts** - User authentication, profiles, and activity logging
--   **foods** - Food database, categories, and search functionality
--   **meals** - Meal tracking, daily summaries, and statistics
--   **images** - Image upload and OpenAI-powered food recognition
+- **accounts** - User authentication, profiles, and activity logging
+- **foods** - Food database, categories, and search functionality
+- **meals** - Meal tracking, daily summaries, and statistics
+- **images** - Image upload and OpenAI-powered food recognition
 
 ### Implemented APIs ✅
 
 #### Authentication APIs
 
--   `POST /api/v1/auth/register` - User registration with JWT tokens
--   `POST /api/v1/auth/login` - User login with JWT authentication
--   `POST /api/v1/auth/refresh` - JWT token refresh
--   `POST /api/v1/auth/logout` - Secure logout with token blacklisting
+- `POST /api/v1/auth/register` - User registration with JWT tokens
+- `POST /api/v1/auth/login` - User login with JWT authentication
+- `POST /api/v1/auth/refresh` - JWT token refresh
+- `POST /api/v1/auth/logout` - Secure logout with token blacklisting
 
 #### User Profile APIs
 
--   `GET /api/v1/users/profile` - Get user profile with health data
--   `PUT /api/v1/users/profile` - Update user profile and preferences
+- `GET /api/v1/users/profile` - Get user profile with health data
+- `PUT /api/v1/users/profile` - Update user profile and preferences
 
 ### Backend Features ✅
 
--   **JWT Authentication** - Secure token-based authentication with blacklisting
--   **Custom User Model** - Extended user model with profiles
--   **Activity Logging** - Track user activities for security and analytics
--   **CORS Configuration** - Ready for frontend integration
--   **Standard API Responses** - Consistent response format across all endpoints
--   **Database Models** - Complete schema implementation based on requirements
--   **Migrations** - All database tables created and configured
+- **JWT Authentication** - Secure token-based authentication with blacklisting
+- **Custom User Model** - Extended user model with profiles
+- **Activity Logging** - Track user activities for security and analytics
+- **CORS Configuration** - Ready for frontend integration
+- **Standard API Responses** - Consistent response format across all endpoints
+- **Database Models** - Complete schema implementation based on requirements
+- **Migrations** - All database tables created and configured
 
 ### API Response Format
 
@@ -318,13 +313,13 @@ The project now uses a centralized OpenAI service for better API key management 
 
 ### Features
 
--   **Centralized API Management** - Single service for all OpenAI requests
--   **API Key Rotation** - Automatic rotation between multiple API keys
--   **Error Handling** - Comprehensive error handling with retry logic
--   **Rate Limit Management** - Automatic handling of rate limits
--   **Function Calling Support** - Complete support for OpenAI function calling
--   **Vision API Support** - Image analysis capabilities
--   **Async Operations** - Full async support for better performance
+- **Centralized API Management** - Single service for all OpenAI requests
+- **API Key Rotation** - Automatic rotation between multiple API keys
+- **Error Handling** - Comprehensive error handling with retry logic
+- **Rate Limit Management** - Automatic handling of rate limits
+- **Function Calling Support** - Complete support for OpenAI function calling
+- **Vision API Support** - Image analysis capabilities
+- **Async Operations** - Full async support for better performance
 
 ### Service Structure
 
@@ -406,12 +401,12 @@ cd backend
 
 This script will:
 
--   Create virtual environment
--   Install dependencies
--   Set up .env file template
--   Run migrations
--   Test OpenAI service
--   Start the development server
+- Create virtual environment
+- Install dependencies
+- Set up .env file template
+- Run migrations
+- Test OpenAI service
+- Start the development server
 
 ### Option B: Manual Setup
 
@@ -627,9 +622,9 @@ python manage.py shell
 
 **Solutions:**
 
--   Ensure `.env` file contains valid OpenAI API key
--   For multiple keys: `OPENAI_API_KEYS=["key1", "key2"]`
--   Check API key permissions and billing status
+- Ensure `.env` file contains valid OpenAI API key
+- For multiple keys: `OPENAI_API_KEYS=["key1", "key2"]`
+- Check API key permissions and billing status
 
 #### 2. Image Analysis Fails
 
@@ -640,10 +635,10 @@ python manage.py test_openai_service --test-vision --image path/to/image.jpg
 
 **Solutions:**
 
--   Check image format (JPG, PNG supported)
--   Verify image file size (max 10MB)
--   Ensure image contains food items
--   Check OpenAI API quota
+- Check image format (JPG, PNG supported)
+- Verify image file size (max 10MB)
+- Ensure image contains food items
+- Check OpenAI API quota
 
 #### 3. Database Migration Issues
 
@@ -663,9 +658,9 @@ python test_usda_nutrition.py
 
 **Solutions:**
 
--   USDA API key is optional but recommended
--   Check USDA API rate limits
--   Verify network connectivity
+- USDA API key is optional but recommended
+- Check USDA API rate limits
+- Verify network connectivity
 
 #### 5. CORS Issues (Frontend Integration)
 

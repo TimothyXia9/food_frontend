@@ -11,7 +11,7 @@ interface DateTimePickerProps {
 export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 	value,
 	onChange,
-	placeholder = "选择日期和时间"
+	placeholder = "选择日期和时间",
 }) => {
 	// 本地工具函数
 	const formatDateToLocal = (date: Date): string => {
@@ -144,7 +144,6 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 		onChange(newDateTime);
 	};
 
-
 	// Get calendar days for current month
 	const getCalendarDays = () => {
 		const year = currentMonth.getFullYear();
@@ -164,7 +163,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 				isCurrentMonth: false,
 				isToday: false,
 				isSelected: false,
-				fullDate: formatLocalDate(prevDate)
+				fullDate: formatLocalDate(prevDate),
 			});
 		}
 
@@ -181,7 +180,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 				isCurrentMonth: true,
 				isToday: dateStr === todayStr,
 				isSelected: dateStr === selectedDate,
-				fullDate: dateStr
+				fullDate: dateStr,
 			});
 		}
 
@@ -194,7 +193,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 				isCurrentMonth: false,
 				isToday: false,
 				isSelected: false,
-				fullDate: formatLocalDate(nextDate)
+				fullDate: formatLocalDate(nextDate),
 			});
 		}
 
@@ -235,7 +234,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 			// Hour only: 14, 14h, 2pm
 			/^(\d{1,2})(h|am|pm)?$/,
 			// Shortcuts: noon, midnight
-			/^(noon|midnight)$/
+			/^(noon|midnight)$/,
 		];
 
 		// Handle special cases
@@ -265,7 +264,12 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 					const hour = parseInt(match[1]);
 					const minute = match[2];
 
-					if (hour >= 0 && hour <= 23 && parseInt(minute) >= 0 && parseInt(minute) <= 59) {
+					if (
+						hour >= 0 &&
+						hour <= 23 &&
+						parseInt(minute) >= 0 &&
+						parseInt(minute) <= 59
+					) {
 						return `${hour.toString().padStart(2, "0")}:${minute}`;
 					}
 				} else {
@@ -314,13 +318,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 		}
 	};
 
-
 	return (
 		<div className="datetime-picker" ref={containerRef}>
-			<div
-				className="datetime-picker-trigger"
-				onClick={() => setIsOpen(!isOpen)}
-			>
+			<div className="datetime-picker-trigger" onClick={() => setIsOpen(!isOpen)}>
 				<span className="datetime-value">{formatDisplayValue()}</span>
 				<svg className="datetime-picker-icon" width="16" height="16" viewBox="0 0 16 16">
 					<path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1H2zm13 3H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5z" />
@@ -351,14 +351,11 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 								</button>
 
 								<span className="month-year">
-									{currentMonth.getFullYear()}年{(currentMonth.getMonth() + 1).toString().padStart(2, "0")}月
+									{currentMonth.getFullYear()}年
+									{(currentMonth.getMonth() + 1).toString().padStart(2, "0")}月
 								</span>
 
-								<button
-									type="button"
-									className="nav-btn"
-									onClick={goToNextMonth}
-								>
+								<button type="button" className="nav-btn" onClick={goToNextMonth}>
 									<svg width="16" height="16" viewBox="0 0 16 16">
 										<path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
 									</svg>
@@ -382,9 +379,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 									<button
 										key={index}
 										type="button"
-										className={`calendar-day ${day.isCurrentMonth ? "current-month" : "other-month"
-										} ${day.isToday ? "today" : ""
-										} ${day.isSelected ? "selected" : ""
+										className={`calendar-day ${
+											day.isCurrentMonth ? "current-month" : "other-month"
+										} ${day.isToday ? "today" : ""} ${
+											day.isSelected ? "selected" : ""
 										}`}
 										onClick={() => handleCalendarDateSelect(day.fullDate)}
 									>
@@ -403,7 +401,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 								<input
 									type="text"
 									value={timeInput}
-									onChange={(e) => handleTimeInputChange(e.target.value)}
+									onChange={e => handleTimeInputChange(e.target.value)}
 									onBlur={handleTimeInputBlur}
 									onKeyDown={handleTimeInputKeyPress}
 									placeholder="例如: 14:30, 2:30pm, 1430, noon"
@@ -414,10 +412,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 					</div>
 
 					<div className="datetime-picker-footer">
-						<button
-							className="confirm-btn"
-							onClick={() => setIsOpen(false)}
-						>
+						<button className="confirm-btn" onClick={() => setIsOpen(false)}>
 							确定
 						</button>
 					</div>

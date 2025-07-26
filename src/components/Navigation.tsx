@@ -8,7 +8,13 @@ interface NavigationProps {
 	onLoginRequired: () => void;
 	isAuthenticated: boolean;
 }
-const Navigation = ({ currentPage, onNavigate, onLogout, onLoginRequired, isAuthenticated }: NavigationProps) => {
+const Navigation = ({
+	currentPage,
+	onNavigate,
+	onLogout,
+	onLoginRequired,
+	isAuthenticated,
+}: NavigationProps) => {
 	const menuItems = [
 		{ key: "dashboard", label: "我的首页", icon: "🏠", requiresAuth: true },
 		{ key: "food-search", label: "搜索食物", icon: "🔍", requiresAuth: false },
@@ -21,7 +27,7 @@ const Navigation = ({ currentPage, onNavigate, onLogout, onLoginRequired, isAuth
 			<div className="nav-brand">卡路里追踪器</div>
 
 			<ul className="nav-menu">
-				{menuItems.map((item) => (
+				{menuItems.map(item => (
 					<li
 						key={item.key}
 						className={`nav-item ${currentPage === item.key ? "active" : ""} ${item.requiresAuth && !isAuthenticated ? "disabled" : ""}`}
@@ -36,7 +42,9 @@ const Navigation = ({ currentPage, onNavigate, onLogout, onLoginRequired, isAuth
 					>
 						<span className="nav-icon">{item.icon}</span>
 						<span className="nav-label">{item.label}</span>
-						{item.requiresAuth && !isAuthenticated && <span className="auth-required"></span>}
+						{item.requiresAuth && !isAuthenticated && (
+							<span className="auth-required"></span>
+						)}
 					</li>
 				))}
 			</ul>

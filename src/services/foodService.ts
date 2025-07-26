@@ -14,7 +14,10 @@ import {
 
 class FoodService {
 	async searchFoods(params: FoodSearchParams): Promise<ApiResponse<FoodSearchResult>> {
-		return apiClient.get<FoodSearchResult>("/foods/search/", params as unknown as Record<string, unknown>);
+		return apiClient.get<FoodSearchResult>(
+			"/foods/search/",
+			params as unknown as Record<string, unknown>
+		);
 	}
 
 	async getFoodDetails(foodId: number): Promise<ApiResponse<Food>> {
@@ -33,10 +36,14 @@ class FoodService {
 		return apiClient.delete<DeleteFoodResponse>(`/foods/${foodId}/delete/`);
 	}
 
-
 	// USDA API methods
-	async searchUSDAFoods(params: USDAFoodSearchParams): Promise<ApiResponse<USDAFoodSearchResult>> {
-		return apiClient.get<USDAFoodSearchResult>("/foods/usda/search/", params as unknown as Record<string, unknown>);
+	async searchUSDAFoods(
+		params: USDAFoodSearchParams
+	): Promise<ApiResponse<USDAFoodSearchResult>> {
+		return apiClient.get<USDAFoodSearchResult>(
+			"/foods/usda/search/",
+			params as unknown as Record<string, unknown>
+		);
 	}
 
 	async getUSDANutrition(fdcId: string): Promise<ApiResponse<USDANutritionData>> {
