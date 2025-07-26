@@ -12,13 +12,12 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	const { isAuthenticated } = useAuth();
 	const { success, error } = useNotification();
 	const todayDate = new Date(getCurrentLocalDate()).toLocaleDateString("zh-CN");
-	
+
 	// 图像识别相关状态
-	const [recognizedFoods, setRecognizedFoods] = useState<any[]>([]);
 	const [imageRecognitionHistory, setImageRecognitionHistory] = useState<any[]>([]);
 	const [currentImagePreview, setCurrentImagePreview] = useState<string | null>(null);
 	const [currentImageId, setCurrentImageId] = useState<number | null>(null);
-	
+
 	// 流式分析状态
 	const [analysisProgress, setAnalysisProgress] = useState<number>(0);
 	const [analysisStep, setAnalysisStep] = useState<string>("");
@@ -44,7 +43,6 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		}
 		setCurrentImagePreview(imagePreview);
 		// 清空之前的识别结果
-		setRecognizedFoods([]);
 		setDetectedFoods([]);
 		setEstimatedPortions([]);
 		setAnalysisProgress(0);
@@ -63,42 +61,62 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		stage_2?: any;
 	}) => {
 		console.log("Streaming progress:", data);
-		
+
 		setAnalysisStep(data.step);
-		
+
 		if (data.progress !== undefined) {
 			setAnalysisProgress(data.progress);
 		}
-		
+
+		// 检查是否有 portions 数据（不管在哪个阶段）
+		if (data.portions) {
+			setEstimatedPortions(data.portions);
+		}
+		if (data.stage_2?.portions) {
+			setEstimatedPortions(data.stage_2.portions);
+		}
+		// 检查 food_portions 字段
+		if (data.stage_2?.food_portions) {
+			setEstimatedPortions(data.stage_2.food_portions);
+		}
+
 		switch (data.step) {
 			case "start":
 				setIsAnalyzing(true);
 				break;
-				
+
 			case "food_detection":
 				// 正在检测食物
 				break;
-				
+
 			case "food_detection_complete":
 				if (data.foods) {
 					setDetectedFoods(data.foods);
 				}
 				break;
-				
+
 			case "portion_estimation":
 				// 正在估算分量
+				// 这里可能也会有 portions 数据
+				if (data.portions) {
+					setEstimatedPortions(data.portions);
+				}
 				break;
-				
+
 			case "complete":
 				setIsAnalyzing(false);
 				if (data.stage_1?.food_types) {
 					setDetectedFoods(data.stage_1.food_types);
 				}
+				if (data.stage_2?.portions) {
+					setEstimatedPortions(data.stage_2.portions);
+				}
+				// 也检查 food_portions 字段
 				if (data.stage_2?.food_portions) {
 					setEstimatedPortions(data.stage_2.food_portions);
 				}
 				break;
-				
+
 			case "error":
 				setIsAnalyzing(false);
 				error(data.message || "分析过程中出现错误");
@@ -109,15 +127,15 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	// 处理图像识别结果
 	const handleImageRecognitionResults = (imageId: number, results: any, imagePreview?: string) => {
 		console.log("Dashboard - Image recognition results:", { imageId, results });
-		
+
 		// 设置当前图片ID
 		setCurrentImageId(imageId);
-		
+
 		// 如果还没有预览图（备用处理）
 		if (imagePreview && !currentImagePreview) {
 			setCurrentImagePreview(imagePreview);
 		}
-		
+
 		if (results && results.keywords && results.keywords.length > 0) {
 			// 使用关键词创建简化的食物数据
 			const recognizedFoods = results.keywords.map((keyword: string, index: number) => ({
@@ -128,9 +146,8 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				calories_per_100g: 100, // 模拟数据
 				isKeyword: true // 标记这是关键词结果
 			}));
-			
-			setRecognizedFoods(recognizedFoods);
-			
+
+
 			// 添加到识别历史
 			const historyItem = {
 				imageId,
@@ -139,19 +156,22 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				foods: results.keywords.join(", ")
 			};
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]); // 只保留最近5次
-			
+
 			// 显示成功消息
 			success(`识别到 ${recognizedFoods.length} 个食物关键词！`);
-		} else if (results && results.results && results.results.length > 0) {
-			// 处理完整的识别结果（向后兼容）
-			const recognizedFoods = results.results.map((result: any) => ({
-				...result.food,
+		} else if (results && results.portions && results.portions.length > 0) {
+			// 处理新的portions格式的识别结果
+			const recognizedFoods = results.portions.map((portion: any, index: number) => ({
+				id: index + 1,
+				name: portion.name,
+				estimated_grams: portion.estimated_grams,
+				cooking_method: portion.cooking_method,
 				imageId,
-				recognizedAt: new Date().toLocaleString("zh-CN")
+				recognizedAt: new Date().toLocaleString("zh-CN"),
+				isKeyword: false
 			}));
-			
-			setRecognizedFoods(recognizedFoods);
-			
+
+
 			const historyItem = {
 				imageId,
 				recognizedAt: new Date().toLocaleString("zh-CN"),
@@ -159,7 +179,25 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				foods: recognizedFoods.map((food: any) => food.name).join(", ")
 			};
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]);
-			
+
+			success(`识别到 ${recognizedFoods.length} 种食物！`);
+		} else if (results && results.results && results.results.length > 0) {
+			// 处理完整的识别结果（向后兼容）
+			const recognizedFoods = results.results.map((result: any) => ({
+				...result.food,
+				imageId,
+				recognizedAt: new Date().toLocaleString("zh-CN")
+			}));
+
+
+			const historyItem = {
+				imageId,
+				recognizedAt: new Date().toLocaleString("zh-CN"),
+				foodCount: recognizedFoods.length,
+				foods: recognizedFoods.map((food: any) => food.name).join(", ")
+			};
+			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]);
+
 			success(`识别到 ${recognizedFoods.length} 种食物！`);
 		} else {
 			// 没有识别到食物
@@ -173,7 +211,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			URL.revokeObjectURL(currentImagePreview);
 			setCurrentImagePreview(null);
 			setCurrentImageId(null);
-			setRecognizedFoods([]);
+			setEstimatedPortions([]);
 		}
 	};
 
@@ -232,9 +270,9 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 						<div className="upload-section">
 							{currentImagePreview ? (
 								<div className="image-preview-container">
-									<img 
-										src={currentImagePreview} 
-										alt="上传的食物图片" 
+									<img
+										src={currentImagePreview}
+										alt="上传的食物图片"
 										className="uploaded-image-preview"
 									/>
 									<div className="image-overlay">
@@ -245,7 +283,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 											disabled={!isAuthenticated}
 											useStreaming={true}
 										/>
-										<button 
+										<button
 											className="btn btn-secondary clear-btn"
 											onClick={clearCurrentImage}
 											title="清除当前图片"
@@ -267,7 +305,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 								</>
 							)}
 						</div>
-						
+
 						{/* 流式分析进度显示 */}
 						{isAnalyzing && (
 							<div className="analysis-progress">
@@ -276,9 +314,9 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 									<div className="progress-percentage">{analysisProgress}%</div>
 								</div>
 								<div className="progress-bar">
-									<div className="progress-fill" style={{width: `${analysisProgress}%`}}></div>
+									<div className="progress-fill" style={{ width: `${analysisProgress}%` }}></div>
 								</div>
-								
+
 								{/* 显示已检测到的食物 */}
 								{detectedFoods.length > 0 && (
 									<div className="detected-foods">
@@ -286,7 +324,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 										<div className="foods-list">
 											{detectedFoods.map((food, index) => (
 												<span key={index} className="food-item">
-													{food.name} 
+													{food.name}
 													{food.confidence && (
 														<span className="confidence">({Math.round(food.confidence * 100)}%)</span>
 													)}
@@ -295,8 +333,8 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 										</div>
 									</div>
 								)}
-								
-								{/* 显示估算的分量 */}
+
+
 								{estimatedPortions.length > 0 && (
 									<div className="estimated-portions">
 										<h5>估算分量：</h5>
@@ -305,7 +343,9 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 												<div key={index} className="portion-item">
 													<span className="food-name">{portion.name}:</span>
 													<span className="portion-amount">{portion.estimated_grams}g</span>
-													<span className="portion-desc">({portion.portion_description})</span>
+													{portion.cooking_method && (
+														<span className="portion-desc">({portion.cooking_method})</span>
+													)}
 												</div>
 											))}
 										</div>
@@ -313,49 +353,31 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 								)}
 							</div>
 						)}
-						
-						{recognizedFoods.length > 0 && (
+
+						{estimatedPortions.length > 0 && (
 							<div className="recognition-results">
 								<h4>识别结果：</h4>
-								{recognizedFoods[0]?.isKeyword && (
-									<p className="keyword-hint">以下是识别到的食物关键词，可用于搜索更准确的食物信息</p>
-								)}
-								<div className="recognized-foods">
-									{recognizedFoods.map((food, index) => (
-										<div key={index} className={`recognized-food-item ${food.isKeyword ? "keyword-item" : ""}`}>
-											<div className="food-name">{food.name}</div>
+								<div className="estimated-portions-final">
+									{estimatedPortions.map((portion, index) => (
+										<div key={index} className="recognized-food-item">
+											<div className="food-name">{portion.name}</div>
 											<div className="food-info">
-												{food.isKeyword ? (
-													<span className="keyword-label">搜索关键词</span>
-												) : (
-													<div className="food-details">
-														{food.estimated_grams && (
-															<div className="weight-recommendation">
-																<span className="weight-label">推荐重量：</span>
-																<span className="weight-amount">{food.estimated_grams}g</span>
-																{food.cooking_method && (
-																	<span className="cooking-method">({food.cooking_method})</span>
-																)}
-															</div>
-														)}
-														{food.confidence && (
-															<div className="confidence-score">
-																<span className="confidence-label">置信度：</span>
-																<span className="confidence-value">{Math.round(food.confidence * 100)}%</span>
-															</div>
-														)}
-														{food.calories_per_100g && (
-															<span className="calories">{food.calories_per_100g} kcal/100g</span>
+												<div className="food-details">
+													<div className="weight-recommendation">
+														<span className="weight-label">识别重量：</span>
+														<span className="weight-amount">{portion.estimated_grams}g</span>
+														{portion.cooking_method && (
+															<span className="cooking-method">({portion.cooking_method})</span>
 														)}
 													</div>
-												)}
+												</div>
 											</div>
 										</div>
 									))}
 								</div>
 							</div>
 						)}
-						
+
 						{imageRecognitionHistory.length > 0 && (
 							<div className="recognition-history">
 								<h4>识别历史：</h4>
@@ -683,6 +705,26 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 					border-radius: 4px;
 					font-size: 0.8rem;
 					align-self: flex-start;
+				}
+
+				.estimated-calories {
+					display: flex;
+					align-items: center;
+					gap: 0.3rem;
+				}
+
+				.calories-label {
+					font-size: 0.75rem;
+					color: #6c757d;
+				}
+
+				.calories-value {
+					background: #fd7e14;
+					color: white;
+					padding: 0.1rem 0.3rem;
+					border-radius: 3px;
+					font-size: 0.75rem;
+					font-weight: 500;
 				}
 
 				.keyword-hint {
