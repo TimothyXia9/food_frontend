@@ -113,6 +113,25 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
 			const errorMessage = err instanceof Error ? err.message : "扫描失败";
 			setError(errorMessage);
 			showError(errorMessage);
+			
+			// If we got a 503 error, run diagnostics
+			if (errorMessage.includes("503") || errorMessage.includes("Service Unavailable")) {
+				console.log("503 error detected, running barcode dependency diagnostics...");
+				try {
+					const debugResponse = await imageService.debugBarcodeDependencies();
+					if (debugResponse.success) {
+						console.log("Barcode Debug Info:", debugResponse.data.debug_info);
+						
+						const { debug_info } = debugResponse.data;
+						if (!debug_info.summary.ready_for_barcode_detection) {
+							const errorDetails = debug_info.errors.join(", ");
+							showError(`条形码依赖问题: ${errorDetails}`);
+						}
+					}
+				} catch (debugErr) {
+					console.error("Debug endpoint also failed:", debugErr);
+				}
+			}
 		} finally {
 			setIsScanning(false);
 		}
