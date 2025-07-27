@@ -5,7 +5,10 @@ import { useNotification } from "../contexts/NotificationContext";
 interface BarcodeScannerProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onBarcodeDetected: (barcodeResults: any) => void;
+	onBarcodeDetected: (_barcodeResults: {
+		barcodes: BarcodeResult[];
+		usdaProducts: USDAProduct[];
+	}) => void;
 }
 
 interface BarcodeResult {
@@ -119,7 +122,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
 				console.log("503 error detected, running barcode dependency diagnostics...");
 				try {
 					const debugResponse = await imageService.debugBarcodeDependencies();
-					if (debugResponse.success) {
+					if (debugResponse.success && debugResponse.data) {
 						console.log("Barcode Debug Info:", debugResponse.data.debug_info);
 						
 						const { debug_info } = debugResponse.data;
@@ -127,6 +130,8 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
 							const errorDetails = debug_info.errors.join(", ");
 							showError(`条形码依赖问题: ${errorDetails}`);
 						}
+					} else {
+						console.error("Debug response failed or no data");
 					}
 				} catch (debugErr) {
 					console.error("Debug endpoint also failed:", debugErr);

@@ -43,12 +43,12 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	// 检查URL参数，如果有条形码模式则打开扫描器
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
-		const mode = urlParams.get('mode');
+		const mode = urlParams.get("mode");
 		
-		if (mode === 'barcode') {
+		if (mode === "barcode") {
 			setShowBarcodeScanner(true);
 			// 清理URL参数
-			window.history.replaceState(null, '', window.location.pathname);
+			window.history.replaceState(null, "", window.location.pathname);
 		}
 	}, []);
 
