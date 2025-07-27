@@ -11,6 +11,7 @@ interface FoodSearchToolbarProps {
 	onSearch: () => void;
 	onCreateCustomFood: () => void;
 	onCameraCapture: () => void;
+	onBarcodeCapture?: () => void;
 	onLoginRequired: () => void;
 }
 
@@ -25,6 +26,7 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 	onSearch,
 	onCreateCustomFood,
 	onCameraCapture,
+	onBarcodeCapture,
 	onLoginRequired,
 }) => {
 	return (
@@ -74,6 +76,16 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 						>
 							📸 拍照识别
 						</button>
+						{onBarcodeCapture && (
+							<button
+								className="btn btn-info"
+								onClick={() =>
+									isAuthenticated ? onBarcodeCapture() : onLoginRequired()
+								}
+							>
+								📊 条形码识别
+							</button>
+						)}
 					</div>
 
 					{/* <div className="search-actions">

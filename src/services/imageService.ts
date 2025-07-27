@@ -187,6 +187,184 @@ class ImageService {
 			total_pages: number;
 		}>("/images/list/", params as unknown as Record<string, unknown>);
 	}
+
+	async detectBarcodes(imageId: number): Promise<ApiResponse<{
+		image_id: number;
+		total_barcodes: number;
+		food_barcodes: number;
+		barcodes: Array<{
+			data: string;
+			type: string;
+			quality?: number;
+			orientation?: string;
+			rect: { left: number; top: number; width: number; height: number };
+			polygon?: Array<[number, number]>;
+			is_food_barcode: boolean;
+			formatted_data: string;
+		}>;
+		food_barcodes_only: Array<{
+			data: string;
+			type: string;
+			quality?: number;
+			orientation?: string;
+			rect: { left: number; top: number; width: number; height: number };
+			polygon?: Array<[number, number]>;
+			is_food_barcode: boolean;
+			formatted_data: string;
+		}>;
+	}>> {
+		return apiClient.post<{
+			image_id: number;
+			total_barcodes: number;
+			food_barcodes: number;
+			barcodes: Array<{
+				data: string;
+				type: string;
+				quality?: number;
+				orientation?: string;
+				rect: { left: number; top: number; width: number; height: number };
+				polygon?: Array<[number, number]>;
+				is_food_barcode: boolean;
+				formatted_data: string;
+			}>;
+			food_barcodes_only: Array<{
+				data: string;
+				type: string;
+				quality?: number;
+				orientation?: string;
+				rect: { left: number; top: number; width: number; height: number };
+				polygon?: Array<[number, number]>;
+				is_food_barcode: boolean;
+				formatted_data: string;
+			}>;
+		}>("/images/detect-barcodes/", { image_id: imageId });
+	}
+
+	async searchUSDAByBarcode(barcode: string): Promise<ApiResponse<{
+		barcode: string;
+		usda_results: Array<{
+			fdc_id: number;
+			description: string;
+			data_type: string;
+			brand_owner: string;
+			ingredients: string;
+			gtin_upc: string;
+			serving_size: string;
+			serving_size_unit: string;
+		}>;
+		total_results: number;
+	}>> {
+		return apiClient.post<{
+			barcode: string;
+			usda_results: Array<{
+				fdc_id: number;
+				description: string;
+				data_type: string;
+				brand_owner: string;
+				ingredients: string;
+				gtin_upc: string;
+				serving_size: string;
+				serving_size_unit: string;
+			}>;
+			total_results: number;
+		}>("/images/search-usda-barcode/", { barcode });
+	}
+
+	async analyzeImageWithBarcode(imageId: number): Promise<ApiResponse<{
+		image_id: number;
+		status: string;
+		barcode_detection: {
+			total_barcodes: number;
+			food_barcodes: number;
+			barcodes: Array<{
+				data: string;
+				type: string;
+				quality?: number;
+				orientation?: string;
+				rect: { left: number; top: number; width: number; height: number };
+				polygon?: Array<[number, number]>;
+				is_food_barcode: boolean;
+				formatted_data: string;
+			}>;
+		};
+		usda_barcode_results: {
+			total_products: number;
+			products: Array<{
+				fdc_id: number;
+				description: string;
+				data_type: string;
+				brand_owner: string;
+				ingredients: string;
+				gtin_upc: string;
+				serving_size: string;
+				serving_size_unit: string;
+				source_barcode: string;
+				barcode_info: {
+					data: string;
+					type: string;
+					quality?: number;
+					orientation?: string;
+					rect: { left: number; top: number; width: number; height: number };
+					polygon?: Array<[number, number]>;
+					is_food_barcode: boolean;
+					formatted_data: string;
+				};
+			}>;
+		};
+		food_analysis: {
+			success: boolean;
+			stage_1: { food_types: Array<{ name: string; confidence: number }> };
+			stage_2: { food_portions: Array<{ name: string; estimated_grams: number; cooking_method?: string }> };
+		};
+	}>> {
+		return apiClient.post<{
+			image_id: number;
+			status: string;
+			barcode_detection: {
+				total_barcodes: number;
+				food_barcodes: number;
+				barcodes: Array<{
+					data: string;
+					type: string;
+					quality?: number;
+					orientation?: string;
+					rect: { left: number; top: number; width: number; height: number };
+					polygon?: Array<[number, number]>;
+					is_food_barcode: boolean;
+					formatted_data: string;
+				}>;
+			};
+			usda_barcode_results: {
+				total_products: number;
+				products: Array<{
+					fdc_id: number;
+					description: string;
+					data_type: string;
+					brand_owner: string;
+					ingredients: string;
+					gtin_upc: string;
+					serving_size: string;
+					serving_size_unit: string;
+					source_barcode: string;
+					barcode_info: {
+						data: string;
+						type: string;
+						quality?: number;
+						orientation?: string;
+						rect: { left: number; top: number; width: number; height: number };
+						polygon?: Array<[number, number]>;
+						is_food_barcode: boolean;
+						formatted_data: string;
+					};
+				}>;
+			};
+			food_analysis: {
+				success: boolean;
+				stage_1: { food_types: Array<{ name: string; confidence: number }> };
+				stage_2: { food_portions: Array<{ name: string; estimated_grams: number; cooking_method?: string }> };
+			};
+		}>("/images/analyze-with-barcode/", { image_id: imageId });
+	}
 }
 
 export const imageService = new ImageService();

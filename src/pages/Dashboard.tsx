@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getCurrentLocalDate } from "../utils/timezone";
 import ImageUpload from "../components/ImageUpload";
+import BarcodeScanner from "../components/BarcodeScanner";
 import { useNotification } from "../contexts/NotificationContext";
 
 interface DashboardProps {
@@ -25,6 +26,10 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	const [detectedFoods, setDetectedFoods] = useState<any[]>([]);
 	const [estimatedPortions, setEstimatedPortions] = useState<any[]>([]);
 
+	// 条形码扫描状态
+	const [showBarcodeScanner, setShowBarcodeScanner] = useState<boolean>(false);
+	const [barcodeResults, setBarcodeResults] = useState<any>(null);
+
 	// 清理资源
 	useEffect(() => {
 		return () => {
@@ -34,6 +39,18 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			}
 		};
 	}, [currentImagePreview]);
+
+	// 检查URL参数，如果有条形码模式则打开扫描器
+	useEffect(() => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const mode = urlParams.get('mode');
+		
+		if (mode === 'barcode') {
+			setShowBarcodeScanner(true);
+			// 清理URL参数
+			window.history.replaceState(null, '', window.location.pathname);
+		}
+	}, []);
 
 	// 处理图片预览（立即显示）
 	const handleImagePreview = (imagePreview: string) => {
@@ -216,6 +233,27 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		}
 	};
 
+	// 处理条形码检测结果
+	const handleBarcodeDetected = (results: any) => {
+		console.log("Barcode detection results:", results);
+		setBarcodeResults(results);
+		
+		if (results.usdaProducts && results.usdaProducts.length > 0) {
+			success(`找到 ${results.usdaProducts.length} 个USDA产品`);
+		}
+	};
+
+	// 打开条形码扫描器
+	const openBarcodeScanner = () => {
+		setShowBarcodeScanner(true);
+	};
+
+	// 关闭条形码扫描器
+	const closeBarcodeScanner = () => {
+		setShowBarcodeScanner(false);
+		setBarcodeResults(null);
+	};
+
 	// 模拟数据
 	const recentMeals = [
 		{
@@ -266,6 +304,13 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				<div className="card image-recognition-card">
 					<div className="card-header">
 						<h3 className="card-title">📸 拍照识别食物</h3>
+						<button
+							className="btn btn-info"
+							onClick={openBarcodeScanner}
+							disabled={!isAuthenticated}
+						>
+							📊 条形码扫描
+						</button>
 					</div>
 					<div className="image-recognition-content">
 						<div className="upload-section">
@@ -451,6 +496,67 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 						))}
 					</div>
 				</div>
+
+				{/* 条形码识别结果 */}
+				{barcodeResults && (
+					<div className="card barcode-results-card">
+						<div className="card-header">
+							<h3 className="card-title">📊 条形码识别结果</h3>
+							<button
+								className="btn btn-secondary"
+								onClick={() => setBarcodeResults(null)}
+							>
+								清除结果
+							</button>
+						</div>
+						<div className="barcode-results-content">
+							{/* 检测到的条形码 */}
+							<div className="detected-barcodes">
+								<h4>检测到的条形码</h4>
+								<div className="barcodes-list">
+									{barcodeResults.barcodes?.map((barcode: any, index: number) => (
+										<div key={index} className="barcode-item">
+											<div className="barcode-data">
+												<span className="barcode-number">{barcode.formatted_data}</span>
+												<span className="barcode-type">{barcode.type}</span>
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+
+							{/* USDA产品信息 */}
+							{barcodeResults.usdaProducts?.length > 0 && (
+								<div className="usda-products">
+									<h4>找到的USDA产品</h4>
+									<div className="products-list">
+										{barcodeResults.usdaProducts.map((product: any, index: number) => (
+											<div key={index} className="usda-product-item">
+												<h5>{product.description}</h5>
+												<div className="product-details">
+													{product.brand_owner && (
+														<p><strong>品牌:</strong> {product.brand_owner}</p>
+													)}
+													<p><strong>FDC ID:</strong> {product.fdc_id}</p>
+													<p><strong>数据类型:</strong> {product.data_type}</p>
+													{product.serving_size && (
+														<p><strong>建议份量:</strong> {product.serving_size} {product.serving_size_unit}</p>
+													)}
+												</div>
+											</div>
+										))}
+									</div>
+								</div>
+							)}
+
+							{barcodeResults.usdaProducts?.length === 0 && (
+								<div className="no-usda-results">
+									<p>未找到对应的USDA营养数据，但您可以手动搜索该产品或创建自定义食物。</p>
+								</div>
+							)}
+						</div>
+					</div>
+				)}
 			</div>
 			<style>{`
 				.dashboard {
@@ -928,6 +1034,111 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 					font-style: italic;
 				}
 
+				/* 条形码识别结果样式 */
+				.barcode-results-card {
+					margin-top: 1.5rem;
+				}
+
+				.barcode-results-content {
+					display: flex;
+					flex-direction: column;
+					gap: 1.5rem;
+				}
+
+				.detected-barcodes, .usda-products {
+					padding: 1rem;
+					background: #f8f9fa;
+					border-radius: 8px;
+					border-left: 4px solid #17a2b8;
+				}
+
+				.detected-barcodes h4, .usda-products h4 {
+					margin: 0 0 1rem 0;
+					color: #2c3e50;
+					font-size: 1rem;
+				}
+
+				.barcodes-list {
+					display: flex;
+					flex-direction: column;
+					gap: 0.5rem;
+				}
+
+				.barcode-item {
+					background: white;
+					border: 1px solid #e9ecef;
+					border-radius: 6px;
+					padding: 0.75rem;
+				}
+
+				.barcode-data {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+				}
+
+				.barcode-number {
+					font-family: 'Courier New', monospace;
+					font-size: 1.1rem;
+					font-weight: bold;
+					color: #2c3e50;
+				}
+
+				.barcode-type {
+					background: #28a745;
+					color: white;
+					padding: 0.25rem 0.5rem;
+					border-radius: 4px;
+					font-size: 0.8rem;
+					font-weight: bold;
+				}
+
+				.products-list {
+					display: flex;
+					flex-direction: column;
+					gap: 1rem;
+				}
+
+				.usda-product-item {
+					background: white;
+					border: 1px solid #e9ecef;
+					border-radius: 8px;
+					padding: 1rem;
+				}
+
+				.usda-product-item h5 {
+					margin: 0 0 0.75rem 0;
+					color: #2c3e50;
+					font-size: 1rem;
+					line-height: 1.4;
+				}
+
+				.product-details {
+					display: flex;
+					flex-direction: column;
+					gap: 0.25rem;
+				}
+
+				.product-details p {
+					margin: 0;
+					font-size: 0.9rem;
+					color: #6c757d;
+				}
+
+				.no-usda-results {
+					padding: 1rem;
+					background: #fff3cd;
+					border: 1px solid #ffeaa7;
+					border-radius: 8px;
+					text-align: center;
+				}
+
+				.no-usda-results p {
+					margin: 0;
+					color: #856404;
+					font-style: italic;
+				}
+
 				@media (max-width: 768px) {
 					.recognized-foods {
 						grid-template-columns: 1fr;
@@ -952,8 +1163,21 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 						padding: 0.4rem 0.8rem;
 						font-size: 0.8rem;
 					}
+
+					.barcode-data {
+						flex-direction: column;
+						gap: 0.5rem;
+						align-items: flex-start;
+					}
 				}
 			`}</style>
+
+			{/* 条形码扫描器模态框 */}
+			<BarcodeScanner
+				isOpen={showBarcodeScanner}
+				onClose={closeBarcodeScanner}
+				onBarcodeDetected={handleBarcodeDetected}
+			/>
 		</div>
 	);
 };

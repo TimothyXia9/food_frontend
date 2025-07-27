@@ -626,6 +626,16 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 		}
 	};
 
+	const handleBarcodeCapture = () => {
+		// 跳转到Dashboard进行条形码识别
+		if (onNavigate) {
+			// 传递参数表示是条形码模式
+			onNavigate("dashboard?mode=barcode");
+		} else {
+			console.log("Navigation function not provided");
+		}
+	};
+
 	return (
 		<div className="food-search">
 			<div className="add-food-layout">
@@ -807,6 +817,7 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 							setShowAddFoodForm(true);
 						}}
 						onCameraCapture={handleCameraCapture}
+						onBarcodeCapture={handleBarcodeCapture}
 						onLoginRequired={onLoginRequired}
 					/>
 
