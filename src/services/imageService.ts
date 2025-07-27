@@ -9,7 +9,7 @@ class ImageService {
 
 	async analyzeImage(
 		imageId: number,
-		analysisType: "full" | "quick" = "full"
+		_analysisType: "full" | "quick" = "full"
 	): Promise<ApiResponse<{ analysis_id: number; status: string; keywords?: string[] }>> {
 		return apiClient.post<{ analysis_id: number; status: string; keywords?: string[] }>(
 			"/images/analyze/",
