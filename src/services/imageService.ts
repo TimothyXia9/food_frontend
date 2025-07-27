@@ -366,31 +366,6 @@ class ImageService {
 		}>("/images/analyze-with-barcode/", { image_id: imageId });
 	}
 
-	async debugBarcodeDependencies(): Promise<ApiResponse<{
-		debug_info: {
-			system_info: Record<string, string>;
-			python_dependencies: Record<string, string>;
-			barcode_service: Record<string, any>;
-			errors: string[];
-			summary: {
-				ready_for_barcode_detection: boolean;
-				total_errors: number;
-			};
-		};
-	}>> {
-		return apiClient.get<{
-			debug_info: {
-				system_info: Record<string, string>;
-				python_dependencies: Record<string, string>;
-				barcode_service: Record<string, any>;
-				errors: string[];
-				summary: {
-					ready_for_barcode_detection: boolean;
-					total_errors: number;
-				};
-			};
-		}>("/images/debug-barcode/");
-	}
 }
 
 export const imageService = new ImageService();
