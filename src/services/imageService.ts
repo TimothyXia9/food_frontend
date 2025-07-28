@@ -173,31 +173,33 @@ class ImageService {
 		}>("/images/list/", params as unknown as Record<string, unknown>);
 	}
 
-	async detectBarcodes(imageId: number): Promise<ApiResponse<{
-		image_id: number;
-		total_barcodes: number;
-		food_barcodes: number;
-		barcodes: Array<{
-			data: string;
-			type: string;
-			quality?: number;
-			orientation?: string;
-			rect: { left: number; top: number; width: number; height: number };
-			polygon?: Array<[number, number]>;
-			is_food_barcode: boolean;
-			formatted_data: string;
-		}>;
-		food_barcodes_only: Array<{
-			data: string;
-			type: string;
-			quality?: number;
-			orientation?: string;
-			rect: { left: number; top: number; width: number; height: number };
-			polygon?: Array<[number, number]>;
-			is_food_barcode: boolean;
-			formatted_data: string;
-		}>;
-	}>> {
+	async detectBarcodes(imageId: number): Promise<
+		ApiResponse<{
+			image_id: number;
+			total_barcodes: number;
+			food_barcodes: number;
+			barcodes: Array<{
+				data: string;
+				type: string;
+				quality?: number;
+				orientation?: string;
+				rect: { left: number; top: number; width: number; height: number };
+				polygon?: Array<[number, number]>;
+				is_food_barcode: boolean;
+				formatted_data: string;
+			}>;
+			food_barcodes_only: Array<{
+				data: string;
+				type: string;
+				quality?: number;
+				orientation?: string;
+				rect: { left: number; top: number; width: number; height: number };
+				polygon?: Array<[number, number]>;
+				is_food_barcode: boolean;
+				formatted_data: string;
+			}>;
+		}>
+	> {
 		return apiClient.post<{
 			image_id: number;
 			total_barcodes: number;
@@ -225,20 +227,22 @@ class ImageService {
 		}>("/images/detect-barcodes/", { image_id: imageId });
 	}
 
-	async searchUSDAByBarcode(barcode: string): Promise<ApiResponse<{
-		barcode: string;
-		usda_results: Array<{
-			fdc_id: number;
-			description: string;
-			data_type: string;
-			brand_owner: string;
-			ingredients: string;
-			gtin_upc: string;
-			serving_size: string;
-			serving_size_unit: string;
-		}>;
-		total_results: number;
-	}>> {
+	async searchUSDAByBarcode(barcode: string): Promise<
+		ApiResponse<{
+			barcode: string;
+			usda_results: Array<{
+				fdc_id: number;
+				description: string;
+				data_type: string;
+				brand_owner: string;
+				ingredients: string;
+				gtin_upc: string;
+				serving_size: string;
+				serving_size_unit: string;
+			}>;
+			total_results: number;
+		}>
+	> {
 		return apiClient.post<{
 			barcode: string;
 			usda_results: Array<{
@@ -255,36 +259,14 @@ class ImageService {
 		}>("/images/search-usda-barcode/", { barcode });
 	}
 
-	async analyzeImageWithBarcode(imageId: number): Promise<ApiResponse<{
-		image_id: number;
-		status: string;
-		barcode_detection: {
-			total_barcodes: number;
-			food_barcodes: number;
-			barcodes: Array<{
-				data: string;
-				type: string;
-				quality?: number;
-				orientation?: string;
-				rect: { left: number; top: number; width: number; height: number };
-				polygon?: Array<[number, number]>;
-				is_food_barcode: boolean;
-				formatted_data: string;
-			}>;
-		};
-		usda_barcode_results: {
-			total_products: number;
-			products: Array<{
-				fdc_id: number;
-				description: string;
-				data_type: string;
-				brand_owner: string;
-				ingredients: string;
-				gtin_upc: string;
-				serving_size: string;
-				serving_size_unit: string;
-				source_barcode: string;
-				barcode_info: {
+	async analyzeImageWithBarcode(imageId: number): Promise<
+		ApiResponse<{
+			image_id: number;
+			status: string;
+			barcode_detection: {
+				total_barcodes: number;
+				food_barcodes: number;
+				barcodes: Array<{
 					data: string;
 					type: string;
 					quality?: number;
@@ -293,44 +275,74 @@ class ImageService {
 					polygon?: Array<[number, number]>;
 					is_food_barcode: boolean;
 					formatted_data: string;
+				}>;
+			};
+			usda_barcode_results: {
+				total_products: number;
+				products: Array<{
+					fdc_id: number;
+					description: string;
+					data_type: string;
+					brand_owner: string;
+					ingredients: string;
+					gtin_upc: string;
+					serving_size: string;
+					serving_size_unit: string;
+					source_barcode: string;
+					barcode_info: {
+						data: string;
+						type: string;
+						quality?: number;
+						orientation?: string;
+						rect: { left: number; top: number; width: number; height: number };
+						polygon?: Array<[number, number]>;
+						is_food_barcode: boolean;
+						formatted_data: string;
+					};
+				}>;
+			};
+			openfoodfacts_results: {
+				total_products: number;
+				products: Array<{
+					barcode: string;
+					product_name: string;
+					product_name_en: string;
+					brands: string;
+					categories: string;
+					ingredients_text: string;
+					serving_size: string;
+					serving_quantity: string;
+					nutrition_grade: string;
+					image_url: string;
+					image_front_url: string;
+					nutrition_per_100g: Record<string, number>;
+					data_source: string;
+					source_barcode: string;
+					barcode_info: {
+						data: string;
+						type: string;
+						quality?: number;
+						orientation?: string;
+						rect: { left: number; top: number; width: number; height: number };
+						polygon?: Array<[number, number]>;
+						is_food_barcode: boolean;
+						formatted_data: string;
+					};
+				}>;
+			};
+			food_analysis: {
+				success: boolean;
+				stage_1: { food_types: Array<{ name: string; confidence: number }> };
+				stage_2: {
+					food_portions: Array<{
+						name: string;
+						estimated_grams: number;
+						cooking_method?: string;
+					}>;
 				};
-			}>;
-		};
-		openfoodfacts_results: {
-			total_products: number;
-			products: Array<{
-				barcode: string;
-				product_name: string;
-				product_name_en: string;
-				brands: string;
-				categories: string;
-				ingredients_text: string;
-				serving_size: string;
-				serving_quantity: string;
-				nutrition_grade: string;
-				image_url: string;
-				image_front_url: string;
-				nutrition_per_100g: Record<string, number>;
-				data_source: string;
-				source_barcode: string;
-				barcode_info: {
-					data: string;
-					type: string;
-					quality?: number;
-					orientation?: string;
-					rect: { left: number; top: number; width: number; height: number };
-					polygon?: Array<[number, number]>;
-					is_food_barcode: boolean;
-					formatted_data: string;
-				};
-			}>;
-		};
-		food_analysis: {
-			success: boolean;
-			stage_1: { food_types: Array<{ name: string; confidence: number }> };
-			stage_2: { food_portions: Array<{ name: string; estimated_grams: number; cooking_method?: string }> };
-		};
-	}>> {
+			};
+		}>
+	> {
 		return apiClient.post<{
 			image_id: number;
 			status: string;
@@ -404,29 +416,37 @@ class ImageService {
 			food_analysis: {
 				success: boolean;
 				stage_1: { food_types: Array<{ name: string; confidence: number }> };
-				stage_2: { food_portions: Array<{ name: string; estimated_grams: number; cooking_method?: string }> };
+				stage_2: {
+					food_portions: Array<{
+						name: string;
+						estimated_grams: number;
+						cooking_method?: string;
+					}>;
+				};
 			};
 		}>("/images/analyze-with-barcode/", { image_id: imageId });
 	}
 
-	async searchOpenFoodFactsByBarcode(barcode: string): Promise<ApiResponse<{
-		barcode: string;
-		product: {
+	async searchOpenFoodFactsByBarcode(barcode: string): Promise<
+		ApiResponse<{
 			barcode: string;
-			product_name: string;
-			product_name_en: string;
-			brands: string;
-			categories: string;
-			ingredients_text: string;
-			serving_size: string;
-			serving_quantity: string;
-			nutrition_grade: string;
-			image_url: string;
-			image_front_url: string;
-			nutrition_per_100g: Record<string, number>;
-			data_source: string;
-		} | null;
-	}>> {
+			product: {
+				barcode: string;
+				product_name: string;
+				product_name_en: string;
+				brands: string;
+				categories: string;
+				ingredients_text: string;
+				serving_size: string;
+				serving_quantity: string;
+				nutrition_grade: string;
+				image_url: string;
+				image_front_url: string;
+				nutrition_per_100g: Record<string, number>;
+				data_source: string;
+			} | null;
+		}>
+	> {
 		return apiClient.post<{
 			barcode: string;
 			product: {
@@ -447,35 +467,37 @@ class ImageService {
 		}>("/images/search-openfoodfacts-barcode/", { barcode });
 	}
 
-	async searchBarcodeCombined(barcode: string): Promise<ApiResponse<{
-		barcode: string;
-		usda_results: Array<{
-			fdc_id: number;
-			description: string;
-			data_type: string;
-			brand_owner: string;
-			ingredients: string;
-			gtin_upc: string;
-			serving_size: string;
-			serving_size_unit: string;
-		}>;
-		openfoodfacts_result: {
+	async searchBarcodeCombined(barcode: string): Promise<
+		ApiResponse<{
 			barcode: string;
-			product_name: string;
-			product_name_en: string;
-			brands: string;
-			categories: string;
-			ingredients_text: string;
-			serving_size: string;
-			serving_quantity: string;
-			nutrition_grade: string;
-			image_url: string;
-			image_front_url: string;
-			nutrition_per_100g: Record<string, number>;
-			data_source: string;
-		} | null;
-		total_sources: number;
-	}>> {
+			usda_results: Array<{
+				fdc_id: number;
+				description: string;
+				data_type: string;
+				brand_owner: string;
+				ingredients: string;
+				gtin_upc: string;
+				serving_size: string;
+				serving_size_unit: string;
+			}>;
+			openfoodfacts_result: {
+				barcode: string;
+				product_name: string;
+				product_name_en: string;
+				brands: string;
+				categories: string;
+				ingredients_text: string;
+				serving_size: string;
+				serving_quantity: string;
+				nutrition_grade: string;
+				image_url: string;
+				image_front_url: string;
+				nutrition_per_100g: Record<string, number>;
+				data_source: string;
+			} | null;
+			total_sources: number;
+		}>
+	> {
 		return apiClient.post<{
 			barcode: string;
 			usda_results: Array<{
@@ -507,30 +529,32 @@ class ImageService {
 		}>("/images/search-barcode-combined/", { barcode });
 	}
 
-	async createFoodFromBarcode(barcode: string): Promise<ApiResponse<{
-		food: {
-			id: number;
-			name: string;
-			brand: string;
-			barcode: string;
-			serving_size: number;
-			serving_unit: string;
-			calories_per_100g: number;
-			protein_per_100g: number;
-			fat_per_100g: number;
-			carbs_per_100g: number;
-			fiber_per_100g: number;
-			sugar_per_100g: number;
-			sodium_per_100g: number;
-			description: string;
-			ingredients: string;
-			data_source: string;
-			nutrition_grade?: string;
-			image_url?: string;
-		};
-		message: string;
-		is_existing?: boolean;
-	}>> {
+	async createFoodFromBarcode(barcode: string): Promise<
+		ApiResponse<{
+			food: {
+				id: number;
+				name: string;
+				brand: string;
+				barcode: string;
+				serving_size: number;
+				serving_unit: string;
+				calories_per_100g: number;
+				protein_per_100g: number;
+				fat_per_100g: number;
+				carbs_per_100g: number;
+				fiber_per_100g: number;
+				sugar_per_100g: number;
+				sodium_per_100g: number;
+				description: string;
+				ingredients: string;
+				data_source: string;
+				nutrition_grade?: string;
+				image_url?: string;
+			};
+			message: string;
+			is_existing?: boolean;
+		}>
+	> {
 		return apiClient.post<{
 			food: {
 				id: number;
@@ -556,7 +580,6 @@ class ImageService {
 			is_existing?: boolean;
 		}>("/images/create-food-from-barcode/", { barcode });
 	}
-
 }
 
 export const imageService = new ImageService();

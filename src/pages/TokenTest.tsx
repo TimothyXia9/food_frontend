@@ -43,12 +43,12 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 				ctx.fillStyle = "#FF0000";
 				ctx.fillRect(0, 0, 100, 100);
 			}
-			
-			canvas.toBlob(async (blob) => {
+
+			canvas.toBlob(async blob => {
 				if (blob) {
 					const testFile = new File([blob], "test-image.png", { type: "image/png" });
 					info("正在测试图片上传认证...");
-					
+
 					try {
 						const response = await apiClient.uploadFile("/images/upload/", testFile);
 						if (response.success) {
@@ -68,7 +68,9 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 		try {
 			info("正在测试流式分析认证...");
 			// This will test the streaming request with token handling
-			const response = await apiClient.streamingRequest("/images/analyze-stream/", { image_id: 1 });
+			const response = await apiClient.streamingRequest("/images/analyze-stream/", {
+				image_id: 1,
+			});
 			if (response.ok) {
 				info("流式分析请求成功！认证有效");
 				// Close the stream immediately since we're just testing auth
@@ -82,13 +84,30 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 	return (
 		<div style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
 			<h1>Token超时测试页面</h1>
-			
-			<div style={{ marginBottom: "2rem", padding: "1rem", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
+
+			<div
+				style={{
+					marginBottom: "2rem",
+					padding: "1rem",
+					backgroundColor: "#f8f9fa",
+					borderRadius: "8px",
+				}}
+			>
 				<h3>当前状态</h3>
-				<p><strong>认证状态:</strong> {isAuthenticated ? "已登录" : "未登录"}</p>
-				<p><strong>用户信息:</strong> {user ? `${user.username} (${user.nickname})` : "无"}</p>
-				<p><strong>Access Token:</strong> {localStorage.getItem("auth_token") ? "存在" : "不存在"}</p>
-				<p><strong>Refresh Token:</strong> {localStorage.getItem("refresh_token") ? "存在" : "不存在"}</p>
+				<p>
+					<strong>认证状态:</strong> {isAuthenticated ? "已登录" : "未登录"}
+				</p>
+				<p>
+					<strong>用户信息:</strong> {user ? `${user.username} (${user.nickname})` : "无"}
+				</p>
+				<p>
+					<strong>Access Token:</strong>{" "}
+					{localStorage.getItem("auth_token") ? "存在" : "不存在"}
+				</p>
+				<p>
+					<strong>Refresh Token:</strong>{" "}
+					{localStorage.getItem("refresh_token") ? "存在" : "不存在"}
+				</p>
 			</div>
 
 			<div style={{ marginBottom: "2rem" }}>
@@ -102,12 +121,12 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 							color: "white",
 							border: "none",
 							borderRadius: "4px",
-							cursor: "pointer"
+							cursor: "pointer",
 						}}
 					>
 						清除所有Token（模拟过期）
 					</button>
-					
+
 					<button
 						onClick={handleTestAuthenticatedRequest}
 						style={{
@@ -116,12 +135,12 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 							color: "white",
 							border: "none",
 							borderRadius: "4px",
-							cursor: "pointer"
+							cursor: "pointer",
 						}}
 					>
 						发送认证请求
 					</button>
-					
+
 					<button
 						onClick={handleTestImageUpload}
 						style={{
@@ -130,12 +149,12 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 							color: "white",
 							border: "none",
 							borderRadius: "4px",
-							cursor: "pointer"
+							cursor: "pointer",
 						}}
 					>
 						测试图片上传认证
 					</button>
-					
+
 					<button
 						onClick={handleTestStreamingAnalysis}
 						style={{
@@ -144,12 +163,12 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 							color: "white",
 							border: "none",
 							borderRadius: "4px",
-							cursor: "pointer"
+							cursor: "pointer",
 						}}
 					>
 						测试流式分析认证
 					</button>
-					
+
 					<button
 						onClick={onLoginRequired}
 						style={{
@@ -158,7 +177,7 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 							color: "white",
 							border: "none",
 							borderRadius: "4px",
-							cursor: "pointer"
+							cursor: "pointer",
 						}}
 					>
 						手动弹出登录框
@@ -171,17 +190,25 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 				<ol>
 					<li>首先确保你已经登录</li>
 					<li>点击"清除所有Token"按钮模拟token过期</li>
-					<li>测试以下任一按钮，这应该会触发401错误：
+					<li>
+						测试以下任一按钮，这应该会触发401错误：
 						<ul>
-							<li><strong>发送认证请求</strong> - 测试普通API请求</li>
-							<li><strong>测试图片上传认证</strong> - 测试文件上传</li>
-							<li><strong>测试流式分析认证</strong> - 测试流式响应</li>
+							<li>
+								<strong>发送认证请求</strong> - 测试普通API请求
+							</li>
+							<li>
+								<strong>测试图片上传认证</strong> - 测试文件上传
+							</li>
+							<li>
+								<strong>测试流式分析认证</strong> - 测试流式响应
+							</li>
 						</ul>
 					</li>
 					<li>由于refresh token也被清除了，应该会自动弹出登录模态框</li>
 					<li>重新登录后，再次测试请求应该成功</li>
 				</ol>
-				<p><strong>注意：</strong> 
+				<p>
+					<strong>注意：</strong>
 					<br />• 图片上传测试会创建一个小的红色方块测试图片
 					<br />• 流式分析测试会立即关闭流连接，仅测试认证
 				</p>

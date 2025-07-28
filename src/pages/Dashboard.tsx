@@ -44,7 +44,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const mode = urlParams.get("mode");
-		
+
 		if (mode === "barcode") {
 			setShowBarcodeScanner(true);
 			// 清理URL参数
@@ -237,7 +237,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	const handleBarcodeDetected = (results: any) => {
 		console.log("Barcode detection results:", results);
 		setBarcodeResults(results);
-		
+
 		if (results.createdFoods && results.createdFoods.length > 0) {
 			success(`成功创建 ${results.createdFoods.length} 个食品`);
 		}
@@ -517,7 +517,9 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 									{barcodeResults.barcodes?.map((barcode: any, index: number) => (
 										<div key={index} className="barcode-item">
 											<div className="barcode-data">
-												<span className="barcode-number">{barcode.formatted_data}</span>
+												<span className="barcode-number">
+													{barcode.formatted_data}
+												</span>
 												<span className="barcode-type">{barcode.type}</span>
 											</div>
 										</div>
@@ -530,56 +532,85 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 								<div className="created-foods">
 									<h4>扫描创建的食品 ({barcodeResults.createdFoods.length})</h4>
 									<div className="foods-list">
-										{barcodeResults.createdFoods.map((food: any, index: number) => (
-											<div key={index} className="created-food-item">
-												<div className="food-header">
-													<h5>{food.name}</h5>
-													{food.brand && (
-														<span className="food-brand">{food.brand}</span>
+										{barcodeResults.createdFoods.map(
+											(food: any, index: number) => (
+												<div key={index} className="created-food-item">
+													<div className="food-header">
+														<h5>{food.name}</h5>
+														{food.brand && (
+															<span className="food-brand">
+																{food.brand}
+															</span>
+														)}
+														{food.nutrition_grade && (
+															<span
+																className={`nutrition-grade grade-${food.nutrition_grade.toLowerCase()}`}
+															>
+																{food.nutrition_grade.toUpperCase()}
+															</span>
+														)}
+													</div>
+
+													{food.image_url && (
+														<img
+															src={food.image_url}
+															alt={food.name}
+															className="food-image"
+														/>
 													)}
-													{food.nutrition_grade && (
-														<span className={`nutrition-grade grade-${food.nutrition_grade.toLowerCase()}`}>
-															{food.nutrition_grade.toUpperCase()}
-														</span>
-													)}
-												</div>
-												
-												{food.image_url && (
-													<img src={food.image_url} alt={food.name} className="food-image" />
-												)}
-												
-												<div className="nutrition-summary">
-													<div className="nutrition-grid">
-														<div className="nutrition-item">
-															<span className="label">热量</span>
-															<span className="value">{food.calories_per_100g} kcal/100g</span>
-														</div>
-														<div className="nutrition-item">
-															<span className="label">蛋白质</span>
-															<span className="value">{food.protein_per_100g}g/100g</span>
-														</div>
-														<div className="nutrition-item">
-															<span className="label">脂肪</span>
-															<span className="value">{food.fat_per_100g}g/100g</span>
-														</div>
-														<div className="nutrition-item">
-															<span className="label">碳水化合物</span>
-															<span className="value">{food.carbs_per_100g}g/100g</span>
+
+													<div className="nutrition-summary">
+														<div className="nutrition-grid">
+															<div className="nutrition-item">
+																<span className="label">热量</span>
+																<span className="value">
+																	{food.calories_per_100g}{" "}
+																	kcal/100g
+																</span>
+															</div>
+															<div className="nutrition-item">
+																<span className="label">
+																	蛋白质
+																</span>
+																<span className="value">
+																	{food.protein_per_100g}g/100g
+																</span>
+															</div>
+															<div className="nutrition-item">
+																<span className="label">脂肪</span>
+																<span className="value">
+																	{food.fat_per_100g}g/100g
+																</span>
+															</div>
+															<div className="nutrition-item">
+																<span className="label">
+																	碳水化合物
+																</span>
+																<span className="value">
+																	{food.carbs_per_100g}g/100g
+																</span>
+															</div>
 														</div>
 													</div>
+
+													<div className="food-meta">
+														<p>
+															<strong>条形码:</strong> {food.barcode}
+														</p>
+														<p>
+															<strong>数据来源:</strong>{" "}
+															{food.data_source}
+														</p>
+														<p>
+															<strong>Food ID:</strong> {food.id}
+														</p>
+													</div>
 												</div>
-												
-												<div className="food-meta">
-													<p><strong>条形码:</strong> {food.barcode}</p>
-													<p><strong>数据来源:</strong> {food.data_source}</p>
-													<p><strong>Food ID:</strong> {food.id}</p>
-												</div>
-											</div>
-										))}
+											)
+										)}
 									</div>
 								</div>
 							)}
-
 
 							{barcodeResults.createdFoods?.length === 0 && (
 								<div className="no-food-results">

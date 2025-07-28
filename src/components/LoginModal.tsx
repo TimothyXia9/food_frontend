@@ -68,7 +68,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 					showSuccess("注册成功！");
 				}
 			} else {
-				const errorMsg = activeTab === "login" ? "登录失败，请检查用户名和密码" : "注册失败，请检查信息";
+				const errorMsg =
+					activeTab === "login" ? "登录失败，请检查用户名和密码" : "注册失败，请检查信息";
 				setError(errorMsg);
 				showError(errorMsg);
 			}

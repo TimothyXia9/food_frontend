@@ -70,9 +70,7 @@ class MealService {
 		return apiClient.delete<void>(`/meals/${mealId}/delete/`);
 	}
 
-	async getUserMeals(
-		params: MealListParams = {}
-	): Promise<
+	async getUserMeals(params: MealListParams = {}): Promise<
 		ApiResponse<{
 			meals: Meal[];
 			total_count: number;
