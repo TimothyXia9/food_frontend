@@ -97,15 +97,22 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
 
 			// 3. 为每个条形码创建Food对象
 			const createdFoods: CreatedFood[] = [];
+			let existingCount = 0;
+			let newCount = 0;
 			
 			for (const barcode of foodBarcodes) {
 				try {
 					const foodResponse = await imageService.createFoodFromBarcode(barcode.data);
 					if (foodResponse.success && foodResponse.data?.food) {
 						createdFoods.push(foodResponse.data.food);
+						if (foodResponse.data.is_existing) {
+							existingCount++;
+						} else {
+							newCount++;
+						}
 					}
 				} catch (err) {
-					console.warn(`创建食品失败 for barcode ${barcode.data}:`, err);
+					console.warn(`处理食品失败 for barcode ${barcode.data}:`, err);
 				}
 			}
 
@@ -115,9 +122,17 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
 			});
 
 			if (createdFoods.length > 0) {
-				success(`成功创建了 ${createdFoods.length} 个食品`);
+				let message = `成功获取了 ${createdFoods.length} 个食品`;
+				if (newCount > 0 && existingCount > 0) {
+					message += ` (新创建: ${newCount}个, 已存在: ${existingCount}个)`;
+				} else if (newCount > 0) {
+					message += ` (新创建: ${newCount}个)`;
+				} else if (existingCount > 0) {
+					message += ` (已存在数据库中: ${existingCount}个)`;
+				}
+				success(message);
 			} else {
-				showError("未能从条形码创建任何食品");
+				showError("未能从条形码获取任何食品信息");
 			}
 
 			// 通知父组件

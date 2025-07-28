@@ -529,6 +529,7 @@ class ImageService {
 			image_url?: string;
 		};
 		message: string;
+		is_existing?: boolean;
 	}>> {
 		return apiClient.post<{
 			food: {
@@ -552,6 +553,7 @@ class ImageService {
 				image_url?: string;
 			};
 			message: string;
+			is_existing?: boolean;
 		}>("/images/create-food-from-barcode/", { barcode });
 	}
 
