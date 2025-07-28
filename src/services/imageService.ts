@@ -34,27 +34,12 @@ class ImageService {
 		abortController?: AbortController
 	): Promise<{ success: boolean; finalResult?: any; error?: string; cancelled?: boolean }> {
 		try {
-			const token = apiClient.getToken();
-			if (!token) {
-				throw new Error("No authentication token found");
-			}
-
-			const response = await fetch(
-				`${process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api/v1"}/images/analyze-stream/`,
-				{
-					method: "POST",
-					headers: {
-						Authorization: `Bearer ${token}`,
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({ image_id: imageId }),
-					signal: abortController?.signal,
-				}
+			// Use the unified API client for streaming requests with token handling
+			const response = await apiClient.streamingRequest(
+				"/images/analyze-stream/",
+				{ image_id: imageId },
+				abortController
 			);
-
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
 
 			const reader = response.body?.getReader();
 			if (!reader) {

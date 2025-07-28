@@ -5,10 +5,15 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:800
 class ApiClient {
 	private baseURL: string;
 	private token: string | null = null;
+	private onAuthFailure: (() => void) | null = null;
 
 	constructor(baseURL: string = API_BASE_URL) {
 		this.baseURL = baseURL;
 		this.token = localStorage.getItem("auth_token");
+	}
+
+	setAuthFailureHandler(handler: () => void) {
+		this.onAuthFailure = handler;
 	}
 
 	setToken(token: string | null) {
@@ -112,8 +117,10 @@ class ApiClient {
 		this.setToken(null);
 		localStorage.removeItem("refresh_token");
 		localStorage.removeItem("user");
-		// Don't force redirect - let the AuthContext handle the state change
-		// This prevents disrupting the user's current page/workflow
+		// Call the auth failure handler to show login modal
+		if (this.onAuthFailure) {
+			this.onAuthFailure();
+		}
 		console.log("Authentication failed - tokens cleared");
 	}
 
@@ -155,10 +162,57 @@ class ApiClient {
 		});
 	}
 
+	async streamingRequest(
+		endpoint: string,
+		data?: unknown,
+		abortController?: AbortController,
+		isRetry: boolean = false
+	): Promise<Response> {
+		const url = `${this.baseURL}${endpoint}`;
+		const token = this.getToken();
+
+		const defaultHeaders: HeadersInit = {
+			"Content-Type": "application/json",
+		};
+
+		if (token) {
+			defaultHeaders["Authorization"] = `Bearer ${token}`;
+		}
+
+		const config: RequestInit = {
+			method: "POST",
+			headers: defaultHeaders,
+			body: data ? JSON.stringify(data) : undefined,
+			signal: abortController?.signal,
+		};
+
+		const response = await fetch(url, config);
+
+		// Handle 401 errors with token refresh
+		if (response.status === 401 && !isRetry && !endpoint.includes("/auth/")) {
+			try {
+				await this.refreshToken();
+				// Retry the streaming request with new token
+				return this.streamingRequest(endpoint, data, abortController, true);
+			} catch (refreshError) {
+				// Refresh failed, redirect to login
+				this.handleAuthFailure();
+				throw new Error("Authentication failed");
+			}
+		}
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		return response;
+	}
+
 	async uploadFile<T>(
 		endpoint: string,
 		file: File,
-		additionalData?: Record<string, string>
+		additionalData?: Record<string, string>,
+		isRetry: boolean = false
 	): Promise<ApiResponse<T>> {
 		const url = `${this.baseURL}${endpoint}`;
 		const token = this.getToken();
@@ -184,10 +238,28 @@ class ApiClient {
 				body: formData,
 			});
 
+			// Handle 401 errors with token refresh (similar to request method)
+			if (response.status === 401 && !isRetry && !endpoint.includes("/auth/")) {
+				try {
+					await this.refreshToken();
+					// Retry the upload with new token
+					return this.uploadFile(endpoint, file, additionalData, true);
+				} catch (refreshError) {
+					// Refresh failed, redirect to login
+					this.handleAuthFailure();
+					throw new Error("Authentication failed");
+				}
+			}
+
 			const data = await response.json();
 
 			if (!response.ok) {
-				throw new Error(data.error?.message || "Upload failed");
+				const errorMessage =
+					data.detail || data.error?.message || data.message || `HTTP ${response.status}`;
+				const error = new Error(errorMessage);
+				// Attach the full response data to the error for better handling
+				(error as any).response = { data, status: response.status };
+				throw error;
 			}
 
 			return data;
