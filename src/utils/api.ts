@@ -6,6 +6,8 @@ class ApiClient {
 	private baseURL: string;
 	private token: string | null = null;
 	private onAuthFailure: (() => void) | null = null;
+	private lastAuthFailureTime: number = 0;
+	private authFailureCooldown: number = 5000; // 5秒冷却时间，避免频繁触发认证失败处理
 
 	constructor(baseURL: string = API_BASE_URL) {
 		this.baseURL = baseURL;
@@ -114,9 +116,18 @@ class ApiClient {
 	}
 
 	private handleAuthFailure(): void {
+		const now = Date.now();
+
+		// 检查是否在冷却时间内，避免重复处理认证失败
+		if (now - this.lastAuthFailureTime < this.authFailureCooldown) {
+			return;
+		}
+
+		this.lastAuthFailureTime = now;
 		this.setToken(null);
 		localStorage.removeItem("refresh_token");
 		localStorage.removeItem("user");
+
 		// Call the auth failure handler to show login modal
 		if (this.onAuthFailure) {
 			this.onAuthFailure();

@@ -7,6 +7,7 @@ export interface NotificationData {
 	type: "success" | "error" | "warning" | "info";
 	message: string;
 	duration?: number;
+	count?: number; // 用于显示重复次数
 }
 
 interface NotificationContextType {
@@ -30,19 +31,38 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 	const [confirmDialog, setConfirmDialog] = useState<{
 		message: string;
 		resolve: (value: boolean) => void;
-			} | null>(null);
+	} | null>(null);
 
 	const generateId = () =>
 		`notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 	const addNotification = useCallback((notification: Omit<NotificationData, "id">) => {
-		const id = generateId();
-		const newNotification: NotificationData = {
-			...notification,
-			id,
-		};
+		// 检查是否已有相同类型和消息的通知
+		setNotifications(prev => {
+			const existingIndex = prev.findIndex(
+				n => n.type === notification.type && n.message === notification.message
+			);
 
-		setNotifications(prev => [...prev, newNotification]);
+			if (existingIndex !== -1) {
+				// 更新现有通知的计数和时间戳
+				const updated = [...prev];
+				updated[existingIndex] = {
+					...updated[existingIndex],
+					count: (updated[existingIndex].count || 1) + 1,
+					id: generateId(), // 更新ID以触发重新渲染
+				};
+				return updated;
+			} else {
+				// 添加新通知
+				const id = generateId();
+				const newNotification: NotificationData = {
+					...notification,
+					id,
+					count: 1,
+				};
+				return [...prev, newNotification];
+			}
+		});
 	}, []);
 
 	const removeNotification = useCallback((id: string) => {

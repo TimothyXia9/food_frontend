@@ -34,6 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [showLoginModal, setShowLoginModal] = useState(false);
+	const [lastAuthFailureTime, setLastAuthFailureTime] = useState(0);
 
 	const isAuthenticated = !!user && authService.isAuthenticated();
 
@@ -141,9 +142,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	};
 
 	const handleAuthFailure = (): void => {
+		const now = Date.now();
+		const authFailureCooldown = 2000; // 2秒冷却时间，避免重复显示登录弹窗
+
+		// 检查是否在冷却时间内，避免重复处理认证失败
+		if (now - lastAuthFailureTime < authFailureCooldown) {
+			return;
+		}
+
+		setLastAuthFailureTime(now);
 		setUser(null);
 		localStorage.removeItem("user");
-		setShowLoginModal(true);
+
+		// 只在没有显示登录弹窗时才显示
+		if (!showLoginModal) {
+			setShowLoginModal(true);
+		}
 	};
 
 	// Set up the auth failure handler for the API client

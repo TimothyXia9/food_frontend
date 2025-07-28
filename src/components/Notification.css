@@ -34,6 +34,12 @@
 	line-height: 1.4;
 }
 
+.notification__count {
+	font-weight: bold;
+	opacity: 0.8;
+	font-size: 12px;
+}
+
 .notification__close {
 	background: none;
 	border: none;
