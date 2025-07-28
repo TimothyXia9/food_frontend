@@ -238,8 +238,8 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		console.log("Barcode detection results:", results);
 		setBarcodeResults(results);
 		
-		if (results.usdaProducts && results.usdaProducts.length > 0) {
-			success(`找到 ${results.usdaProducts.length} 个USDA产品`);
+		if (results.createdFoods && results.createdFoods.length > 0) {
+			success(`成功创建 ${results.createdFoods.length} 个食品`);
 		}
 	};
 
@@ -525,23 +525,54 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 								</div>
 							</div>
 
-							{/* USDA产品信息 */}
-							{barcodeResults.usdaProducts?.length > 0 && (
-								<div className="usda-products">
-									<h4>找到的USDA产品</h4>
-									<div className="products-list">
-										{barcodeResults.usdaProducts.map((product: any, index: number) => (
-											<div key={index} className="usda-product-item">
-												<h5>{product.description}</h5>
-												<div className="product-details">
-													{product.brand_owner && (
-														<p><strong>品牌:</strong> {product.brand_owner}</p>
+							{/* 创建的食品信息 */}
+							{barcodeResults.createdFoods?.length > 0 && (
+								<div className="created-foods">
+									<h4>扫描创建的食品 ({barcodeResults.createdFoods.length})</h4>
+									<div className="foods-list">
+										{barcodeResults.createdFoods.map((food: any, index: number) => (
+											<div key={index} className="created-food-item">
+												<div className="food-header">
+													<h5>{food.name}</h5>
+													{food.brand && (
+														<span className="food-brand">{food.brand}</span>
 													)}
-													<p><strong>FDC ID:</strong> {product.fdc_id}</p>
-													<p><strong>数据类型:</strong> {product.data_type}</p>
-													{product.serving_size && (
-														<p><strong>建议份量:</strong> {product.serving_size} {product.serving_size_unit}</p>
+													{food.nutrition_grade && (
+														<span className={`nutrition-grade grade-${food.nutrition_grade.toLowerCase()}`}>
+															{food.nutrition_grade.toUpperCase()}
+														</span>
 													)}
+												</div>
+												
+												{food.image_url && (
+													<img src={food.image_url} alt={food.name} className="food-image" />
+												)}
+												
+												<div className="nutrition-summary">
+													<div className="nutrition-grid">
+														<div className="nutrition-item">
+															<span className="label">热量</span>
+															<span className="value">{food.calories_per_100g} kcal/100g</span>
+														</div>
+														<div className="nutrition-item">
+															<span className="label">蛋白质</span>
+															<span className="value">{food.protein_per_100g}g/100g</span>
+														</div>
+														<div className="nutrition-item">
+															<span className="label">脂肪</span>
+															<span className="value">{food.fat_per_100g}g/100g</span>
+														</div>
+														<div className="nutrition-item">
+															<span className="label">碳水化合物</span>
+															<span className="value">{food.carbs_per_100g}g/100g</span>
+														</div>
+													</div>
+												</div>
+												
+												<div className="food-meta">
+													<p><strong>条形码:</strong> {food.barcode}</p>
+													<p><strong>数据来源:</strong> {food.data_source}</p>
+													<p><strong>Food ID:</strong> {food.id}</p>
 												</div>
 											</div>
 										))}
@@ -549,9 +580,10 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 								</div>
 							)}
 
-							{barcodeResults.usdaProducts?.length === 0 && (
-								<div className="no-usda-results">
-									<p>未找到对应的USDA营养数据，但您可以手动搜索该产品或创建自定义食物。</p>
+
+							{barcodeResults.createdFoods?.length === 0 && (
+								<div className="no-food-results">
+									<p>未能从条形码创建食品，请检查网络连接或尝试其他产品。</p>
 								</div>
 							)}
 						</div>
@@ -1137,6 +1169,127 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 					margin: 0;
 					color: #856404;
 					font-style: italic;
+				}
+
+				/* Open Food Facts产品样式 */
+				.openfoodfacts-products {
+					padding: 1rem;
+					background: #f0f8ff;
+					border-radius: 8px;
+					border-left: 4px solid #007bff;
+					margin-top: 1rem;
+				}
+
+				.openfoodfacts-products h4 {
+					margin: 0 0 1rem 0;
+					color: #2c3e50;
+					font-size: 1rem;
+				}
+
+				.openfoodfacts-product-item {
+					background: white;
+					border: 1px solid #e9ecef;
+					border-radius: 8px;
+					padding: 1rem;
+					margin-bottom: 1rem;
+				}
+
+				.product-header {
+					display: flex;
+					gap: 1rem;
+					margin-bottom: 1rem;
+					align-items: flex-start;
+				}
+
+				.product-image {
+					width: 80px;
+					height: 80px;
+					object-fit: cover;
+					border-radius: 6px;
+					border: 1px solid #dee2e6;
+				}
+
+				.product-title {
+					flex: 1;
+				}
+
+				.product-title h5 {
+					margin: 0 0 0.5rem 0;
+					color: #2c3e50;
+					font-size: 1rem;
+					line-height: 1.3;
+				}
+
+				.product-brand {
+					margin: 0;
+					color: #6c757d;
+					font-size: 0.9rem;
+					font-style: italic;
+				}
+
+				.nutrition-grade {
+					display: inline-block;
+					padding: 0.2rem 0.4rem;
+					border-radius: 4px;
+					font-weight: bold;
+					margin-left: 0.5rem;
+				}
+
+				.nutrition-grade.grade-a {
+					background: #28a745;
+					color: white;
+				}
+
+				.nutrition-grade.grade-b {
+					background: #ffc107;
+					color: #212529;
+				}
+
+				.nutrition-grade.grade-c {
+					background: #fd7e14;
+					color: white;
+				}
+
+				.nutrition-grade.grade-d {
+					background: #dc3545;
+					color: white;
+				}
+
+				.nutrition-grade.grade-e {
+					background: #6f42c1;
+					color: white;
+				}
+
+				.nutrition-facts {
+					margin-top: 1rem;
+					padding: 1rem;
+					background: #f8f9fa;
+					border-radius: 6px;
+				}
+
+				.nutrition-grid {
+					display: grid;
+					grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+					gap: 0.5rem;
+					margin-top: 0.5rem;
+				}
+
+				.nutrition-item {
+					display: flex;
+					justify-content: space-between;
+					padding: 0.25rem 0.5rem;
+					background: white;
+					border-radius: 4px;
+					font-size: 0.85rem;
+				}
+
+				.nutrition-item span:first-child {
+					color: #495057;
+				}
+
+				.nutrition-item span:last-child {
+					font-weight: bold;
+					color: #2c3e50;
 				}
 
 				@media (max-width: 768px) {

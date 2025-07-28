@@ -311,6 +311,35 @@ class ImageService {
 				};
 			}>;
 		};
+		openfoodfacts_results: {
+			total_products: number;
+			products: Array<{
+				barcode: string;
+				product_name: string;
+				product_name_en: string;
+				brands: string;
+				categories: string;
+				ingredients_text: string;
+				serving_size: string;
+				serving_quantity: string;
+				nutrition_grade: string;
+				image_url: string;
+				image_front_url: string;
+				nutrition_per_100g: Record<string, number>;
+				data_source: string;
+				source_barcode: string;
+				barcode_info: {
+					data: string;
+					type: string;
+					quality?: number;
+					orientation?: string;
+					rect: { left: number; top: number; width: number; height: number };
+					polygon?: Array<[number, number]>;
+					is_food_barcode: boolean;
+					formatted_data: string;
+				};
+			}>;
+		};
 		food_analysis: {
 			success: boolean;
 			stage_1: { food_types: Array<{ name: string; confidence: number }> };
@@ -358,12 +387,187 @@ class ImageService {
 					};
 				}>;
 			};
+			openfoodfacts_results: {
+				total_products: number;
+				products: Array<{
+					barcode: string;
+					product_name: string;
+					product_name_en: string;
+					brands: string;
+					categories: string;
+					ingredients_text: string;
+					serving_size: string;
+					serving_quantity: string;
+					nutrition_grade: string;
+					image_url: string;
+					image_front_url: string;
+					nutrition_per_100g: Record<string, number>;
+					data_source: string;
+					source_barcode: string;
+					barcode_info: {
+						data: string;
+						type: string;
+						quality?: number;
+						orientation?: string;
+						rect: { left: number; top: number; width: number; height: number };
+						polygon?: Array<[number, number]>;
+						is_food_barcode: boolean;
+						formatted_data: string;
+					};
+				}>;
+			};
 			food_analysis: {
 				success: boolean;
 				stage_1: { food_types: Array<{ name: string; confidence: number }> };
 				stage_2: { food_portions: Array<{ name: string; estimated_grams: number; cooking_method?: string }> };
 			};
 		}>("/images/analyze-with-barcode/", { image_id: imageId });
+	}
+
+	async searchOpenFoodFactsByBarcode(barcode: string): Promise<ApiResponse<{
+		barcode: string;
+		product: {
+			barcode: string;
+			product_name: string;
+			product_name_en: string;
+			brands: string;
+			categories: string;
+			ingredients_text: string;
+			serving_size: string;
+			serving_quantity: string;
+			nutrition_grade: string;
+			image_url: string;
+			image_front_url: string;
+			nutrition_per_100g: Record<string, number>;
+			data_source: string;
+		} | null;
+	}>> {
+		return apiClient.post<{
+			barcode: string;
+			product: {
+				barcode: string;
+				product_name: string;
+				product_name_en: string;
+				brands: string;
+				categories: string;
+				ingredients_text: string;
+				serving_size: string;
+				serving_quantity: string;
+				nutrition_grade: string;
+				image_url: string;
+				image_front_url: string;
+				nutrition_per_100g: Record<string, number>;
+				data_source: string;
+			} | null;
+		}>("/images/search-openfoodfacts-barcode/", { barcode });
+	}
+
+	async searchBarcodeCombined(barcode: string): Promise<ApiResponse<{
+		barcode: string;
+		usda_results: Array<{
+			fdc_id: number;
+			description: string;
+			data_type: string;
+			brand_owner: string;
+			ingredients: string;
+			gtin_upc: string;
+			serving_size: string;
+			serving_size_unit: string;
+		}>;
+		openfoodfacts_result: {
+			barcode: string;
+			product_name: string;
+			product_name_en: string;
+			brands: string;
+			categories: string;
+			ingredients_text: string;
+			serving_size: string;
+			serving_quantity: string;
+			nutrition_grade: string;
+			image_url: string;
+			image_front_url: string;
+			nutrition_per_100g: Record<string, number>;
+			data_source: string;
+		} | null;
+		total_sources: number;
+	}>> {
+		return apiClient.post<{
+			barcode: string;
+			usda_results: Array<{
+				fdc_id: number;
+				description: string;
+				data_type: string;
+				brand_owner: string;
+				ingredients: string;
+				gtin_upc: string;
+				serving_size: string;
+				serving_size_unit: string;
+			}>;
+			openfoodfacts_result: {
+				barcode: string;
+				product_name: string;
+				product_name_en: string;
+				brands: string;
+				categories: string;
+				ingredients_text: string;
+				serving_size: string;
+				serving_quantity: string;
+				nutrition_grade: string;
+				image_url: string;
+				image_front_url: string;
+				nutrition_per_100g: Record<string, number>;
+				data_source: string;
+			} | null;
+			total_sources: number;
+		}>("/images/search-barcode-combined/", { barcode });
+	}
+
+	async createFoodFromBarcode(barcode: string): Promise<ApiResponse<{
+		food: {
+			id: number;
+			name: string;
+			brand: string;
+			barcode: string;
+			serving_size: number;
+			serving_unit: string;
+			calories_per_100g: number;
+			protein_per_100g: number;
+			fat_per_100g: number;
+			carbs_per_100g: number;
+			fiber_per_100g: number;
+			sugar_per_100g: number;
+			sodium_per_100g: number;
+			description: string;
+			ingredients: string;
+			data_source: string;
+			nutrition_grade?: string;
+			image_url?: string;
+		};
+		message: string;
+	}>> {
+		return apiClient.post<{
+			food: {
+				id: number;
+				name: string;
+				brand: string;
+				barcode: string;
+				serving_size: number;
+				serving_unit: string;
+				calories_per_100g: number;
+				protein_per_100g: number;
+				fat_per_100g: number;
+				carbs_per_100g: number;
+				fiber_per_100g: number;
+				sugar_per_100g: number;
+				sodium_per_100g: number;
+				description: string;
+				ingredients: string;
+				data_source: string;
+				nutrition_grade?: string;
+				image_url?: string;
+			};
+			message: string;
+		}>("/images/create-food-from-barcode/", { barcode });
 	}
 
 }

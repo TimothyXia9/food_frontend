@@ -7,7 +7,7 @@ interface BarcodeScannerProps {
 	onClose: () => void;
 	onBarcodeDetected: (_barcodeResults: {
 		barcodes: BarcodeResult[];
-		usdaProducts: USDAProduct[];
+		createdFoods: CreatedFood[];
 	}) => void;
 }
 
@@ -22,15 +22,25 @@ interface BarcodeResult {
 	formatted_data: string;
 }
 
-interface USDAProduct {
-	fdc_id: number;
+interface CreatedFood {
+	id: number;
+	name: string;
+	brand: string;
+	barcode: string;
+	serving_size: number;
+	serving_unit: string;
+	calories_per_100g: number;
+	protein_per_100g: number;
+	fat_per_100g: number;
+	carbs_per_100g: number;
+	fiber_per_100g: number;
+	sugar_per_100g: number;
+	sodium_per_100g: number;
 	description: string;
-	data_type: string;
-	brand_owner: string;
 	ingredients: string;
-	gtin_upc: string;
-	serving_size: string;
-	serving_size_unit: string;
+	data_source: string;
+	nutrition_grade?: string;
+	image_url?: string;
 }
 
 const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
@@ -41,7 +51,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
 	const [isScanning, setIsScanning] = useState(false);
 	const [scanResults, setScanResults] = useState<{
 		barcodes: BarcodeResult[];
-		usdaProducts: USDAProduct[];
+		createdFoods: CreatedFood[];
 	} | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -85,31 +95,35 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
 				return;
 			}
 
-			// 3. 查询USDA数据库
-			const usdaResults: USDAProduct[] = [];
+			// 3. 为每个条形码创建Food对象
+			const createdFoods: CreatedFood[] = [];
 			
 			for (const barcode of foodBarcodes) {
 				try {
-					const usdaResponse = await imageService.searchUSDAByBarcode(barcode.data);
-					if (usdaResponse.success && usdaResponse.data?.usda_results) {
-						usdaResults.push(...usdaResponse.data.usda_results);
+					const foodResponse = await imageService.createFoodFromBarcode(barcode.data);
+					if (foodResponse.success && foodResponse.data?.food) {
+						createdFoods.push(foodResponse.data.food);
 					}
 				} catch (err) {
-					console.warn(`USDA查询失败 for barcode ${barcode.data}:`, err);
+					console.warn(`创建食品失败 for barcode ${barcode.data}:`, err);
 				}
 			}
 
 			setScanResults({
 				barcodes: foodBarcodes,
-				usdaProducts: usdaResults,
+				createdFoods: createdFoods,
 			});
 
-			success(`检测到 ${foodBarcodes.length} 个条形码，找到 ${usdaResults.length} 个USDA产品`);
+			if (createdFoods.length > 0) {
+				success(`成功创建了 ${createdFoods.length} 个食品`);
+			} else {
+				showError("未能从条形码创建任何食品");
+			}
 
 			// 通知父组件
 			onBarcodeDetected({
 				barcodes: foodBarcodes,
-				usdaProducts: usdaResults,
+				createdFoods: createdFoods,
 			});
 
 		} catch (err) {
@@ -198,27 +212,74 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
 								))}
 							</div>
 
-							{/* USDA产品信息 */}
-							<div className="usda-section">
-								<h5>USDA产品信息 ({scanResults.usdaProducts.length})</h5>
-								{scanResults.usdaProducts.length > 0 ? (
-									<div className="usda-products">
-										{scanResults.usdaProducts.map((product, index) => (
-											<div key={index} className="usda-product">
-												<h6>{product.description}</h6>
-												{product.brand_owner && (
-													<p><strong>品牌:</strong> {product.brand_owner}</p>
+							{/* 创建的食品信息 */}
+							<div className="created-foods-section">
+								<h5>创建的食品 ({scanResults.createdFoods.length})</h5>
+								{scanResults.createdFoods.length > 0 ? (
+									<div className="created-foods">
+										{scanResults.createdFoods.map((food, index) => (
+											<div key={index} className="created-food">
+												<div className="food-header">
+													<h6>{food.name}</h6>
+													{food.brand && (
+														<span className="food-brand">{food.brand}</span>
+													)}
+													{food.nutrition_grade && (
+														<span className={`nutrition-grade grade-${food.nutrition_grade.toLowerCase()}`}>
+															{food.nutrition_grade.toUpperCase()}
+														</span>
+													)}
+												</div>
+												
+												{food.image_url && (
+													<img src={food.image_url} alt={food.name} className="food-image" />
 												)}
-												<p><strong>FDC ID:</strong> {product.fdc_id}</p>
-												<p><strong>数据类型:</strong> {product.data_type}</p>
-												{product.serving_size && (
-													<p><strong>建议份量:</strong> {product.serving_size} {product.serving_size_unit}</p>
-												)}
+												
+												<div className="nutrition-info">
+													<div className="nutrition-grid">
+														<div className="nutrition-item">
+															<span className="label">热量</span>
+															<span className="value">{food.calories_per_100g} kcal/100g</span>
+														</div>
+														<div className="nutrition-item">
+															<span className="label">蛋白质</span>
+															<span className="value">{food.protein_per_100g}g/100g</span>
+														</div>
+														<div className="nutrition-item">
+															<span className="label">脂肪</span>
+															<span className="value">{food.fat_per_100g}g/100g</span>
+														</div>
+														<div className="nutrition-item">
+															<span className="label">碳水化合物</span>
+															<span className="value">{food.carbs_per_100g}g/100g</span>
+														</div>
+														{food.fiber_per_100g > 0 && (
+															<div className="nutrition-item">
+																<span className="label">膳食纤维</span>
+																<span className="value">{food.fiber_per_100g}g/100g</span>
+															</div>
+														)}
+														{food.sugar_per_100g > 0 && (
+															<div className="nutrition-item">
+																<span className="label">糖分</span>
+																<span className="value">{food.sugar_per_100g}g/100g</span>
+															</div>
+														)}
+													</div>
+													
+													<div className="food-details">
+														<p><strong>条形码:</strong> {food.barcode}</p>
+														<p><strong>数据来源:</strong> {food.data_source}</p>
+														{food.ingredients && (
+															<p><strong>成分:</strong> {food.ingredients.substring(0, 100)}{food.ingredients.length > 100 ? "..." : ""}</p>
+														)}
+													</div>
+												</div>
 											</div>
 										))}
 									</div>
 								) : (
-									<p className="no-usda-data">未找到对应的USDA营养数据</p>
+									<p className="no-food-data">未能从条形码创建食品信息</p>
 								)}
 							</div>
 						</div>
@@ -371,32 +432,97 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
 					font-weight: bold;
 				}
 
-				.usda-products {
+				.created-foods {
 					display: flex;
 					flex-direction: column;
 					gap: 1rem;
 				}
 
-				.usda-product {
+				.created-food {
 					background: white;
 					border: 1px solid #e9ecef;
 					border-radius: 8px;
 					padding: 1rem;
 				}
 
-				.usda-product h6 {
-					margin: 0 0 0.5rem 0;
-					color: #2c3e50;
-					font-size: 1rem;
+				.food-header {
+					display: flex;
+					align-items: center;
+					gap: 1rem;
+					margin-bottom: 0.5rem;
+					flex-wrap: wrap;
 				}
 
-				.usda-product p {
+				.food-header h6 {
+					margin: 0;
+					color: #2c3e50;
+					font-size: 1.1rem;
+					flex: 1;
+				}
+
+				.food-brand {
+					background: #007bff;
+					color: white;
+					padding: 0.25rem 0.5rem;
+					border-radius: 4px;
+					font-size: 0.8rem;
+					font-weight: bold;
+				}
+
+				.nutrition-grade {
+					padding: 0.25rem 0.5rem;
+					border-radius: 4px;
+					font-size: 0.8rem;
+					font-weight: bold;
+					color: white;
+				}
+
+				.grade-a { background: #28a745; }
+				.grade-b { background: #ffc107; color: #212529; }
+				.grade-c { background: #fd7e14; }
+				.grade-d { background: #dc3545; }
+				.grade-e { background: #6f42c1; }
+
+				.food-image {
+					width: 80px;
+					height: 80px;
+					object-fit: cover;
+					border-radius: 8px;
+					margin-bottom: 1rem;
+				}
+
+				.nutrition-grid {
+					display: grid;
+					grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+					gap: 0.5rem;
+					margin-bottom: 1rem;
+				}
+
+				.nutrition-item {
+					display: flex;
+					justify-content: space-between;
+					padding: 0.5rem;
+					background: #f8f9fa;
+					border-radius: 4px;
+				}
+
+				.nutrition-item .label {
+					font-weight: 500;
+					color: #495057;
+				}
+
+				.nutrition-item .value {
+					font-weight: bold;
+					color: #007bff;
+				}
+
+				.food-details p {
 					margin: 0.25rem 0;
 					font-size: 0.9rem;
 					color: #6c757d;
 				}
 
-				.no-usda-data {
+				.no-food-data {
 					text-align: center;
 					color: #6c757d;
 					font-style: italic;
