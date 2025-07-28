@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { authService } from "../services/authService";
+import { apiClient } from "../utils/api";
 import { User } from "../types/api";
 
 interface AuthContextType {
 	user: User | null;
 	isAuthenticated: boolean;
 	loading: boolean;
+	showLoginModal: boolean;
+	setShowLoginModal: (show: boolean) => void;
 	login: (credentials: { username: string; password: string }) => Promise<boolean>;
 	register: (data: {
 		username: string;
@@ -14,6 +17,7 @@ interface AuthContextType {
 		nickname: string;
 	}) => Promise<boolean>;
 	logout: () => Promise<void>;
+	handleAuthFailure: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +33,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [showLoginModal, setShowLoginModal] = useState(false);
 
 	const isAuthenticated = !!user && authService.isAuthenticated();
 
@@ -135,13 +140,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		}
 	};
 
+	const handleAuthFailure = (): void => {
+		setUser(null);
+		localStorage.removeItem("user");
+		setShowLoginModal(true);
+	};
+
+	// Set up the auth failure handler for the API client
+	React.useEffect(() => {
+		apiClient.setAuthFailureHandler(handleAuthFailure);
+	}, []);
+
 	const value: AuthContextType = {
 		user,
 		isAuthenticated,
 		loading,
+		showLoginModal,
+		setShowLoginModal,
 		login,
 		register,
 		logout,
+		handleAuthFailure,
 	};
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -21,6 +21,7 @@ const Navigation = ({
 		{ key: "meal-stats", label: "每餐统计", icon: "📊", requiresAuth: true },
 		{ key: "profile", label: "个人资料", icon: "👤", requiresAuth: true },
 		{ key: "api-test", label: "API测试", icon: "🧪", requiresAuth: false },
+		{ key: "token-test", label: "Token测试", icon: "🔑", requiresAuth: false },
 	];
 	return (
 		<nav className="navigation">

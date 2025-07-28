@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useNotification } from "../contexts/NotificationContext";
 
 interface LoginModalProps {
 	isOpen: boolean;
@@ -18,6 +19,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 	const { login, register } = useAuth();
+	const { success: showSuccess, error: showError } = useNotification();
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -59,13 +61,21 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 					password: "",
 					nickname: "",
 				});
+				// Show success notification
+				if (activeTab === "login") {
+					showSuccess("登录成功！");
+				} else {
+					showSuccess("注册成功！");
+				}
 			} else {
-				setError(
-					activeTab === "login" ? "登录失败，请检查用户名和密码" : "注册失败，请检查信息"
-				);
+				const errorMsg = activeTab === "login" ? "登录失败，请检查用户名和密码" : "注册失败，请检查信息";
+				setError(errorMsg);
+				showError(errorMsg);
 			}
 		} catch (err) {
-			setError("网络错误，请稍后重试");
+			const errorMsg = "网络错误，请稍后重试";
+			setError(errorMsg);
+			showError(errorMsg);
 		} finally {
 			setLoading(false);
 		}

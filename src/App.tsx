@@ -7,14 +7,18 @@ import FoodSearch from "./pages/FoodSearch";
 import Profile from "./pages/Profile";
 import MealStats from "./pages/MealStats";
 import ApiTest from "./pages/ApiTest";
+import TokenTest from "./pages/TokenTest";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { NotificationProvider } from "./contexts/NotificationContext";
+import { NotificationProvider, useNotification } from "./contexts/NotificationContext";
 import { Analytics } from "@vercel/analytics/react";
 
 function AppContent() {
 	const [currentPage, setCurrentPage] = useState("food-search");
-	const [showLoginModal, setShowLoginModal] = useState(false);
-	const { isAuthenticated, loading, logout } = useAuth();
+	const { isAuthenticated, loading, logout, showLoginModal, setShowLoginModal } = useAuth();
+	const { info } = useNotification();
+
+	// Pages that require authentication
+	const pagesRequiringAuth = ["dashboard", "meal-stats", "profile"];
 
 	const handleLogout = async () => {
 		await logout();
@@ -23,6 +27,15 @@ function AppContent() {
 
 	const handleLoginRequired = () => {
 		setShowLoginModal(true);
+	};
+
+	const handleLoginModalClose = () => {
+		setShowLoginModal(false);
+		// If current page requires auth and user is not authenticated, redirect to food-search
+		if (pagesRequiringAuth.includes(currentPage) && !isAuthenticated) {
+			setCurrentPage("food-search");
+			info("您已跳转到食物搜索页面");
+		}
 	};
 
 	if (loading) {
@@ -49,6 +62,8 @@ function AppContent() {
 				return <Profile onLoginRequired={handleLoginRequired} />;
 			case "api-test":
 				return <ApiTest onLoginRequired={handleLoginRequired} />;
+			case "token-test":
+				return <TokenTest onLoginRequired={handleLoginRequired} />;
 			default:
 				return (
 					<FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />
@@ -68,7 +83,7 @@ function AppContent() {
 			<main className="main-content">{renderPage()}</main>
 			<LoginModal
 				isOpen={showLoginModal}
-				onClose={() => setShowLoginModal(false)}
+				onClose={handleLoginModalClose}
 				onSuccess={() => setShowLoginModal(false)}
 			/>
 		</div>
