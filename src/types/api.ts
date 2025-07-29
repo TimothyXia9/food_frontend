@@ -28,6 +28,8 @@ export interface AuthData {
 	user: User;
 	access: string;
 	refresh: string;
+	token?: string; // For email verification response
+	refresh_token?: string; // For email verification response
 }
 
 export interface LoginRequest {

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import LoginModal from "./components/LoginModal";
 import Dashboard from "./pages/Dashboard";
@@ -8,21 +9,39 @@ import Profile from "./pages/Profile";
 import MealStats from "./pages/MealStats";
 import ApiTest from "./pages/ApiTest";
 import TokenTest from "./pages/TokenTest";
+import EmailVerification from "./pages/EmailVerification";
+import ResendVerification from "./pages/ResendVerification";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationProvider, useNotification } from "./contexts/NotificationContext";
 import { Analytics } from "@vercel/analytics/react";
 
-function AppContent() {
-	const [currentPage, setCurrentPage] = useState("food-search");
-	const { isAuthenticated, loading, logout, showLoginModal, setShowLoginModal } = useAuth();
-	const { info } = useNotification();
+// Protected Route component
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+	const { isAuthenticated, loading, setShowLoginModal } = useAuth();
 
-	// Pages that require authentication
-	const pagesRequiringAuth = ["dashboard", "meal-stats", "profile"];
+	if (loading) {
+		return (
+			<div className="loading-container">
+				<div className="loading-spinner">加载中...</div>
+			</div>
+		);
+	}
+
+	if (!isAuthenticated) {
+		setShowLoginModal(true);
+		return <Navigate to="/" replace />;
+	}
+
+	return <>{children}</>;
+};
+
+function AppContent() {
+	const { isAuthenticated, loading, logout, showLoginModal, setShowLoginModal } = useAuth();
 
 	const handleLogout = async () => {
 		await logout();
-		setCurrentPage("food-search");
 	};
 
 	const handleLoginRequired = () => {
@@ -31,11 +50,6 @@ function AppContent() {
 
 	const handleLoginModalClose = () => {
 		setShowLoginModal(false);
-		// If current page requires auth and user is not authenticated, redirect to food-search
-		if (pagesRequiringAuth.includes(currentPage) && !isAuthenticated) {
-			setCurrentPage("food-search");
-			info("您已跳转到食物搜索页面");
-		}
 	};
 
 	if (loading) {
@@ -46,47 +60,73 @@ function AppContent() {
 		);
 	}
 
-	const renderPage = () => {
-		switch (currentPage) {
-			case "food-search":
-				return (
-					<FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />
-				);
-			case "dashboard":
-				return <Dashboard onLoginRequired={handleLoginRequired} />;
-			case "meal-stats":
-				return (
-					<MealStats onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />
-				);
-			case "profile":
-				return <Profile onLoginRequired={handleLoginRequired} />;
-			case "api-test":
-				return <ApiTest onLoginRequired={handleLoginRequired} />;
-			case "token-test":
-				return <TokenTest onLoginRequired={handleLoginRequired} />;
-			default:
-				return (
-					<FoodSearch onLoginRequired={handleLoginRequired} onNavigate={setCurrentPage} />
-				);
-		}
-	};
-
 	return (
-		<div className="App">
-			<Navigation
-				currentPage={currentPage}
-				onNavigate={setCurrentPage}
-				onLogout={handleLogout}
-				onLoginRequired={handleLoginRequired}
-				isAuthenticated={isAuthenticated}
-			/>
-			<main className="main-content">{renderPage()}</main>
-			<LoginModal
-				isOpen={showLoginModal}
-				onClose={handleLoginModalClose}
-				onSuccess={() => setShowLoginModal(false)}
-			/>
-		</div>
+		<Router>
+			<div className="App">
+				<Navigation
+					onLogout={handleLogout}
+					onLoginRequired={handleLoginRequired}
+					isAuthenticated={isAuthenticated}
+				/>
+				<main className="main-content">
+					<Routes>
+						{/* Public routes */}
+						<Route
+							path="/"
+							element={<FoodSearch onLoginRequired={handleLoginRequired} />}
+						/>
+						<Route
+							path="/api-test"
+							element={<ApiTest onLoginRequired={handleLoginRequired} />}
+						/>
+						<Route
+							path="/token-test"
+							element={<TokenTest onLoginRequired={handleLoginRequired} />}
+						/>
+
+						{/* Email verification routes */}
+						<Route path="/verify-email/:token" element={<EmailVerification />} />
+						<Route path="/resend-verification" element={<ResendVerification />} />
+						<Route path="/forgot-password" element={<ForgotPassword />} />
+						<Route path="/reset-password/:token" element={<ResetPassword />} />
+
+						{/* Protected routes */}
+						<Route
+							path="/dashboard"
+							element={
+								<ProtectedRoute>
+									<Dashboard onLoginRequired={handleLoginRequired} />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/statistics"
+							element={
+								<ProtectedRoute>
+									<MealStats onLoginRequired={handleLoginRequired} />
+								</ProtectedRoute>
+							}
+						/>
+						<Route
+							path="/profile"
+							element={
+								<ProtectedRoute>
+									<Profile onLoginRequired={handleLoginRequired} />
+								</ProtectedRoute>
+							}
+						/>
+
+						{/* Catch all route */}
+						<Route path="*" element={<Navigate to="/" replace />} />
+					</Routes>
+				</main>
+				<LoginModal
+					isOpen={showLoginModal}
+					onClose={handleLoginModalClose}
+					onSuccess={() => setShowLoginModal(false)}
+				/>
+			</div>
+		</Router>
 	);
 }
 

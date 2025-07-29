@@ -10,6 +10,7 @@ interface AuthContextType {
 	showLoginModal: boolean;
 	setShowLoginModal: (show: boolean) => void;
 	login: (credentials: { username: string; password: string }) => Promise<boolean>;
+	setUserData: (user: User, token: string) => void;
 	register: (data: {
 		username: string;
 		email: string;
@@ -108,6 +109,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		}
 	};
 
+	const setUserData = (userData: User, token: string) => {
+		authService.setToken(token);
+		setUser(userData);
+		localStorage.setItem("user", JSON.stringify(userData));
+	};
+
 	const register = async (data: {
 		username: string;
 		email: string;
@@ -116,10 +123,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	}): Promise<boolean> => {
 		try {
 			const response = await authService.register(data);
-			if (response.success && response.data) {
-				setUser(response.data.user);
-				// Save user info to localStorage for persistence
-				localStorage.setItem("user", JSON.stringify(response.data.user));
+			if (response.success) {
+				// Registration successful but no auto-login - user needs to verify email
 				return true;
 			}
 			return false;
@@ -172,6 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		showLoginModal,
 		setShowLoginModal,
 		login,
+		setUserData,
 		register,
 		logout,
 		handleAuthFailure,

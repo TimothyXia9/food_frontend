@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 
@@ -65,7 +66,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 				if (activeTab === "login") {
 					showSuccess("登录成功！");
 				} else {
-					showSuccess("注册成功！");
+					showSuccess("注册成功！请检查您的邮箱并点击验证链接完成注册。");
 				}
 			} else {
 				const errorMsg =
@@ -190,6 +191,14 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 					<button className="submit-button" type="submit" disabled={loading}>
 						{loading ? "处理中..." : activeTab === "login" ? "登录" : "注册"}
 					</button>
+
+					{activeTab === "login" && (
+						<div className="forgot-password-link">
+							<Link to="/forgot-password" onClick={onClose}>
+								忘记密码？
+							</Link>
+						</div>
+					)}
 				</form>
 			</div>
 
@@ -313,6 +322,21 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 					color: #dc3545;
 					font-size: 0.875rem;
 					margin-top: 0.25rem;
+				}
+
+				.forgot-password-link {
+					text-align: center;
+					margin-top: 1rem;
+				}
+
+				.forgot-password-link a {
+					color: #007bff;
+					text-decoration: none;
+					font-size: 0.875rem;
+				}
+
+				.forgot-password-link a:hover {
+					text-decoration: underline;
 				}
 			`}</style>
 		</div>

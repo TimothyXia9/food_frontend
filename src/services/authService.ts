@@ -8,13 +8,11 @@ import {
 } from "../types/api";
 
 class AuthService {
-	async register(data: RegisterRequest): Promise<ApiResponse<AuthData>> {
-		const response = await apiClient.post<AuthData>("/auth/register", data);
+	async register(data: RegisterRequest): Promise<ApiResponse<any>> {
+		const response = await apiClient.post<any>("/auth/register", data);
 
-		if (response.success && response.data) {
-			apiClient.setToken(response.data.access);
-			localStorage.setItem("refresh_token", response.data.refresh);
-		}
+		// Note: Registration no longer automatically logs in user
+		// User must verify email before getting tokens
 
 		return response;
 	}
@@ -76,6 +74,34 @@ class AuthService {
 
 	async getCurrentUser(): Promise<ApiResponse<any>> {
 		return apiClient.get<any>("/auth/user/");
+	}
+
+	async verifyEmail(token: string): Promise<ApiResponse<AuthData>> {
+		const response = await apiClient.post<AuthData>("/auth/verify-email", { token });
+
+		if (
+			response.success &&
+			response.data &&
+			response.data.token &&
+			response.data.refresh_token
+		) {
+			apiClient.setToken(response.data.token);
+			localStorage.setItem("refresh_token", response.data.refresh_token);
+		}
+
+		return response;
+	}
+
+	async resendVerificationEmail(email: string): Promise<ApiResponse<{ email_sent: boolean }>> {
+		return apiClient.post<{ email_sent: boolean }>("/auth/resend-verification", { email });
+	}
+
+	async requestPasswordReset(email: string): Promise<ApiResponse<void>> {
+		return apiClient.post<void>("/auth/password-reset", { email });
+	}
+
+	async confirmPasswordReset(token: string, password: string): Promise<ApiResponse<void>> {
+		return apiClient.post<void>("/auth/password-reset-confirm", { token, password });
 	}
 }
 

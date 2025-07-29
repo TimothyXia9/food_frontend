@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 import { mealService } from "../services/mealService";
@@ -7,10 +8,10 @@ import { getCurrentLocalDate, formatUTCDateToLocal, formatUTCTimeToLocal } from 
 
 interface MealStatsProps {
 	onLoginRequired: () => void;
-	onNavigate?: (page: string) => void;
 }
 
-const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
+const MealStats = ({ onLoginRequired }: MealStatsProps) => {
+	const navigate = useNavigate();
 	const { isAuthenticated } = useAuth();
 	const { error: showError, confirm } = useNotification();
 
@@ -193,14 +194,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 				);
 
 				// Navigate to food search page with meal editing context
-				if (onNavigate) {
-					// Use URL params for passing the edit meal id
-					window.history.pushState({}, "", `/?edit_meal=${mealId}`);
-					onNavigate("food-search");
-				} else {
-					// Fallback to full page reload if navigation function not available
-					window.location.href = `/?edit_meal=${mealId}`;
-				}
+				navigate(`/?edit_meal=${mealId}`);
 			} else {
 				showError(response.error?.message || "获取餐食详情失败");
 			}
@@ -323,16 +317,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 						<div className="food-basket-column">
 							<div className="food-basket-header">
 								<h3>🍽️ 我的食物篮</h3>
-								<button
-									className="add-meal-btn"
-									onClick={() => {
-										if (onNavigate) {
-											onNavigate("food-search");
-										} else {
-											window.location.href = "/";
-										}
-									}}
-								>
+								<button className="add-meal-btn" onClick={() => navigate("/")}>
 									+ 添加餐食
 								</button>
 							</div>
@@ -453,13 +438,7 @@ const MealStats = ({ onLoginRequired, onNavigate }: MealStatsProps) => {
 												<p>今天还没有添加任何餐食</p>
 												<button
 													className="add-first-meal-btn"
-													onClick={() => {
-														if (onNavigate) {
-															onNavigate("food-search");
-														} else {
-															window.location.href = "/";
-														}
-													}}
+													onClick={() => navigate("/")}
 												>
 													添加第一餐
 												</button>

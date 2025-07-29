@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { foodService } from "../services/foodService";
 import { mealService } from "../services/mealService";
 import { Food } from "../types/api";
@@ -10,10 +11,10 @@ import { getCurrentLocalDateTime, createLocalDateTime, localToUTC } from "../uti
 
 interface FoodSearchProps {
 	onLoginRequired: () => void;
-	onNavigate?: (page: string) => void;
 }
 
-const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
+const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
+	const navigate = useNavigate();
 	const { isAuthenticated } = useAuth();
 	const { success, error: showError, confirm } = useNotification();
 	const [searchQuery, setSearchQuery] = React.useState("");
@@ -619,21 +620,12 @@ const FoodSearch = ({ onLoginRequired, onNavigate }: FoodSearchProps) => {
 
 	const handleCameraCapture = () => {
 		// 跳转到Dashboard进行拍照识别
-		if (onNavigate) {
-			onNavigate("dashboard");
-		} else {
-			console.log("Navigation function not provided");
-		}
+		navigate("/dashboard");
 	};
 
 	const handleBarcodeCapture = () => {
 		// 跳转到Dashboard进行条形码识别
-		if (onNavigate) {
-			// 传递参数表示是条形码模式
-			onNavigate("dashboard?mode=barcode");
-		} else {
-			console.log("Navigation function not provided");
-		}
+		navigate("/dashboard?mode=barcode");
 	};
 
 	return (
