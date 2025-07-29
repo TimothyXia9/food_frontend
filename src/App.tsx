@@ -15,7 +15,6 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationProvider, useNotification } from "./contexts/NotificationContext";
-import { Analytics } from "@vercel/analytics/react";
 
 // Protected Route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -131,14 +130,11 @@ function AppContent() {
 }
 
 function App() {
-	// Enable analytics based on environment variable
-	const enableAnalytics = process.env.REACT_APP_ENABLE_ANALYTICS === "true";
 
 	return (
 		<AuthProvider>
 			<NotificationProvider>
 				<AppContent />
-				{enableAnalytics && <Analytics />}
 			</NotificationProvider>
 		</AuthProvider>
 	);

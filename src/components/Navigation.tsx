@@ -1,6 +1,5 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { trackPageView } from "../utils/analytics";
 
 interface NavigationProps {
 	onLogout: () => void;
@@ -19,11 +18,14 @@ const Navigation = ({ onLogout, onLoginRequired, isAuthenticated }: NavigationPr
 		{ path: "/token-test", label: "Token测试", icon: "🔑", requiresAuth: false },
 	];
 
-	const handleNavClick = (path: string, requiresAuth: boolean) => {
+	const handleNavClick = (path: string, requiresAuth: boolean, e?: React.MouseEvent) => {
 		if (requiresAuth && !isAuthenticated) {
+			// 阻止导航，显示登录模态框
+			e?.preventDefault();
 			onLoginRequired();
 		} else {
-			trackPageView(path);
+			// 正常导航
+			window.scrollTo(0, 0);
 		}
 	};
 
@@ -40,17 +42,17 @@ const Navigation = ({ onLogout, onLoginRequired, isAuthenticated }: NavigationPr
 						{item.requiresAuth && !isAuthenticated ? (
 							<span
 								className="nav-link disabled"
-								onClick={() => handleNavClick(item.path, item.requiresAuth)}
+								onClick={(e) => handleNavClick(item.path, item.requiresAuth, e)}
 							>
 								<span className="nav-icon">{item.icon}</span>
 								<span className="nav-label">{item.label}</span>
-								<span className="auth-required"></span>
+								<span className="auth-required">🔒</span>
 							</span>
 						) : (
 							<Link
 								to={item.path}
 								className="nav-link"
-								onClick={() => handleNavClick(item.path, item.requiresAuth)}
+								onClick={(e) => handleNavClick(item.path, item.requiresAuth, e)}
 							>
 								<span className="nav-icon">{item.icon}</span>
 								<span className="nav-label">{item.label}</span>

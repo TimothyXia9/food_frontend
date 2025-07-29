@@ -243,6 +243,26 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		}
 	};
 
+	// 处理将条形码食物添加到餐食
+	const handleAddBarcodeFood = async (food: any) => {
+		try {
+			// 简单的食物添加逻辑 - 打开添加食物对话框或直接添加
+			// 这里需要根据项目的具体流程来实现
+			console.log("Adding barcode food to meal:", food);
+			
+			// 暂时显示成功信息，提示用户食物可用
+			success(`${food.name} 已准备添加到餐食！可通过搜索 "${food.name}" 或 ID:${food.id} 找到此食物。`);
+			
+			// TODO: 实现具体的添加到餐食逻辑
+			// 例如：打开添加食物模态框，预填食物信息
+			// 或者：直接创建一个新的餐食并添加该食物
+			
+		} catch (err) {
+			console.error("Error adding barcode food to meal:", err);
+			error(`添加食物失败: ${err instanceof Error ? err.message : "未知错误"}`);
+		}
+	};
+
 	// 打开条形码扫描器
 	const openBarcodeScanner = () => {
 		setShowBarcodeScanner(true);
@@ -604,6 +624,15 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 														<p>
 															<strong>Food ID:</strong> {food.id}
 														</p>
+													</div>
+
+													<div className="food-actions">
+														<button
+															className="btn btn-primary add-to-meal-btn"
+															onClick={() => handleAddBarcodeFood(food)}
+														>
+															📝 添加到餐食
+														</button>
 													</div>
 												</div>
 											)
@@ -1353,6 +1382,44 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 						gap: 0.5rem;
 						align-items: flex-start;
 					}
+
+					.add-to-meal-btn {
+						font-size: 0.8rem;
+						padding: 0.4rem 0.8rem;
+					}
+				}
+
+				.food-actions {
+					margin-top: 1rem;
+					padding-top: 1rem;
+					border-top: 1px solid #e9ecef;
+					display: flex;
+					justify-content: center;
+				}
+
+				.add-to-meal-btn {
+					background: #28a745;
+					color: white;
+					border: none;
+					padding: 0.5rem 1rem;
+					border-radius: 6px;
+					font-size: 0.9rem;
+					font-weight: 500;
+					cursor: pointer;
+					transition: all 0.2s ease;
+					display: flex;
+					align-items: center;
+					gap: 0.5rem;
+				}
+
+				.add-to-meal-btn:hover {
+					background: #218838;
+					transform: translateY(-1px);
+					box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+				}
+
+				.add-to-meal-btn:active {
+					transform: translateY(0);
 				}
 			`}</style>
 

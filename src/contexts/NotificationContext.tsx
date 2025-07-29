@@ -31,7 +31,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 	const [confirmDialog, setConfirmDialog] = useState<{
 		message: string;
 		resolve: (value: boolean) => void;
-	} | null>(null);
+			} | null>(null);
 
 	const generateId = () =>
 		`notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
