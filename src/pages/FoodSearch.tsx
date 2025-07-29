@@ -16,7 +16,7 @@ interface FoodSearchProps {
 const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	const navigate = useNavigate();
 	const { isAuthenticated } = useAuth();
-	const { success, error: showError, confirm } = useNotification();
+	const { showSuccess, showError, showConfirm } = useNotification();
 	const [searchQuery, setSearchQuery] = React.useState("");
 	const [searchResults, setSearchResults] = React.useState<Food[]>([]);
 	// const [selectedMeal] = React.useState("breakfast");
@@ -173,7 +173,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						setMealCart(cartItems);
 					}
 
-					success(`已加载食物篮: ${mealData.name || "未命名"}`);
+					showSuccess(`已加载食物篮: ${mealData.name || "未命名"}`);
 				} catch (error) {
 					console.error("Error loading editing meal data:", error);
 					showError("加载编辑餐食数据时发生错误");
@@ -184,7 +184,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			const newUrl = window.location.pathname;
 			window.history.replaceState(null, "", newUrl);
 		}
-	}, [success, showError]);
+	}, [showSuccess, showError]);
 	const handleSearch = async () => {
 		if (!searchQuery.trim()) {
 			setSearchResults([]);
@@ -262,7 +262,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			// Add new item, ensuring USDA properties are preserved
 			setMealCart([...mealCart, { food, quantity }]);
 		}
-		success(`已添加 ${quantity}g ${food.name} 到食物篮`);
+		showSuccess(`已添加 ${quantity}g ${food.name} 到食物篮`);
 	};
 
 	const handleRemoveFromCart = (foodId: number) => {
@@ -288,7 +288,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	};
 
 	const handleClearCart = async () => {
-		const confirmed = await confirm("确定要清空所有食物吗？");
+		const confirmed = await showConfirm("确定要清空所有食物吗？");
 		if (confirmed) {
 			setMealCart([]);
 			setMealName("");
@@ -297,7 +297,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			localStorage.removeItem("mealCart");
 			localStorage.removeItem("mealName");
 			localStorage.removeItem("mealTime");
-			success("已清空食物篮");
+			showSuccess("已清空食物篮");
 		}
 	};
 
@@ -380,7 +380,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			}
 
 			if (response.success) {
-				success(`已${editingMealId ? "更新" : "保存"}食物篮: ${finalMealName}`);
+				showSuccess(`已${editingMealId ? "更新" : "保存"}食物篮: ${finalMealName}`);
 				// Clear meal cart and localStorage after successful save
 				setMealCart([]);
 				setMealName("");
@@ -450,7 +450,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			}
 
 			if (response.success) {
-				success(isEditingUserFood ? "自定义食物已更新！" : "自定义食物已创建！");
+				showSuccess(isEditingUserFood ? "自定义食物已更新！" : "自定义食物已创建！");
 
 				// Update meal cart if the edited food is in the cart
 				if (isEditingUserFood && response.data && editingFood) {
@@ -478,7 +478,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									: item
 							)
 						);
-						success("食物篮中的营养信息已同步更新！");
+						showSuccess("食物篮中的营养信息已同步更新！");
 					}
 				}
 
@@ -565,7 +565,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			confirmMessage += "\n\n⚠️ 该食物将从所有已保存的餐食记录中移除（如有）。";
 		}
 
-		const confirmed = await confirm(confirmMessage);
+		const confirmed = await showConfirm(confirmMessage);
 		if (!confirmed) {
 			return;
 		}
@@ -596,7 +596,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					successMessage += "\n\n✅ 已同时完成：\n• " + impacts.join("\n• ");
 				}
 
-				success(successMessage);
+				showSuccess(successMessage);
 
 				// 刷新用户食物列表
 				handleLoadUserFoods();

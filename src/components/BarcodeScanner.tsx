@@ -51,7 +51,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onBarc
 	} | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	const { success, error: showError } = useNotification();
+	const { showSuccess, showError } = useNotification();
 
 	const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
@@ -126,7 +126,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onBarc
 				} else if (existingCount > 0) {
 					message += ` (已存在数据库中: ${existingCount}个)`;
 				}
-				success(message);
+				showSuccess(message);
 			} else {
 				showError("未能从条形码获取任何食品信息");
 			}

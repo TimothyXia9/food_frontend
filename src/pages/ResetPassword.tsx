@@ -6,7 +6,7 @@ import { useNotification } from "../contexts/NotificationContext";
 const ResetPassword: React.FC = () => {
 	const { token } = useParams<{ token: string }>();
 	const navigate = useNavigate();
-	const { success, error } = useNotification();
+	const { showSuccess, showError } = useNotification();
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -15,10 +15,10 @@ const ResetPassword: React.FC = () => {
 
 	useEffect(() => {
 		if (!token) {
-			error("Invalid password reset link");
+			showError("Invalid password reset link");
 			navigate("/forgot-password");
 		}
-	}, [token, navigate, error]);
+	}, [token, navigate, showError]);
 
 	const validatePassword = (pwd: string): string[] => {
 		const errors = [];
@@ -41,23 +41,23 @@ const ResetPassword: React.FC = () => {
 		e.preventDefault();
 
 		if (!token) {
-			error("Invalid password reset link");
+			showError("Invalid password reset link");
 			return;
 		}
 
 		if (!password || !confirmPassword) {
-			error("Please fill in all fields");
+			showError("Please fill in all fields");
 			return;
 		}
 
 		if (password !== confirmPassword) {
-			error("Passwords do not match");
+			showError("Passwords do not match");
 			return;
 		}
 
 		const passwordErrors = validatePassword(password);
 		if (passwordErrors.length > 0) {
-			error(passwordErrors[0]);
+			showError(passwordErrors[0]);
 			return;
 		}
 
@@ -67,10 +67,10 @@ const ResetPassword: React.FC = () => {
 
 			if (response.success) {
 				setPasswordReset(true);
-				success("Password reset successfully!");
+				showSuccess("Password reset successfully!");
 			} else {
 				const errorMsg = response.error?.message || "Failed to reset password";
-				error(errorMsg);
+				showError(errorMsg);
 
 				// If token is expired or invalid, redirect to forgot password page
 				if (
@@ -81,7 +81,7 @@ const ResetPassword: React.FC = () => {
 				}
 			}
 		} catch (err) {
-			error("An unexpected error occurred");
+			showError("An unexpected error occurred");
 		} finally {
 			setIsLoading(false);
 		}

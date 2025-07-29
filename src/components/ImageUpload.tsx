@@ -31,7 +31,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 	const [analyzing, setAnalyzing] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const abortControllerRef = useRef<AbortController | null>(null);
-	const { success, error, info } = useNotification();
+	const { showSuccess, showError, showInfo } = useNotification();
 
 	const handleFileSelect = () => {
 		if (disabled || uploading || analyzing) return;
@@ -44,13 +44,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
 		// 验证文件类型
 		if (!file.type.startsWith("image/")) {
-			error("请选择图片文件");
+			showError("请选择图片文件");
 			return;
 		}
 
 		// 验证文件大小 (10MB)
 		if (file.size > 10 * 1024 * 1024) {
-			error("图片文件大小不能超过10MB");
+			showError("图片文件大小不能超过10MB");
 			return;
 		}
 
@@ -63,7 +63,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 			onUploadStart?.();
 
 			// 步骤1: 上传图片
-			info("正在上传图片...");
+			showInfo("正在上传图片...");
 			const uploadResponse = await imageService.uploadImage(file);
 
 			if (!uploadResponse.success || !uploadResponse.data) {
@@ -71,7 +71,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 			}
 
 			const imageId = uploadResponse.data.id;
-			success("图片上传成功，开始分析...");
+			showSuccess("图片上传成功，开始分析...");
 
 			setUploading(false);
 			setAnalyzing(true);
@@ -85,7 +85,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 					data => {
 						// 处理流式进度更新
 						if (data.message) {
-							info(data.message);
+							showInfo(data.message);
 						}
 
 						onStreamingProgress?.(data);
@@ -94,10 +94,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 				);
 
 				if (streamResult.cancelled) {
-					info("图片分析已取消");
+					showInfo("图片分析已取消");
 					return; // 直接返回，不抛出错误
 				} else if (streamResult.success && streamResult.finalResult) {
-					success("图片分析完成！");
+					showSuccess("图片分析完成！");
 					setAnalyzing(false);
 					onUploadEnd?.();
 
@@ -148,7 +148,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 				}
 			} else {
 				// 使用传统分析方式（向后兼容）
-				info("正在分析图片中的食物...");
+				showInfo("正在分析图片中的食物...");
 				const analyzeResponse = await imageService.analyzeImage(imageId);
 
 				if (!analyzeResponse.success || !analyzeResponse.data) {
@@ -157,7 +157,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
 				const data = analyzeResponse.data;
 				if (data.status === "completed" && data.keywords && data.keywords.length > 0) {
-					success("图片分析完成！");
+					showSuccess("图片分析完成！");
 					setAnalyzing(false);
 					onUploadEnd?.();
 
@@ -191,7 +191,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 			}
 		} catch (err) {
 			console.error("图片上传分析失败:", err);
-			error(err instanceof Error ? err.message : "图片处理失败，请重试");
+			showError(err instanceof Error ? err.message : "图片处理失败，请重试");
 			// 清理预览URL
 			URL.revokeObjectURL(imagePreviewUrl);
 		} finally {
@@ -212,7 +212,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 	const handleCancel = () => {
 		if (abortControllerRef.current && analyzing) {
 			abortControllerRef.current.abort();
-			info("正在取消分析...");
+			showInfo("正在取消分析...");
 		}
 	};
 

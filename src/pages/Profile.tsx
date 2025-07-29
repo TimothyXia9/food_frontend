@@ -9,7 +9,7 @@ interface ProfileProps {
 
 const Profile = ({ onLoginRequired }: ProfileProps) => {
 	const { isAuthenticated } = useAuth();
-	const { success } = useNotification();
+	const { showSuccess } = useNotification();
 	const [isEditing, setIsEditing] = React.useState(false);
 	const [loading, setLoading] = React.useState(true);
 	const [saving, setSaving] = React.useState(false);
@@ -91,7 +91,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 			if (response.success) {
 				setProfile({ ...editProfile });
 				setIsEditing(false);
-				success("个人资料已更新！");
+				showSuccess("个人资料已更新！");
 			} else {
 				throw new Error(response.error?.message || "更新失败");
 			}
@@ -101,7 +101,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 			// For demo purposes, still update locally
 			setProfile({ ...editProfile });
 			setIsEditing(false);
-			success("个人资料已更新！(演示模式)");
+			showSuccess("个人资料已更新！(演示模式)");
 		} finally {
 			setSaving(false);
 		}

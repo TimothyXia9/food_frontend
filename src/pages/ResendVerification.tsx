@@ -5,7 +5,7 @@ import { useNotification } from "../contexts/NotificationContext";
 
 const ResendVerification: React.FC = () => {
 	const navigate = useNavigate();
-	const { success, error } = useNotification();
+	const { showSuccess, showError } = useNotification();
 	const [email, setEmail] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [emailSent, setEmailSent] = useState(false);
@@ -13,7 +13,7 @@ const ResendVerification: React.FC = () => {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!email.trim()) {
-			error("Please enter your email address");
+			showError("Please enter your email address");
 			return;
 		}
 
@@ -23,13 +23,13 @@ const ResendVerification: React.FC = () => {
 
 			if (response.success) {
 				setEmailSent(true);
-				success("Verification email sent successfully!");
+				showSuccess("Verification email sent successfully!");
 			} else {
 				const errorMsg = response.error?.message || "Failed to send verification email";
-				error(errorMsg);
+				showError(errorMsg);
 			}
 		} catch (err) {
-			error("An unexpected error occurred");
+			showError("An unexpected error occurred");
 		} finally {
 			setIsLoading(false);
 		}

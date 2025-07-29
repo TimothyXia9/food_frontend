@@ -13,7 +13,7 @@ interface MealStatsProps {
 const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 	const navigate = useNavigate();
 	const { isAuthenticated } = useAuth();
-	const { error: showError, confirm } = useNotification();
+	const { showError, showConfirm } = useNotification();
 
 	const [selectedDate, setSelectedDate] = React.useState(() => {
 		return getCurrentLocalDate();
@@ -220,7 +220,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 	};
 
 	const handleDeleteMeal = async (mealId: number) => {
-		const confirmed = await confirm("确定要删除这顿餐食吗？");
+		const confirmed = await showConfirm("确定要删除这顿餐食吗？");
 		if (!confirmed) return;
 
 		try {

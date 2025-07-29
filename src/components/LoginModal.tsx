@@ -20,7 +20,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 	const { login, register } = useAuth();
-	const { success: showSuccess, error: showError } = useNotification();
+	const { showSuccess, showError } = useNotification();
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;

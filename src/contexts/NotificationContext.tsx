@@ -13,11 +13,11 @@ export interface NotificationData {
 interface NotificationContextType {
 	addNotification: (notification: Omit<NotificationData, "id">) => void;
 	removeNotification: (id: string) => void;
-	success: (message: string, duration?: number) => void;
-	error: (message: string, duration?: number) => void;
-	warning: (message: string, duration?: number) => void;
-	info: (message: string, duration?: number) => void;
-	confirm: (message: string) => Promise<boolean>;
+	showSuccess: (message: string, duration?: number) => void;
+	showError: (message: string, duration?: number) => void;
+	showWarning: (message: string, duration?: number) => void;
+	showInfo: (message: string, duration?: number) => void;
+	showConfirm: (message: string) => Promise<boolean>;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -69,35 +69,35 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 		setNotifications(prev => prev.filter(notification => notification.id !== id));
 	}, []);
 
-	const success = useCallback(
+	const showSuccess = useCallback(
 		(message: string, duration?: number) => {
 			addNotification({ type: "success", message, duration });
 		},
 		[addNotification]
 	);
 
-	const error = useCallback(
+	const showError = useCallback(
 		(message: string, duration?: number) => {
 			addNotification({ type: "error", message, duration });
 		},
 		[addNotification]
 	);
 
-	const warning = useCallback(
+	const showWarning = useCallback(
 		(message: string, duration?: number) => {
 			addNotification({ type: "warning", message, duration });
 		},
 		[addNotification]
 	);
 
-	const info = useCallback(
+	const showInfo = useCallback(
 		(message: string, duration?: number) => {
 			addNotification({ type: "info", message, duration });
 		},
 		[addNotification]
 	);
 
-	const confirm = useCallback((message: string): Promise<boolean> => {
+	const showConfirm = useCallback((message: string): Promise<boolean> => {
 		return new Promise(resolve => {
 			setConfirmDialog({ message, resolve });
 		});
@@ -116,11 +116,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 	const contextValue: NotificationContextType = {
 		addNotification,
 		removeNotification,
-		success,
-		error,
-		warning,
-		info,
-		confirm,
+		showSuccess,
+		showError,
+		showWarning,
+		showInfo,
+		showConfirm,
 	};
 
 	return (

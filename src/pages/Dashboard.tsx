@@ -11,7 +11,7 @@ interface DashboardProps {
 
 const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	const { isAuthenticated } = useAuth();
-	const { success, error } = useNotification();
+	const { showSuccess, showError } = useNotification();
 	const todayDate = new Date(getCurrentLocalDate()).toLocaleDateString("zh-CN");
 
 	// 图像识别相关状态
@@ -136,7 +136,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 
 			case "error":
 				setIsAnalyzing(false);
-				error(data.message || "分析过程中出现错误");
+				showError(data.message || "分析过程中出现错误");
 				break;
 		}
 	};
@@ -178,7 +178,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]); // 只保留最近5次
 
 			// 显示成功消息
-			success(`识别到 ${recognizedFoods.length} 个食物关键词！`);
+			showSuccess(`识别到 ${recognizedFoods.length} 个食物关键词！`);
 		} else if (results && results.portions && results.portions.length > 0) {
 			// 处理新的portions格式的识别结果
 			const recognizedFoods = results.portions.map((portion: any, index: number) => ({
@@ -199,7 +199,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			};
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]);
 
-			success(`识别到 ${recognizedFoods.length} 种食物！`);
+			showSuccess(`识别到 ${recognizedFoods.length} 种食物！`);
 		} else if (results && results.results && results.results.length > 0) {
 			// 处理完整的识别结果（向后兼容）
 			const recognizedFoods = results.results.map((result: any) => ({
@@ -216,10 +216,10 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			};
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]);
 
-			success(`识别到 ${recognizedFoods.length} 种食物！`);
+			showSuccess(`识别到 ${recognizedFoods.length} 种食物！`);
 		} else {
 			// 没有识别到食物
-			error("未能识别到食物，请尝试拍摄更清晰的图片");
+			showError("未能识别到食物，请尝试拍摄更清晰的图片");
 		}
 	};
 
@@ -239,7 +239,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		setBarcodeResults(results);
 
 		if (results.createdFoods && results.createdFoods.length > 0) {
-			success(`成功创建 ${results.createdFoods.length} 个食品`);
+			showSuccess(`成功创建 ${results.createdFoods.length} 个食品`);
 		}
 	};
 
@@ -251,7 +251,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			console.log("Adding barcode food to meal:", food);
 			
 			// 暂时显示成功信息，提示用户食物可用
-			success(`${food.name} 已准备添加到餐食！可通过搜索 "${food.name}" 或 ID:${food.id} 找到此食物。`);
+			showSuccess(`${food.name} 已准备添加到餐食！可通过搜索 "${food.name}" 或 ID:${food.id} 找到此食物。`);
 			
 			// TODO: 实现具体的添加到餐食逻辑
 			// 例如：打开添加食物模态框，预填食物信息
@@ -259,7 +259,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			
 		} catch (err) {
 			console.error("Error adding barcode food to meal:", err);
-			error(`添加食物失败: ${err instanceof Error ? err.message : "未知错误"}`);
+			showError(`添加食物失败: ${err instanceof Error ? err.message : "未知错误"}`);
 		}
 	};
 

@@ -9,26 +9,26 @@ interface TokenTestProps {
 
 const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 	const { isAuthenticated, user } = useAuth();
-	const { info, error } = useNotification();
+	const { showInfo, showError } = useNotification();
 
 	const handleClearTokens = () => {
 		// Clear tokens to simulate expiration
 		localStorage.removeItem("auth_token");
 		localStorage.removeItem("refresh_token");
 		apiClient.setToken(null);
-		info("已清除所有token，模拟token过期状态");
+		showInfo("已清除所有token，模拟token过期状态");
 	};
 
 	const handleTestAuthenticatedRequest = async () => {
 		try {
-			info("正在发送需要认证的请求...");
+			showInfo("正在发送需要认证的请求...");
 			// This should trigger the auth failure handler if tokens are expired
 			const response = await apiClient.get("/auth/user/");
 			if (response.success) {
-				info("请求成功！用户已认证");
+				showInfo("请求成功！用户已认证");
 			}
 		} catch (err) {
-			error("请求失败，可能需要重新登录");
+			showError("请求失败，可能需要重新登录");
 		}
 	};
 
@@ -47,37 +47,37 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 			canvas.toBlob(async blob => {
 				if (blob) {
 					const testFile = new File([blob], "test-image.png", { type: "image/png" });
-					info("正在测试图片上传认证...");
+					showInfo("正在测试图片上传认证...");
 
 					try {
 						const response = await apiClient.uploadFile("/images/upload/", testFile);
 						if (response.success) {
-							info("图片上传成功！认证有效");
+							showInfo("图片上传成功！认证有效");
 						}
 					} catch (err) {
-						error("图片上传失败，可能需要重新登录");
+						showError("图片上传失败，可能需要重新登录");
 					}
 				}
 			});
 		} catch (err) {
-			error("创建测试图片失败");
+			showError("创建测试图片失败");
 		}
 	};
 
 	const handleTestStreamingAnalysis = async () => {
 		try {
-			info("正在测试流式分析认证...");
+			showInfo("正在测试流式分析认证...");
 			// This will test the streaming request with token handling
 			const response = await apiClient.streamingRequest("/images/analyze-stream/", {
 				image_id: 1,
 			});
 			if (response.ok) {
-				info("流式分析请求成功！认证有效");
+				showInfo("流式分析请求成功！认证有效");
 				// Close the stream immediately since we're just testing auth
 				response.body?.cancel();
 			}
 		} catch (err) {
-			error("流式分析失败，可能需要重新登录");
+			showError("流式分析失败，可能需要重新登录");
 		}
 	};
 

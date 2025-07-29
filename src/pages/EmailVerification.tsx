@@ -8,7 +8,7 @@ const EmailVerification: React.FC = () => {
 	const { token } = useParams<{ token: string }>();
 	const navigate = useNavigate();
 	const { setUserData } = useAuth();
-	const { success, error } = useNotification();
+	const { showSuccess, showError } = useNotification();
 	const [isVerifying, setIsVerifying] = useState(false);
 	const [verificationStatus, setVerificationStatus] = useState<"pending" | "success" | "error">(
 		"pending"
@@ -33,7 +33,7 @@ const EmailVerification: React.FC = () => {
 
 			if (response.success && response.data) {
 				setVerificationStatus("success");
-				success("Email verified successfully! You are now logged in.");
+				showSuccess("Email verified successfully! You are now logged in.");
 
 				// Auto-login user after successful verification
 				if (response.data.token) {
@@ -48,12 +48,12 @@ const EmailVerification: React.FC = () => {
 				setVerificationStatus("error");
 				const errorMsg = response.error?.message || "Email verification failed";
 				setErrorMessage(errorMsg);
-				error(errorMsg);
+				showError(errorMsg);
 			}
 		} catch (err) {
 			setVerificationStatus("error");
 			setErrorMessage("An unexpected error occurred");
-			error("An unexpected error occurred");
+			showError("An unexpected error occurred");
 		} finally {
 			setIsVerifying(false);
 		}
