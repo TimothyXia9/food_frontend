@@ -1,14 +1,19 @@
 .App {
 	display: flex;
 	flex-direction: column;
-	min-height: 100vh;
+	height: 100vh;
 	background-color: #f5f5f5;
+	overflow: hidden;
 }
 
 .main-content {
 	flex: 1;
 	margin: 0 auto;
 	width: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 20px;
+	box-sizing: border-box;
 }
 
 /* Navigation Styles */
@@ -283,11 +288,12 @@
 
 /* Loading styles */
 .loading-container {
-	min-height: 100vh;
+	height: 100vh;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	overflow: hidden;
 }
 
 .loading-spinner {

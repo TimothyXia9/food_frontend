@@ -1,3 +1,8 @@
+html {
+	/* Remove main page scrollbar completely */
+	overflow: hidden;
+}
+
 body {
 	margin: 0;
 	font-family:
@@ -5,6 +10,8 @@ body {
 		"Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	/* Remove body scrolling as we'll handle it at the app level */
+	overflow: hidden;
 }
 
 code {
