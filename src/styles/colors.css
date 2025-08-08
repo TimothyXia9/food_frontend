@@ -55,8 +55,7 @@
 	--text-tertiary: #374151; /* 第三文字颜色 */
 	--text-muted: #787774; /* 灰色文字 */
 	--text-light: #9b9a97; /* 浅灰色文字 */
-	--text-lighter: #b8b6b0; /* 更浅灰色文字 */
-	--text-lightest: #6b6f72; /* 最浅灰色文字 */
+	--text-lighter: #6b6f72; /* 最浅灰色文字 */
 	--text-white: var(--color-white); /* 白色文字 */
 	--text-white-muted: rgba(255, 255, 255, 0.6); /* 半透明白色文字 */
 	--text-white-overlay: rgba(255, 255, 255, 0.2); /* 白色覆盖层文字 */

@@ -472,7 +472,7 @@
 	}
 
 	.calendar-day.other-month {
-		color: var(--text-lightest);
+		color: var(--date-picker-disabled-text);
 	}
 
 	.calendar-day.other-month:hover {
@@ -504,7 +504,7 @@
 	}
 
 	.time-text-input::placeholder {
-		color: var(--text-lightest);
+		color: var(--date-picker-disabled-text);
 	}
 
 	.time-input-hint {
