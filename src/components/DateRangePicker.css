@@ -245,7 +245,12 @@
 }
 
 .weekday {
-	padding: 8px 4px;
+	width: 36px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
 	text-align: center;
 	font-size: 12px;
 	font-weight: 500;
@@ -502,7 +507,8 @@
 	}
 
 	.weekday {
-		padding: 6px 2px;
+		width: 28px;
+		height: 24px;
 		font-size: 11px;
 	}
 }
