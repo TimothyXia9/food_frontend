@@ -1,0 +1,177 @@
+:root {
+	/* ===============================================
+	通用颜色 - Universal Colors
+	=============================================== */
+	--color-white: #ffffff;
+	--color-black: #000000;
+	--color-transparent: transparent;
+
+	/* ===============================================
+	主题色彩 - Theme Colors (Light Red Theme)
+	=============================================== */
+
+	/* 主色调 - Primary Colors (浅红色系) */
+	--primary-color: #f56565; /* 浅红色主色 */
+	--primary-hover: #e53e3e; /* 浅红色悬停 */
+	--primary-light: #feb2b2; /* 更浅的红色 */
+	--primary-lighter: #fed7d7; /* 最浅红色背景 */
+
+	/* 次要色调 - Secondary Colors (中性灰) */
+	--secondary-color: #4a5568; /* 深灰色 */
+	--secondary-hover: #2d3748; /* 深灰悬停 */
+
+	/* 成功色 - Success Colors (柔和绿色) */
+	--success-color: #48bb78; /* 柔和绿色 */
+	--success-hover: #38a169; /* 绿色悬停 */
+	--success-alt: #68d391; /* 替代绿色 */
+	--success-alt-hover: #48bb78; /* 替代绿色悬停 */
+	--success-alt-border: #38a169; /* 替代绿色边框 */
+
+	/* 警告色 - Warning Colors (温和橙色) */
+	--warning-color: #ed8936; /* 温和橙色 */
+	--warning-hover: #dd6b20; /* 橙色悬停 */
+	--warning-alt: #f6ad55; /* 替代橙色 */
+
+	/* 危险色 - Danger Colors (深红色) */
+	--danger-btn: #e53e3e; /* 危险红色 */
+	--danger-hover: #c53030; /* 危险红色悬停 */
+	--danger-alt: #f56565; /* 替代危险红色 */
+
+	/* 信息色 - Info Colors (柔和蓝色) */
+	--info-color: #4299e1; /* 信息蓝色 */
+	--info-hover: #3182ce; /* 信息蓝色悬停 */
+
+	/* ===============================================
+	中性色彩 - Neutral Colors (简洁灰色系)
+	=============================================== */
+
+	/* 背景色 - Background Colors */
+	--bg-primary: var(--color-white); /* 主背景 (白色) */
+	--bg-secondary: #f7fafc; /* 次要背景 (极浅灰) */
+	--bg-tertiary: #edf2f7; /* 第三背景色 (浅灰) */
+	--bg-modal: rgba(0, 0, 0, 0.4); /* 模态框背景 */
+	--bg-overlay: rgba(0, 0, 0, 0.15); /* 覆盖层背景 */
+	--bg-loading: linear-gradient(135deg, #f56565 0%, #ed8936 100%); /* 加载背景渐变 (红橙渐变) */
+
+	/* 文字颜色 - Text Colors */
+	--text-primary: #2d3748; /* 主文字颜色 (深灰) */
+	--text-secondary: var(--secondary-color); /* 次要文字颜色 */
+	--text-tertiary: #4a5568; /* 第三文字颜色 */
+	--text-muted: #718096; /* 灰色文字 */
+	--text-light: #a0aec0; /* 浅灰色文字 */
+	--text-lighter: #cbd5e0; /* 更浅灰色文字 */
+	--text-lightest: #e2e8f0; /* 最浅灰色文字 */
+	--text-white: var(--color-white); /* 白色文字 */
+	--text-white-muted: rgba(255, 255, 255, 0.7); /* 半透明白色文字 */
+	--text-white-overlay: rgba(255, 255, 255, 0.2); /* 白色覆盖层文字 */
+
+	/* ===============================================
+	边框和分割线 - Borders & Dividers
+	=============================================== */
+
+	--border-light: #e2e8f0; /* 浅色边框 */
+	--border-medium: #cbd5e0; /* 中等边框 */
+	--border-primary: #d1d5db; /* 主要边框 */
+	--border-secondary: #9ca3af; /* 次要边框 */
+	--border-tertiary: #f3f4f6; /* 第三边框 */
+	--border-hover: #6b7280; /* 悬停边框 */
+	--border-focus: #f56565; /* 焦点边框 (主色) */
+
+	/* ===============================================
+	阴影 - Shadows (简洁柔和)
+	=============================================== */
+
+	--shadow-light: 0 1px 3px rgba(0, 0, 0, 0.08); /* 轻阴影 */
+	--shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1); /* 中等阴影 */
+	--shadow-heavy: 0 10px 25px rgba(0, 0, 0, 0.15); /* 重阴影 */
+	--shadow-notification: 0 4px 12px rgba(245, 101, 101, 0.15); /* 通知阴影 (红色调) */
+	--shadow-notification-hover: 0 6px 16px rgba(245, 101, 101, 0.2); /* 通知悬停阴影 */
+	--shadow-picker: 0 8px 24px rgba(0, 0, 0, 0.08); /* 选择器阴影 */
+	--shadow-focus: 0 0 0 2px rgba(245, 101, 101, 0.2); /* 焦点阴影 (红色) */
+	--shadow-focus-alt: 0 0 0 1px #f56565; /* 替代焦点阴影 */
+
+	/* ===============================================
+	特殊用途颜色 - Special Purpose Colors
+	=============================================== */
+
+	/* 日期选择器 - Date Picker (简洁红色主题) */
+	--date-picker-today: #fed7d7; /* 今天背景 (浅红) */
+	--date-picker-selected: #f56565; /* 选中状态 (主红) */
+	--date-picker-selected-hover: #e53e3e; /* 选中状态悬停 */
+	--date-picker-today-text: #e53e3e; /* 今天文字 */
+	--date-picker-today-hover: #fbb6ce; /* 今天悬停 */
+	--date-picker-disabled: #f9fafb; /* 禁用背景 */
+}
+
+/* ===============================================
+语义化颜色别名 - Semantic Color Aliases
+=============================================== */
+
+:root {
+	/* BMI 指示器 - BMI Indicators (使用主题色) */
+	--bmi-underweight: var(--info-color); /* 体重不足 → 信息色 */
+	--bmi-normal: var(--success-color); /* 正常 → 成功色 */
+	--bmi-overweight: var(--warning-color); /* 超重 → 警告色 */
+	--bmi-obese: var(--danger-btn); /* 肥胖 → 危险色 */
+
+	/* 通知系统 - Notification System (柔和版本) */
+	--notification-success: var(--success-alt); /* 成功通知 */
+	--notification-error: var(--danger-alt); /* 错误通知 */
+	--notification-warning: var(--warning-alt); /* 警告通知 */
+	--notification-info: var(--info-color); /* 信息通知 */
+
+	/* 日期选择器通用引用 - Date Picker Common References */
+	--date-picker-bg: var(--bg-primary); /* 背景 → 主背景 */
+	--date-picker-text: var(--text-primary); /* 文字 → 主文字 */
+	--date-picker-muted: var(--text-muted); /* 次要文字 → 灰色文字 */
+	--date-picker-hover: var(--bg-tertiary); /* 悬停背景 → 第三背景 */
+	--date-picker-border: var(--border-primary); /* 边框 → 主要边框 */
+	--date-picker-disabled-border: var(--border-secondary); /* 禁用边框 → 次要边框 */
+	--date-picker-disabled-text: var(--text-lighter); /* 禁用文字 → 浅灰文字 */
+	--date-picker-selected-text: var(--text-white); /* 选中文字 → 白色文字 */
+}
+
+/* ===============================================
+深色主题支持 - Dark Theme Support (红色调暗色)
+=============================================== */
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		/* 主色调保持红色，但调整深色环境下的对比度 */
+		--primary-color: #fc8181; /* 稍亮的红色适应深色背景 */
+		--primary-hover: #f56565;
+		--primary-light: #feb2b2;
+		--primary-lighter: #2d1b1b; /* 深红色背景 */
+
+		/* 背景色 - 深色主题 */
+		--bg-primary: #1a1a1a; /* 深色主背景 */
+		--bg-secondary: #2d2d2d; /* 深色次要背景 */
+		--bg-tertiary: #3a3a3a; /* 深色第三背景 */
+		--bg-modal: rgba(0, 0, 0, 0.6);
+
+		/* 文字颜色 - 深色主题 */
+		--text-primary: #f7fafc; /* 浅色主文字 */
+		--text-secondary: #e2e8f0; /* 浅色次要文字 */
+		--text-tertiary: #cbd5e0; /* 浅色第三文字 */
+		--text-muted: #a0aec0; /* 深色主题灰色文字 */
+
+		/* 边框 - 深色主题 */
+		--border-light: #4a5568;
+		--border-medium: #2d3748;
+		--border-primary: #4a5568;
+		--border-secondary: #2d3748;
+
+		/* 日期选择器深色主题 */
+		--date-picker-bg: #2d2d2d;
+		--date-picker-border: #4a5568;
+		--date-picker-text: #f7fafc;
+		--date-picker-muted: #a0aec0;
+		--date-picker-hover: #3a3a3a;
+		--date-picker-today: #4a1d1d; /* 深红色今天背景 */
+		--date-picker-today-text: #fc8181;
+		--date-picker-today-hover: #5a2020;
+		--date-picker-disabled: #2a2a2a;
+		--date-picker-disabled-text: #718096;
+		--shadow-picker: 0 8px 24px rgba(0, 0, 0, 0.4);
+	}
+}
