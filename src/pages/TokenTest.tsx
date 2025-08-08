@@ -173,7 +173,7 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 						onClick={onLoginRequired}
 						style={{
 							padding: "0.75rem 1.5rem",
-							backgroundColor: "#28a745",
+							backgroundColor: "var(--success-alt)",
 							color: "white",
 							border: "none",
 							borderRadius: "4px",

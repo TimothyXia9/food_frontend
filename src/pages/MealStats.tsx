@@ -468,7 +468,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 													<span className="overview-number">
 														{!isSingleMode
 															? mealStatistics.stats?.date_range
-																?.days_count || 0
+																	?.days_count || 0
 															: mealStatistics.summary?.total_meals ||
 																0}
 													</span>
@@ -483,9 +483,9 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 													<span className="overview-number">
 														{!isSingleMode
 															? mealStatistics.stats?.totals
-																?.calories || 0
+																	?.calories || 0
 															: mealStatistics.summary
-																?.total_calories || 0}
+																	?.total_calories || 0}
 													</span>
 													<span className="overview-label">卡路里</span>
 												</div>
@@ -496,9 +496,9 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 													<span className="overview-number">
 														{!isSingleMode
 															? mealStatistics.stats?.totals
-																?.protein || 0
+																	?.protein || 0
 															: mealStatistics.summary
-																?.total_protein || 0}
+																	?.total_protein || 0}
 														g
 													</span>
 													<span className="overview-label">蛋白质</span>
@@ -539,112 +539,112 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 									{isSingleMode &&
 										mealStatistics.meal_breakdown &&
 										Object.keys(mealStatistics.meal_breakdown).length > 0 && (
-										<div className="meal-breakdown">
-											<h3>🍽️ 各餐营养分布</h3>
-											<div className="breakdown-grid">
-												{Object.entries(
-													mealStatistics.meal_breakdown
-												).map(([mealType, data]: [string, any]) => (
-													<div
-														key={mealType}
-														className="breakdown-item"
-													>
-														<div className="breakdown-header">
-															<h4>
-																{getMealTypeDisplayName(
-																	mealType
-																)}
-															</h4>
-															<span className="meal-count">
-																{data.count} 餐
-															</span>
-														</div>
-														<div className="breakdown-nutrition">
-															<div className="nutrition-item">
-																<span className="nutrition-label">
+											<div className="meal-breakdown">
+												<h3>🍽️ 各餐营养分布</h3>
+												<div className="breakdown-grid">
+													{Object.entries(
+														mealStatistics.meal_breakdown
+													).map(([mealType, data]: [string, any]) => (
+														<div
+															key={mealType}
+															className="breakdown-item"
+														>
+															<div className="breakdown-header">
+																<h4>
+																	{getMealTypeDisplayName(
+																		mealType
+																	)}
+																</h4>
+																<span className="meal-count">
+																	{data.count} 餐
+																</span>
+															</div>
+															<div className="breakdown-nutrition">
+																<div className="nutrition-item">
+																	<span className="nutrition-label">
 																		卡路里:
-																</span>
-																<span className="nutrition-value">
-																	{data.calories.toFixed(1)}{" "}
+																	</span>
+																	<span className="nutrition-value">
+																		{data.calories.toFixed(1)}{" "}
 																		kcal
-																</span>
-															</div>
-															<div className="nutrition-item">
-																<span className="nutrition-label">
+																	</span>
+																</div>
+																<div className="nutrition-item">
+																	<span className="nutrition-label">
 																		蛋白质:
-																</span>
-																<span className="nutrition-value">
-																	{data.protein.toFixed(1)}g
-																</span>
-															</div>
-															<div className="nutrition-item">
-																<span className="nutrition-label">
+																	</span>
+																	<span className="nutrition-value">
+																		{data.protein.toFixed(1)}g
+																	</span>
+																</div>
+																<div className="nutrition-item">
+																	<span className="nutrition-label">
 																		脂肪:
-																</span>
-																<span className="nutrition-value">
-																	{data.fat.toFixed(1)}g
-																</span>
-															</div>
-															<div className="nutrition-item">
-																<span className="nutrition-label">
+																	</span>
+																	<span className="nutrition-value">
+																		{data.fat.toFixed(1)}g
+																	</span>
+																</div>
+																<div className="nutrition-item">
+																	<span className="nutrition-label">
 																		碳水:
-																</span>
-																<span className="nutrition-value">
-																	{data.carbs.toFixed(1)}g
-																</span>
+																	</span>
+																	<span className="nutrition-value">
+																		{data.carbs.toFixed(1)}g
+																	</span>
+																</div>
 															</div>
 														</div>
-													</div>
-												))}
+													))}
+												</div>
 											</div>
-										</div>
-									)}
+										)}
 
 									{mealStatistics.top_foods &&
 										mealStatistics.top_foods.length > 0 && (
-										<div className="top-foods">
-											<h3>🥇 当日热量来源食物</h3>
-											<div className="foods-list">
-												{mealStatistics.top_foods.map(
-													(food: any, index: number) => (
-														<div key={index} className="food-item">
-															<div className="food-rank">
+											<div className="top-foods">
+												<h3>🥇 当日热量来源食物</h3>
+												<div className="foods-list">
+													{mealStatistics.top_foods.map(
+														(food: any, index: number) => (
+															<div key={index} className="food-item">
+																<div className="food-rank">
 																	#{index + 1}
-															</div>
-															<div className="food-info">
-																<div className="food-name">
-																	{food.name}
 																</div>
-																<div className="food-stats">
-																	{food.total_quantity}g •{" "}
-																	{food.total_calories.toFixed(
-																		1
-																	)}{" "}
+																<div className="food-info">
+																	<div className="food-name">
+																		{food.name}
+																	</div>
+																	<div className="food-stats">
+																		{food.total_quantity}g •{" "}
+																		{food.total_calories.toFixed(
+																			1
+																		)}{" "}
 																		kcal
-																	{food.frequency > 1 && (
-																		<span className="frequency">
-																			{" "}
+																		{food.frequency > 1 && (
+																			<span className="frequency">
+																				{" "}
 																				• {food.frequency}次
-																		</span>
-																	)}
+																			</span>
+																		)}
+																	</div>
 																</div>
 															</div>
-														</div>
-													)
-												)}
+														)
+													)}
+												</div>
 											</div>
-										</div>
-									)}
+										)}
 
 									{isSingleMode &&
 										mealStatistics.summary &&
 										mealStatistics.summary.total_meals === 0 && (
-										<div className="no-meals">
-											<div className="no-meals-icon">🍽️</div>
-											<h3>暂无餐食数据</h3>
-											<p>选择的日期还没有添加任何餐食</p>
-										</div>
-									)}
+											<div className="no-meals">
+												<div className="no-meals-icon">🍽️</div>
+												<h3>暂无餐食数据</h3>
+												<p>选择的日期还没有添加任何餐食</p>
+											</div>
+										)}
 								</>
 							) : (
 								<div className="no-data">
@@ -699,7 +699,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				.login-prompt {
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 					padding: 3rem 2rem;
 				}
 
@@ -717,7 +717,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				.stats-controls {
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 					padding: 1.5rem;
 					
 				}
@@ -777,7 +777,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 					padding: 3rem;
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 				}
 
 				.loading-spinner {
@@ -800,7 +800,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				.food-basket-column {
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 					max-height: 70vh;
 					overflow: hidden;
 					display: flex;
@@ -826,7 +826,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				}
 
 				.add-meal-btn {
-					background: #28a745;
+					background: var(--success-alt);
 					color: white;
 					border: none;
 					padding: 0.5rem 1rem;
@@ -871,7 +871,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				.meal-basket-item:hover {
 					background: #e9ecef;
 					transform: translateY(-2px);
-					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-notification);
 				}
 
 				.meal-info {
@@ -1061,7 +1061,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				.stats-overview {
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 					padding: 2rem;
 				}
 
@@ -1110,7 +1110,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				.meal-breakdown {
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 					padding: 2rem;
 				}
 
@@ -1130,7 +1130,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 					background: #f8f9fa;
 					border-radius: 8px;
 					padding: 1.5rem;
-					border-left: 4px solid #28a745;
+					border-left: 4px solid var(--success-alt);
 				}
 
 				.breakdown-header {
@@ -1147,7 +1147,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				}
 
 				.meal-count {
-					background: #28a745;
+					background: var(--success-alt);
 					color: white;
 					padding: 0.25rem 0.5rem;
 					border-radius: 4px;
@@ -1180,7 +1180,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				.top-foods {
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 					padding: 2rem;
 				}
 
@@ -1228,14 +1228,14 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				}
 
 				.frequency {
-					color: #28a745;
+					color: var(--success-alt);
 					font-weight: 500;
 				}
 
 				.recent-meals {
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 					padding: 2rem;
 				}
 
@@ -1291,7 +1291,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 					padding: 3rem;
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 				}
 
 				.no-meals-icon, .no-data-icon {
@@ -1404,7 +1404,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				.login-prompt {
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 					padding: 3rem 2rem;
 				}
 
@@ -1422,7 +1422,7 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 				.stats-content {
 					background: white;
 					border-radius: 12px;
-					box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-heavy);
 					padding: 3rem;
 					text-align: center;
 				}

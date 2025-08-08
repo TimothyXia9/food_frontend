@@ -116,10 +116,10 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 		return bmi.toFixed(1);
 	};
 	const getBMICategory = (bmi: number) => {
-		if (bmi < 18.5) return { category: "偏瘦", color: "#3498db" };
-		if (bmi < 25) return { category: "正常", color: "#2ecc71" };
-		if (bmi < 30) return { category: "超重", color: "#f39d12" };
-		return { category: "肥胖", color: "#e74c3c" };
+		if (bmi < 18.5) return { category: "偏瘦", color: "var(--bmi-underweight)" };
+		if (bmi < 25) return { category: "正常", color: "var(--bmi-normal)" };
+		if (bmi < 30) return { category: "超重", color: "var(--bmi-overweight)" };
+		return { category: "肥胖", color: "var(--bmi-obese)" };
 	};
 	const calculateAge = () => {
 		const today = new Date();
@@ -389,28 +389,28 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 							<div className="scale-item">
 								<div
 									className="scale-color"
-									style={{ backgroundColor: "#3498db" }}
+									style={{ backgroundColor: "var(--bmi-underweight)" }}
 								></div>
 								<span>偏瘦 (&lt;18.5)</span>
 							</div>
 							<div className="scale-item">
 								<div
 									className="scale-color"
-									style={{ backgroundColor: "#2ecc71" }}
+									style={{ backgroundColor: "var(--bmi-normal)" }}
 								></div>
 								<span>正常 (18.5-24.9)</span>
 							</div>
 							<div className="scale-item">
 								<div
 									className="scale-color"
-									style={{ backgroundColor: "#f39c12" }}
+									style={{ backgroundColor: "var(--bmi-overweight)" }}
 								></div>
 								<span>超重 (25-29.9)</span>
 							</div>
 							<div className="scale-item">
 								<div
 									className="scale-color"
-									style={{ backgroundColor: "#e74c3c" }}
+									style={{ backgroundColor: "var(--bmi-obese)" }}
 								></div>
 								<span>肥胖 (≥30)</span>
 							</div>
@@ -447,7 +447,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 					padding: 3rem;
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 				}
 
 				.not-authenticated h2 {

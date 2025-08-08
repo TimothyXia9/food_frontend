@@ -471,7 +471,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onBarc
 				}
 
 				.barcode-type {
-					background: #28a745;
+					background: var(--success-alt);
 					color: white;
 					padding: 0.25rem 0.5rem;
 					border-radius: 4px;
@@ -524,7 +524,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onBarc
 					color: white;
 				}
 
-				.grade-a { background: #28a745; }
+				.grade-a { background: var(--success-alt); }
 				.grade-b { background: #ffc107; color: #212529; }
 				.grade-c { background: #fd7e14; }
 				.grade-d { background: #dc3545; }

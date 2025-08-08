@@ -773,7 +773,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 				}
 
 				.btn-success {
-					background: #28a745;
+					background: var(--success-alt);
 					color: white;
 				}
 
@@ -799,7 +799,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 
 				.btn:hover:not(:disabled) {
 					transform: translateY(-1px);
-					box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+					box-shadow: var(--shadow-light);
 				}
 
 				.test-results {
@@ -823,11 +823,11 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 					margin-bottom: 1rem;
 					border-radius: 8px;
 					overflow: hidden;
-					box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+					box-shadow: var(--shadow-light);
 				}
 
 				.result-item.success {
-					border-left: 4px solid #28a745;
+					border-left: 4px solid var(--success-alt);
 				}
 
 				.result-item.error {

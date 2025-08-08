@@ -209,7 +209,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 					left: 0;
 					width: 100%;
 					height: 100%;
-					background-color: rgba(0, 0, 0, 0.5);
+					background-color: var(--bg-modal);
 					display: flex;
 					justify-content: center;
 					align-items: center;
@@ -296,7 +296,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 				.form-input:focus {
 					outline: none;
 					border-color: #007bff;
-					box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+					box-shadow: var(--shadow-focus);
 				}
 
 				.submit-button {

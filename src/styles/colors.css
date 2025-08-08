@@ -17,7 +17,7 @@
 	--secondary-hover: #34495e; /* 深蓝灰悬停 */
 
 	/* 成功色 - Success Colors */
-	--success-color: #2ecc71; /* 主要绿色 */
+	--success-color: #2ecc71; /* 主要绿色，计算和的时候的文字颜色*/
 	--success-hover: #27ae60; /* 绿色悬停 */
 	--success-alt: #28a745; /* 替代绿色 */
 	--success-alt-hover: #218838; /* 替代绿色悬停 */
@@ -29,7 +29,7 @@
 	--warning-alt: #f59e0b; /* 替代橙色 (通知等) */
 
 	/* 危险色 - Danger Colors */
-	--danger-color: #e74c3c; /* 主要红色 */
+	--danger-btn: #e74c3c; /* 主要红色 */
 	--danger-hover: #c0392b; /* 红色悬停 */
 	--danger-alt: #ef4444; /* 替代红色 (通知等) */
 

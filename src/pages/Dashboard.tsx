@@ -249,14 +249,15 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			// 简单的食物添加逻辑 - 打开添加食物对话框或直接添加
 			// 这里需要根据项目的具体流程来实现
 			console.log("Adding barcode food to meal:", food);
-			
+
 			// 暂时显示成功信息，提示用户食物可用
-			showSuccess(`${food.name} 已准备添加到餐食！可通过搜索 "${food.name}" 或 ID:${food.id} 找到此食物。`);
-			
+			showSuccess(
+				`${food.name} 已准备添加到餐食！可通过搜索 "${food.name}" 或 ID:${food.id} 找到此食物。`
+			);
+
 			// TODO: 实现具体的添加到餐食逻辑
 			// 例如：打开添加食物模态框，预填食物信息
 			// 或者：直接创建一个新的餐食并添加该食物
-			
 		} catch (err) {
 			console.error("Error adding barcode food to meal:", err);
 			showError(`添加食物失败: ${err instanceof Error ? err.message : "未知错误"}`);
@@ -629,7 +630,9 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 													<div className="food-actions">
 														<button
 															className="btn btn-primary add-to-meal-btn"
-															onClick={() => handleAddBarcodeFood(food)}
+															onClick={() =>
+																handleAddBarcodeFood(food)
+															}
 														>
 															📝 添加到餐食
 														</button>
@@ -715,7 +718,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				.calories-value {
 					font-size: 1.1rem;
 					font-weight: bold;
-					color: #3498db;
+					color: var(--primary-color);
 				}
 
 				.calories-unit {
@@ -728,7 +731,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 					padding: 3rem;
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 					margin: 2rem auto;
 					max-width: 600px;
 				}
@@ -787,7 +790,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 					max-width: 100%;
 					max-height: 300px;
 					border-radius: 8px;
-					box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-light);
 					object-fit: contain;
 				}
 
@@ -795,10 +798,10 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 					position: absolute;
 					bottom: 10px;
 					right: 10px;
-					background: rgba(255, 255, 255, 0.9);
+					background: var(--text-white-overlay);
 					border-radius: 8px;
 					padding: 0.5rem;
-					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+					box-shadow: var(--shadow-notification);
 					display: flex;
 					gap: 0.5rem;
 					align-items: center;
@@ -837,7 +840,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 					padding: 1rem;
 					background: #e8f5e8;
 					border-radius: 8px;
-					border-left: 4px solid #28a745;
+					border-left: 4px solid var(--success-alt);
 				}
 
 				.recognition-results h4 {
@@ -890,7 +893,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				}
 
 				.weight-amount {
-					background: #28a745;
+					background: var(--success-alt);
 					color: white;
 					padding: 0.2rem 0.5rem;
 					border-radius: 4px;
@@ -1177,7 +1180,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				}
 
 				.barcode-type {
-					background: #28a745;
+					background: var(--success-alt);
 					color: white;
 					padding: 0.25rem 0.5rem;
 					border-radius: 4px;
@@ -1296,7 +1299,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				}
 
 				.nutrition-grade.grade-a {
-					background: #28a745;
+					background: var(--success-alt);
 					color: white;
 				}
 
@@ -1398,7 +1401,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				}
 
 				.add-to-meal-btn {
-					background: #28a745;
+					background: var(--success-alt);
 					color: white;
 					border: none;
 					padding: 0.5rem 1rem;

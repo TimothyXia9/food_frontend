@@ -134,7 +134,7 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 					background: white;
 					border-bottom: 2px solid #e9ecef;
 					padding: 0.5rem;
-					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-notification);
 				}
 
 				.view-mode-selector {
@@ -196,8 +196,8 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 
 				.search-input:focus {
 					outline: none;
-					border-color: #3498db;
-					box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+					border-color: var(--primary-color);
+					box-shadow: var(--shadow-focus);
 				}
 
 				.search-btn {

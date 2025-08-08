@@ -1070,7 +1070,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				.meal-cart-section {
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 					display: flex;
 					flex-direction: column;
 					overflow: hidden;
@@ -1139,9 +1139,9 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				}
 
 				.cart-item.updated {
-					border-color: #28a745;
+					border-color: var(--success-alt);
 					background: #d4edda;
-					box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+					box-shadow: var(--shadow-light);
 				}
 
 				.cart-item-info h4 {
@@ -1181,7 +1181,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				}
 
 				.clear-update-btn {
-					background: #28a745;
+					background: var(--success-alt);
 					color: white;
 					border: none;
 					border-radius: 3px;
@@ -1212,8 +1212,8 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 				.quantity-input-small:focus {
 					outline: none;
-					border-color: #3498db;
-					box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+					border-color: var(--primary-color);
+					box-shadow: var(--shadow-focus);
 				}
 
 				.quantity-input-small:hover {
@@ -1238,7 +1238,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					padding: 1rem;
 					border-radius: 6px;
 					margin-bottom: 1rem;
-					box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+					box-shadow: var(--shadow-light);
 				}
 
 				.nutrition-totals {
@@ -1259,7 +1259,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 				.total-value {
 					font-weight: bold;
-					color: #2ecc71;
+					color: var(--success-color);
 				}
 
 				.cart-actions {
@@ -1285,7 +1285,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				.food-search-section {
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 					display: flex;
 					flex-direction: column;
 					overflow: hidden;
@@ -1343,7 +1343,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					left: 0;
 					right: 0;
 					bottom: 0;
-					background: rgba(0, 0, 0, 0.5);
+					background: var(--bg-modal);
 					display: flex;
 					align-items: center;
 					justify-content: center;
@@ -1653,7 +1653,7 @@ const FoodItem = ({
 				}
 
 				.food-item:hover {
-					box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-notification);
 				}
 
 				.food-header {
@@ -1676,7 +1676,7 @@ const FoodItem = ({
 				}
 
 				.usda-badge {
-					background: #28a745;
+					background: var(--success-alt);
 					color: white;
 					padding: 0.25rem 0.5rem;
 					border-radius: 4px;
@@ -1725,7 +1725,7 @@ const FoodItem = ({
 				}
 
 				.get-nutrition-btn {
-					background: #28a745;
+					background: var(--success-alt);
 					color: white;
 					border: none;
 					padding: 0.25rem 0.5rem;
@@ -1745,7 +1745,7 @@ const FoodItem = ({
 
 				.calories {
 					font-weight: bold;
-					color: #3498db;
+					color: var(--primary-color);
 				}
 
 				.details-btn {
@@ -1780,7 +1780,7 @@ const FoodItem = ({
 
 				.info-text {
 					font-size: 0.8rem;
-					color: #28a745;
+					color: var(--success-alt);
 					font-style: italic;
 					display: block;
 					margin-bottom: 0.25rem;
@@ -1843,8 +1843,8 @@ const FoodItem = ({
 
 				.quantity-field:focus {
 					outline: none;
-					border-color: #3498db;
-					box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+					border-color: var(--primary-color);
+					box-shadow: var(--shadow-focus);
 				}
 
 				.quantity-field:hover {
@@ -1865,7 +1865,7 @@ const FoodItem = ({
 				.calc-value {
 					font-size: 1.2rem;
 					font-weight: bold;
-					color: #2ecc71;
+					color: var(--success-color);
 				}
 
 				.calc-label {

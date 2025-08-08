@@ -3,7 +3,7 @@
 	padding: 12px 16px;
 	margin-bottom: 8px;
 	border-radius: 8px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	box-shadow: var(--shadow-notification);
 	cursor: pointer;
 	transition: all 0.3s ease;
 	animation: slideInRight 0.3s ease-out;
@@ -13,7 +13,7 @@
 
 .notification:hover {
 	transform: translateX(-4px);
-	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+	box-shadow: var(--shadow-notification-hover);
 }
 
 .notification__content {
@@ -57,28 +57,28 @@
 }
 
 .notification__close:hover {
-	background-color: rgba(255, 255, 255, 0.2);
+	background-color: var(--text-white-overlay);
 }
 
 /* 不同类型的通知样式 */
 .notification--success {
-	background-color: #28a745;
-	color: white;
+	background-color: var(--notification-success);
+	color: var(--text-white);
 }
 
 .notification--error {
-	background-color: #ef4444;
-	color: white;
+	background-color: var(--notification-error);
+	color: var(--text-white);
 }
 
 .notification--warning {
-	background-color: #f59e0b;
-	color: white;
+	background-color: var(--notification-warning);
+	color: var(--text-white);
 }
 
 .notification--info {
-	background-color: #3b82f6;
-	color: white;
+	background-color: var(--notification-info);
+	color: var(--text-white);
 }
 
 /* 动画 */

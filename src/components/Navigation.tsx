@@ -42,7 +42,7 @@ const Navigation = ({ onLogout, onLoginRequired, isAuthenticated }: NavigationPr
 						{item.requiresAuth && !isAuthenticated ? (
 							<span
 								className="nav-link disabled"
-								onClick={(e) => handleNavClick(item.path, item.requiresAuth, e)}
+								onClick={e => handleNavClick(item.path, item.requiresAuth, e)}
 							>
 								<span className="nav-icon">{item.icon}</span>
 								<span className="nav-label">{item.label}</span>
@@ -52,7 +52,7 @@ const Navigation = ({ onLogout, onLoginRequired, isAuthenticated }: NavigationPr
 							<Link
 								to={item.path}
 								className="nav-link"
-								onClick={(e) => handleNavClick(item.path, item.requiresAuth, e)}
+								onClick={e => handleNavClick(item.path, item.requiresAuth, e)}
 							>
 								<span className="nav-icon">{item.icon}</span>
 								<span className="nav-label">{item.label}</span>

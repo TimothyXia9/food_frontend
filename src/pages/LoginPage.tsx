@@ -259,7 +259,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 				.login-card {
 					background: white;
 					border-radius: 12px;
-					box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+					box-shadow: var(--shadow-heavy);
 					padding: 2rem;
 					width: 100%;
 					max-width: 400px;
@@ -301,7 +301,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 				}
 
 				.tab-btn.active {
-					background: #3498db;
+					background: var(--primary-color);
 					color: white;
 				}
 

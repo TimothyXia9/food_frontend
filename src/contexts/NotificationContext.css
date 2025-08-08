@@ -5,7 +5,7 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: var(--bg-modal);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -14,9 +14,9 @@
 }
 
 .confirm-dialog {
-	background: white;
+	background: var(--bg-primary);
 	border-radius: 12px;
-	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+	box-shadow: var(--shadow-heavy);
 	max-width: 400px;
 	width: 90%;
 	animation: slideUp 0.3s ease-out;
@@ -30,7 +30,7 @@
 	margin: 0 0 20px 0;
 	font-size: 16px;
 	line-height: 1.5;
-	color: #374151;
+	color: var(--text-tertiary);
 	text-align: center;
 }
 
@@ -52,21 +52,21 @@
 }
 
 .confirm-dialog__button--cancel {
-	background-color: #f3f4f6;
-	color: #374151;
+	background-color: var(--bg-secondary);
+	color: var(--text-tertiary);
 }
 
 .confirm-dialog__button--cancel:hover {
-	background-color: #e5e7eb;
+	background-color: var(--bg-tertiary);
 }
 
 .confirm-dialog__button--confirm {
-	background-color: #3b82f6;
-	color: white;
+	background-color: var(--info-color);
+	color: var(--text-white);
 }
 
 .confirm-dialog__button--confirm:hover {
-	background-color: #2563eb;
+	background-color: var(--info-hover);
 }
 
 /* 动画 */

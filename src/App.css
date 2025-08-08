@@ -2,7 +2,7 @@
 	display: flex;
 	flex-direction: column;
 	height: 100vh;
-	background-color: #f5f5f5;
+	background-color: var(--bg-secondary);
 	overflow: hidden;
 }
 
@@ -18,13 +18,13 @@
 
 /* Navigation Styles */
 .navigation {
-	background-color: #2c3e50;
-	color: white;
+	background-color: var(--secondary-color);
+	color: var(--text-white);
 	padding: 1rem 2rem;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	box-shadow: var(--shadow-light);
 	position: sticky;
 	top: 0;
 	z-index: 100;
@@ -33,7 +33,7 @@
 .nav-brand {
 	font-size: 1.5rem;
 	font-weight: bold;
-	color: #3498db;
+	color: var(--primary-color);
 }
 
 .nav-menu {
@@ -49,7 +49,7 @@
 }
 
 .nav-item.active .nav-link {
-	background-color: #3498db;
+	background-color: var(--primary-color);
 }
 
 .nav-item.disabled {
@@ -62,7 +62,7 @@
 }
 
 .nav-link {
-	color: white;
+	color: var(--text-white);
 	text-decoration: none;
 	display: flex;
 	align-items: center;
@@ -77,17 +77,17 @@
 }
 
 .nav-link:hover {
-	color: white;
+	color: var(--text-white);
 	text-decoration: none;
-	background-color: #34495e;
+	background-color: var(--secondary-hover);
 }
 
 .nav-link:visited {
-	color: white;
+	color: var(--text-white);
 }
 
 .nav-link.disabled {
-	color: rgba(255, 255, 255, 0.6);
+	color: var(--text-white-muted);
 	text-decoration: none;
 	cursor: not-allowed;
 	padding: 0.5rem 1rem;
@@ -116,8 +116,8 @@
 }
 
 .login-btn {
-	background: #3498db;
-	color: white;
+	background: var(--primary-color);
+	color: var(--text-white);
 	border: none;
 	padding: 0.5rem 1rem;
 	border-radius: 4px;
@@ -126,7 +126,7 @@
 }
 
 .login-btn:hover {
-	background: #2980b9;
+	background: var(--primary-hover);
 }
 
 .nav-user {
@@ -136,8 +136,8 @@
 }
 
 .logout-btn {
-	background: #e74c3c;
-	color: white;
+	background: var(--danger-btn);
+	color: var(--text-white);
 	border: none;
 	padding: 0.5rem 1rem;
 	border-radius: 4px;
@@ -146,14 +146,14 @@
 }
 
 .logout-btn:hover {
-	background: #c0392b;
+	background: var(--danger-hover);
 }
 
 /* Common Card Styles */
 .card {
-	background: white;
+	background: var(--bg-primary);
 	border-radius: 8px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	box-shadow: var(--shadow-medium);
 	padding: 1.5rem;
 	margin-bottom: 1rem;
 }
@@ -164,13 +164,13 @@
 	align-items: center;
 	margin-bottom: 1rem;
 	padding-bottom: 0.5rem;
-	border-bottom: 1px solid #eee;
+	border-bottom: 1px solid var(--border-light);
 }
 
 .card-title {
 	font-size: 1.2rem;
 	font-weight: bold;
-	color: #2c3e50;
+	color: var(--secondary-color);
 	margin: 0;
 }
 
@@ -185,39 +185,39 @@
 }
 
 .btn-primary {
-	background-color: #3498db;
-	color: white;
+	background-color: var(--primary-color);
+	color: var(--text-white);
 }
 
 .btn-primary:hover {
-	background-color: #2980b9;
+	background-color: var(--primary-hover);
 }
 
 .btn-success {
-	background-color: #2ecc71;
-	color: white;
+	background-color: var(--success-color);
+	color: var(--text-white);
 }
 
 .btn-success:hover {
-	background-color: #27ae60;
+	background-color: var(--success-hover);
 }
 
 .btn-warning {
-	background-color: #f39c12;
-	color: white;
+	background-color: var(--warning-color);
+	color: var(--text-white);
 }
 
 .btn-warning:hover {
-	background-color: #e67e22;
+	background-color: var(--warning-hover);
 }
 
 .btn-danger {
-	background-color: #e74c3c;
-	color: white;
+	background-color: var(--danger-btn);
+	color: var(--text-white);
 }
 
 .btn-danger:hover {
-	background-color: #c0392b;
+	background-color: var(--danger-hover);
 }
 
 /* Form Styles */
@@ -229,13 +229,13 @@
 	display: block;
 	margin-bottom: 0.5rem;
 	font-weight: 500;
-	color: #2c3e50;
+	color: var(--secondary-color);
 }
 
 .form-input {
 	width: 100%;
 	padding: 0.5rem;
-	border: 1px solid #ddd;
+	border: 1px solid var(--border-medium);
 	border-radius: 4px;
 	font-size: 1rem;
 	transition: border-color 0.3s;
@@ -243,8 +243,8 @@
 
 .form-input:focus {
 	outline: none;
-	border-color: #3498db;
-	box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+	border-color: var(--primary-color);
+	box-shadow: var(--shadow-focus);
 }
 
 /* Grid Styles */
@@ -292,17 +292,17 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: var(--bg-loading);
 	overflow: hidden;
 }
 
 .loading-spinner {
-	background: white;
+	background: var(--bg-primary);
 	border-radius: 12px;
 	padding: 2rem 3rem;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+	box-shadow: var(--shadow-heavy);
 	font-size: 1.2rem;
-	color: #2c3e50;
+	color: var(--secondary-color);
 	animation: pulse 1.5s ease-in-out infinite;
 }
 

@@ -307,7 +307,7 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 					padding: 3rem;
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 				}
 
 				.not-authenticated h2 {
@@ -349,7 +349,7 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 				}
 
 				.period-btn.active {
-					background: #3498db;
+					background: var(--primary-color);
 					color: white;
 				}
 
@@ -361,11 +361,11 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 					padding: 1rem;
 					background: white;
 					border-radius: 8px;
-					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+					box-shadow: var(--shadow-medium);
 				}
 
 				.nav-btn {
-					background: #3498db;
+					background: var(--primary-color);
 					color: white;
 					border: none;
 					padding: 0.5rem 1rem;
@@ -424,11 +424,11 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 				}
 
 				.overview-value.negative {
-					color: #2ecc71;
+					color: var(--success-color);
 				}
 
 				.overview-value.positive {
-					color: #e74c3c;
+					color: var(--danger-btn);
 				}
 
 				.overview-label {
@@ -476,11 +476,11 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 				}
 
 				.chart-bar.below-goal {
-					background: #3498db;
+					background: var(--primary-color);
 				}
 
 				.chart-bar.above-goal {
-					background: #e74c3c;
+					background: var(--danger-btn);
 				}
 
 				.chart-label {
@@ -509,11 +509,11 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 				}
 
 				.legend-color.below-goal {
-					background: #3498db;
+					background: var(--primary-color);
 				}
 
 				.legend-color.above-goal {
-					background: #e74c3c;
+					background: var(--danger-btn);
 				}
 
 				.nutrition-trends-grid {
@@ -584,7 +584,7 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 
 				.achievement-item.achieved {
 					background: #d4edda;
-					border-left: 4px solid #28a745;
+					border-left: 4px solid var(--success-alt);
 				}
 
 				.achievement-item.locked {
@@ -617,7 +617,7 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 				}
 
 				.achievement-badge {
-					color: #28a745;
+					color: var(--success-alt);
 					font-size: 1.5rem;
 					font-weight: bold;
 				}
