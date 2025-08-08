@@ -20,20 +20,20 @@ This is a full-stack calorie tracking web application that allows users to uploa
 
 ### ✨ Latest Features (Updated: 2025-01-18)
 
--   **🎨 Custom Notification System** - Beautiful toast notifications replacing all browser alerts
--   **✅ User Foods API Fix** - Fixed backend API for retrieving user-created custom foods
--   **🔧 Database Structure Optimization** - Removed unnecessary category dependencies
--   **📱 Responsive UI Components** - Improved mobile-friendly notification display
--   **🎯 Enhanced UX** - Smooth animations and consistent visual feedback
+- **🎨 Custom Notification System** - Beautiful toast notifications replacing all browser alerts
+- **✅ User Foods API Fix** - Fixed backend API for retrieving user-created custom foods
+- **🔧 Database Structure Optimization** - Removed unnecessary category dependencies
+- **📱 Responsive UI Components** - Improved mobile-friendly notification display
+- **🎯 Enhanced UX** - Smooth animations and consistent visual feedback
 
 ## Tech Stack
 
--   **Frontend**: React 18.2.0 with TypeScript 4.9.5
--   **Backend**: Django 4.2.16 with Django REST Framework
--   **AI/ML**: OpenAI GPT-4 Vision API for food recognition
--   **Data Source**: USDA FoodData Central API for nutrition data
--   **Authentication**: JWT tokens with refresh and blacklisting
--   **Database**: SQLite (development)
+- **Frontend**: React 18.2.0 with TypeScript 4.9.5
+- **Backend**: Django 4.2.16 with Django REST Framework
+- **AI/ML**: OpenAI GPT-4 Vision API for food recognition
+- **Data Source**: USDA FoodData Central API for nutrition data
+- **Authentication**: JWT tokens with refresh and blacklisting
+- **Database**: SQLite (development)
 
 ## Project Structure
 
@@ -85,26 +85,26 @@ This is a full-stack calorie tracking web application that allows users to uploa
 
 ### Two-Stage Food Analysis System
 
--   **Stage 1**: Fast food identification and portion estimation using OpenAI Vision API
--   **Stage 2**: Parallel USDA nutrition data retrieval for accurate nutritional information
--   Centralized OpenAI service with API key rotation and error handling
+- **Stage 1**: Fast food identification and portion estimation using OpenAI Vision API
+- **Stage 2**: Parallel USDA nutrition data retrieval for accurate nutritional information
+- Centralized OpenAI service with API key rotation and error handling
 
 ### Complete API Service Layer
 
 The frontend has a fully implemented service layer with:
 
--   **Authentication**: JWT token management with automatic refresh
--   **Food Management**: Search, CRUD operations, USDA integration
--   **Meal Tracking**: Create meals, track daily intake, get summaries
--   **Image Processing**: Upload images, get AI analysis results
--   **Statistics**: Daily/weekly/monthly nutrition summaries
+- **Authentication**: JWT token management with automatic refresh
+- **Food Management**: Search, CRUD operations, USDA integration
+- **Meal Tracking**: Create meals, track daily intake, get summaries
+- **Image Processing**: Upload images, get AI analysis results
+- **Statistics**: Daily/weekly/monthly nutrition summaries
 
 ### Django Apps Architecture
 
--   **accounts**: User authentication, profiles, activity logging
--   **foods**: Food database, categories, search with USDA integration
--   **meals**: Meal tracking, daily summaries, statistics
--   **images**: Image upload and OpenAI-powered food recognition
+- **accounts**: User authentication, profiles, activity logging
+- **foods**: Food database, categories, search with USDA integration
+- **meals**: Meal tracking, daily summaries, statistics
+- **images**: Image upload and OpenAI-powered food recognition
 
 ## Common Development Commands
 
