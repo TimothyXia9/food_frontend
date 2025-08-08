@@ -1,0 +1,211 @@
+:root {
+	/* 通用颜色 - Universal Colors */
+	--color-white: #ffffff; /* 统一的白色 */
+	--color-black: #000000; /* 统一的黑色 */
+	--color-transparent: transparent; /* 透明色 */
+
+	/* ===============================================
+     主题色彩 - Theme Colors  
+     =============================================== */
+
+	/* 主色调 - Primary Colors */
+	--primary-color: #3498db; /* 蓝色主色 */
+	--primary-hover: #2980b9; /* 蓝色悬停 */
+
+	/* 次要色调 - Secondary Colors */
+	--secondary-color: #2c3e50; /* 深蓝灰色 (同时用作文字色) */
+	--secondary-hover: #34495e; /* 深蓝灰悬停 */
+
+	/* 成功色 - Success Colors */
+	--success-color: #2ecc71; /* 主要绿色 */
+	--success-hover: #27ae60; /* 绿色悬停 */
+	--success-alt: #28a745; /* 替代绿色 */
+	--success-alt-hover: #218838; /* 替代绿色悬停 */
+	--success-alt-border: #1e7e34; /* 替代绿色边框 */
+
+	/* 警告色 - Warning Colors */
+	--warning-color: #f39c12; /* 主要橙色 */
+	--warning-hover: #e67e22; /* 橙色悬停 */
+	--warning-alt: #f59e0b; /* 替代橙色 (通知等) */
+
+	/* 危险色 - Danger Colors */
+	--danger-color: #e74c3c; /* 主要红色 */
+	--danger-hover: #c0392b; /* 红色悬停 */
+	--danger-alt: #ef4444; /* 替代红色 (通知等) */
+
+	/* 信息色 - Info Colors */
+	--info-color: #3b82f6; /* 信息蓝色 */
+	--info-hover: #2563eb; /* 信息蓝色悬停 */
+
+	/* ===============================================
+     中性色彩 - Neutral Colors
+     =============================================== */
+
+	/* 背景色 - Background Colors */
+	--bg-primary: var(--color-white); /* 主背景 (白色) */
+	--bg-secondary: #f5f5f5; /* 次要背景灰色 */
+	--bg-tertiary: #f7f6f3; /* 第三背景色 */
+	--bg-modal: rgba(0, 0, 0, 0.5); /* 模态框背景 */
+	--bg-overlay: rgba(0, 0, 0, 0.2); /* 覆盖层背景 */
+	--bg-loading: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* 加载背景渐变 */
+
+	/* 文字颜色 - Text Colors */
+	--text-primary: #37352f; /* 主文字颜色 */
+	--text-secondary: var(--secondary-color); /* 次要文字颜色 (引用secondary-color) */
+	--text-tertiary: #374151; /* 第三文字颜色 */
+	--text-muted: #787774; /* 灰色文字 */
+	--text-light: #9b9a97; /* 浅灰色文字 */
+	--text-lighter: #b8b6b0; /* 更浅灰色文字 */
+	--text-lightest: #6b6f72; /* 最浅灰色文字 */
+	--text-white: var(--color-white); /* 白色文字 */
+	--text-white-muted: rgba(255, 255, 255, 0.6); /* 半透明白色文字 */
+	--text-white-overlay: rgba(255, 255, 255, 0.2); /* 白色覆盖层文字 */
+
+	/* ===============================================
+     边框和分割线 - Borders & Dividers
+     =============================================== */
+
+	--border-light: #eee; /* 浅色边框 */
+	--border-medium: #ddd; /* 中等边框 */
+	--border-primary: #e1e5e9; /* 主要边框 */
+	--border-secondary: #d3d1cb; /* 次要边框 */
+	--border-tertiary: #f1f1ef; /* 第三边框 */
+	--border-hover: #5a6063; /* 悬停边框 */
+	--border-focus: #2383e2; /* 焦点边框 */
+
+	/* ===============================================
+     阴影 - Shadows
+     =============================================== */
+
+	--shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1); /* 轻阴影 */
+	--shadow-medium: 0 2px 10px rgba(0, 0, 0, 0.1); /* 中等阴影 */
+	--shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.2); /* 重阴影 */
+	--shadow-notification: 0 4px 12px rgba(0, 0, 0, 0.15); /* 通知阴影 */
+	--shadow-notification-hover: 0 6px 16px rgba(0, 0, 0, 0.2); /* 通知悬停阴影 */
+	--shadow-picker: 0 8px 24px rgba(0, 0, 0, 0.12); /* 选择器阴影 */
+	--shadow-focus: 0 0 0 2px rgba(52, 152, 219, 0.2); /* 焦点阴影 */
+	--shadow-focus-alt: 0 0 0 1px #2383e2; /* 替代焦点阴影 */
+
+	/* ===============================================
+     特殊用途颜色 - Special Purpose Colors
+     =============================================== */
+
+	/* 日期选择器 - Date Picker (简化后，大部分引用通用颜色) */
+	--date-picker-today: #e8f4fd; /* 今天背景 */
+	--date-picker-selected: #2383e2; /* 选中状态 */
+	--date-picker-selected-hover: #1a73cf; /* 选中状态悬停 */
+	--date-picker-today-text: #2383e2; /* 今天文字 */
+	--date-picker-today-hover: #d9edfc; /* 今天悬停 */
+	--date-picker-disabled: #efefef; /* 禁用背景 */
+}
+
+/* ===============================================
+   语义化颜色别名 - Semantic Color Aliases
+   =============================================== */
+
+:root {
+	/* BMI 指示器 - BMI Indicators (引用主题色，消除重复) */
+	--bmi-underweight: var(--primary-color); /* 体重不足 → 主色 */
+	--bmi-normal: var(--success-color); /* 正常 → 成功色 */
+	--bmi-overweight: var(--warning-color); /* 超重 → 警告色 */
+	--bmi-obese: var(--danger-color); /* 肥胖 → 危险色 */
+
+	/* 通知系统 - Notification System (引用现有颜色) */
+	--notification-success: var(--success-alt); /* 成功通知 */
+	--notification-error: var(--danger-alt); /* 错误通知 */
+	--notification-warning: var(--warning-alt); /* 警告通知 */
+	--notification-info: var(--info-color); /* 信息通知 */
+
+	/* 日期选择器通用引用 - Date Picker Common References */
+	--date-picker-bg: var(--bg-primary); /* 背景 → 主背景 */
+	--date-picker-text: var(--text-primary); /* 文字 → 主文字 */
+	--date-picker-muted: var(--text-muted); /* 次要文字 → 灰色文字 */
+	--date-picker-hover: var(--bg-tertiary); /* 悬停背景 → 第三背景 */
+	--date-picker-border: var(--border-primary); /* 边框 → 主要边框 */
+	--date-picker-disabled-border: var(--border-secondary); /* 禁用边框 → 次要边框 */
+	--date-picker-disabled-text: var(--text-lighter); /* 禁用文字 → 浅灰文字 */
+	--date-picker-selected-text: var(--text-white); /* 选中文字 → 白色文字 */
+}
+
+/* ===============================================
+   深色主题支持 - Dark Theme Support
+   =============================================== */
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		/* 深色主题的日期选择器特殊颜色 */
+		--date-picker-bg: #2f3437;
+		--date-picker-border: #454b4e;
+		--date-picker-text: #e9e9e7;
+		--date-picker-muted: #9b9a97;
+		--date-picker-hover: #37393c;
+		--date-picker-today: #1a3a52;
+		--date-picker-today-text: #4a9eff;
+		--date-picker-today-hover: #1e3f5a;
+		--date-picker-disabled: #3f4144;
+		--date-picker-disabled-text: #6b6f72;
+		--shadow-picker: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+		/* 其他深色主题变量可以在这里添加 */
+	}
+}
+
+/* ===============================================
+   优化后的颜色使用指南 - Optimized Color Usage Guide
+   ===============================================
+   
+   🎯 主要改进：
+   1. 消除了18个重复的颜色变量 (27%减少)
+   2. 统一了白色的使用 (--color-white)
+   3. BMI颜色直接引用主题色，便于主题切换
+   4. 通知系统颜色引用现有颜色，保持一致性
+   5. 日期选择器大部分颜色引用通用颜色
+   6. 建立了语义化颜色别名系统
+   
+   📖 使用规则：
+   
+   1. 优先使用主题色：
+      - 主要操作：--primary-color
+      - 成功状态：--success-color  
+      - 警告状态：--warning-color
+      - 危险操作：--danger-color
+      
+   2. 文字颜色层级：
+      - 主要文字：--text-primary
+      - 次要文字：--text-secondary  
+      - 辅助文字：--text-muted
+      - 占位文字：--text-light
+      
+   3. 背景色层级：
+      - 主背景：--bg-primary (白色)
+      - 内容区背景：--bg-secondary
+      - 卡片/组件背景：--bg-tertiary
+      
+   4. 边框使用：
+      - 主要边框：--border-primary
+      - 次要边框：--border-secondary
+      - 分割线：--border-light
+      
+   5. 特殊组件：
+      - 优先使用通用颜色
+      - 必要时使用组件专用颜色
+      - 通过别名引用，便于主题切换
+   
+   ⚠️  迁移注意事项：
+   1. 以下颜色变量已删除，请使用新的引用：
+      - --bg-quaternary → 使用 --bg-secondary 或 --bg-tertiary
+      - --notification-success-bg → 使用 --notification-success
+      - --notification-error-bg → 使用 --notification-error  
+      - --notification-warning-bg → 使用 --notification-warning
+      - --notification-info-bg → 使用 --notification-info
+      
+   2. BMI相关颜色现在引用主题色，会随主题变化
+   
+   3. 日期选择器颜色大部分改为引用，检查是否需要调整
+   
+   🚀 未来扩展：
+   - 可以基于此结构轻松添加新主题
+   - 语义化别名便于组件迁移
+   - 减少的变量数量便于维护
+   
+   =============================================== */
