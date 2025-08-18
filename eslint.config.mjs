@@ -34,18 +34,17 @@ export default tseslint.config(
 			semi: ["error", "always"],
 			quotes: ["warn", "double"],
 			// 移除 indent 规则，让 Prettier 处理缩进
-			// indent: ["warn", "tab"],
-			indent: [
-				"warn",
-				"tab",
-				{
-					SwitchCase: 1, // switch case 缩进 1 个 tab
-					MemberExpression: 1,
-					FunctionDeclaration: { parameters: 1 },
-					FunctionExpression: { parameters: 1 },
-					CallExpression: { arguments: 1 },
-				},
-			],
+			// indent: [
+			// 	"warn",
+			// 	"tab",
+			// 	{
+			// 		SwitchCase: 1, // switch case 缩进 1 个 tab
+			// 		MemberExpression: 1,
+			// 		FunctionDeclaration: { parameters: 1 },
+			// 		FunctionExpression: { parameters: 1 },
+			// 		CallExpression: { arguments: 1 },
+			// 	},
+			// ],
 			"comma-trailing": "off",
 		},
 	},
