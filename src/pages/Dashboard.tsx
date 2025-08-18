@@ -17,8 +17,12 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	const todayDate = new Date(getCurrentLocalDate()).toLocaleDateString("zh-CN");
 
 	// Image recognition related state
-	const [imageRecognitionHistory, setImageRecognitionHistory] = useState<any[]>([]);
-	const [currentImagePreview, setCurrentImagePreview] = useState<string | null>(null);
+	const [imageRecognitionHistory, setImageRecognitionHistory] = useState<any[]>(
+		[]
+	);
+	const [currentImagePreview, setCurrentImagePreview] = useState<string | null>(
+		null
+	);
 	const [currentImageId, setCurrentImageId] = useState<number | null>(null);
 
 	// Streaming analysis state
@@ -161,14 +165,16 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 
 		if (results && results.keywords && results.keywords.length > 0) {
 			// 使用关键词创建简化的食物数据
-			const recognizedFoods = results.keywords.map((keyword: string, index: number) => ({
-				id: index + 1,
-				name: keyword,
-				imageId,
-				recognizedAt: new Date().toLocaleString("zh-CN"),
-				calories_per_100g: 100, // 模拟数据
-				isKeyword: true, // 标记这是关键词结果
-			}));
+			const recognizedFoods = results.keywords.map(
+				(keyword: string, index: number) => ({
+					id: index + 1,
+					name: keyword,
+					imageId,
+					recognizedAt: new Date().toLocaleString("zh-CN"),
+					calories_per_100g: 100, // 模拟数据
+					isKeyword: true, // 标记这是关键词结果
+				})
+			);
 
 			// 添加到识别历史
 			const historyItem = {
@@ -180,18 +186,22 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]); // 只保留最近5次
 
 			// 显示成功消息
-			showSuccess(`${t("dashboard.analysisComplete")}: ${recognizedFoods.length} ${t("dashboard.foodCount")}`);
+			showSuccess(
+				`${t("dashboard.analysisComplete")}: ${recognizedFoods.length} ${t("dashboard.foodCount")}`
+			);
 		} else if (results && results.portions && results.portions.length > 0) {
 			// 处理新的portions格式的识别结果
-			const recognizedFoods = results.portions.map((portion: any, index: number) => ({
-				id: index + 1,
-				name: portion.name,
-				estimated_grams: portion.estimated_grams,
-				cooking_method: portion.cooking_method,
-				imageId,
-				recognizedAt: new Date().toLocaleString("zh-CN"),
-				isKeyword: false,
-			}));
+			const recognizedFoods = results.portions.map(
+				(portion: any, index: number) => ({
+					id: index + 1,
+					name: portion.name,
+					estimated_grams: portion.estimated_grams,
+					cooking_method: portion.cooking_method,
+					imageId,
+					recognizedAt: new Date().toLocaleString("zh-CN"),
+					isKeyword: false,
+				})
+			);
 
 			const historyItem = {
 				imageId,
@@ -253,16 +263,16 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			console.log("Adding barcode food to meal:", food);
 
 			// 暂时显示成功信息，提示用户食物可用
-			showSuccess(
-				`${food.name} ${t("dashboard.addToMealSuccess")} ID:${food.id}`
-			);
+			showSuccess(`${food.name} ${t("dashboard.addToMealSuccess")} ID:${food.id}`);
 
 			// TODO: 实现具体的添加到餐食逻辑
 			// 例如：打开添加食物模态框，预填食物信息
 			// 或者：直接创建一个新的餐食并添加该食物
 		} catch (err) {
 			console.error("Error adding barcode food to meal:", err);
-			showError(`${t("dashboard.addToMealError")}: ${err instanceof Error ? err.message : t("api.unknownError")}`);
+			showError(
+				`${t("dashboard.addToMealError")}: ${err instanceof Error ? err.message : t("api.unknownError")}`
+			);
 		}
 	};
 
@@ -363,9 +373,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 								</div>
 							) : (
 								<>
-									<p className="upload-description">
-										{t("dashboard.uploadImage")}
-									</p>
+									<p className="upload-description">{t("dashboard.uploadImage")}</p>
 									<ImageUpload
 										onImageUploaded={handleImageRecognitionResults}
 										onImagePreview={handleImagePreview}
@@ -423,16 +431,10 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 										<div className="portions-list">
 											{estimatedPortions.map((portion, index) => (
 												<div key={index} className="portion-item">
-													<span className="food-name">
-														{portion.name}:
-													</span>
-													<span className="portion-amount">
-														{portion.estimated_grams}g
-													</span>
+													<span className="food-name">{portion.name}:</span>
+													<span className="portion-amount">{portion.estimated_grams}g</span>
 													{portion.cooking_method && (
-														<span className="portion-desc">
-															({portion.cooking_method})
-														</span>
+														<span className="portion-desc">({portion.cooking_method})</span>
 													)}
 												</div>
 											))}
@@ -452,12 +454,8 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 											<div className="food-info">
 												<div className="food-details">
 													<div className="weight-recommendation">
-														<span className="weight-label">
-															{t("dashboard.portion")}:
-														</span>
-														<span className="weight-amount">
-															{portion.estimated_grams}g
-														</span>
+														<span className="weight-label">{t("dashboard.portion")}:</span>
+														<span className="weight-amount">{portion.estimated_grams}g</span>
 														{portion.cooking_method && (
 															<span className="cooking-method">
 																({portion.cooking_method})
@@ -480,7 +478,8 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 										<div key={index} className="history-item">
 											<div className="history-time">{item.recognizedAt}</div>
 											<div className="history-foods">
-												{t("dashboard.analysisComplete")}: {item.foodCount} {t("dashboard.foodCount")}: {item.foods}
+												{t("dashboard.analysisComplete")}: {item.foodCount}{" "}
+												{t("dashboard.foodCount")}: {item.foods}
 											</div>
 										</div>
 									))}
@@ -540,9 +539,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 									{barcodeResults.barcodes?.map((barcode: any, index: number) => (
 										<div key={index} className="barcode-item">
 											<div className="barcode-data">
-												<span className="barcode-number">
-													{barcode.formatted_data}
-												</span>
+												<span className="barcode-number">{barcode.formatted_data}</span>
 												<span className="barcode-type">{barcode.type}</span>
 											</div>
 										</div>
@@ -553,95 +550,73 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 							{/* 创建的食品信息 */}
 							{barcodeResults.createdFoods?.length > 0 && (
 								<div className="created-foods">
-									<h4>{t("imageUpload.identifiedFoods")} ({barcodeResults.createdFoods.length})</h4>
+									<h4>
+										{t("imageUpload.identifiedFoods")} (
+										{barcodeResults.createdFoods.length})
+									</h4>
 									<div className="foods-list">
-										{barcodeResults.createdFoods.map(
-											(food: any, index: number) => (
-												<div key={index} className="created-food-item">
-													<div className="food-header">
-														<h5>{food.name}</h5>
-														{food.brand && (
-															<span className="food-brand">
-																{food.brand}
-															</span>
-														)}
-														{food.nutrition_grade && (
-															<span
-																className={`nutrition-grade grade-${food.nutrition_grade.toLowerCase()}`}
-															>
-																{food.nutrition_grade.toUpperCase()}
-															</span>
-														)}
-													</div>
-
-													{food.image_url && (
-														<img
-															src={food.image_url}
-															alt={food.name}
-															className="food-image"
-														/>
+										{barcodeResults.createdFoods.map((food: any, index: number) => (
+											<div key={index} className="created-food-item">
+												<div className="food-header">
+													<h5>{food.name}</h5>
+													{food.brand && <span className="food-brand">{food.brand}</span>}
+													{food.nutrition_grade && (
+														<span
+															className={`nutrition-grade grade-${food.nutrition_grade.toLowerCase()}`}
+														>
+															{food.nutrition_grade.toUpperCase()}
+														</span>
 													)}
+												</div>
 
-													<div className="nutrition-summary">
-														<div className="nutrition-grid">
-															<div className="nutrition-item">
-																<span className="label">{t("common.calories")}</span>
-																<span className="value">
-																	{food.calories_per_100g}{" "}
-																	kcal/100g
-																</span>
-															</div>
-															<div className="nutrition-item">
-																<span className="label">
-																	{t("common.protein")}
-																</span>
-																<span className="value">
-																	{food.protein_per_100g}g/100g
-																</span>
-															</div>
-															<div className="nutrition-item">
-																<span className="label">{t("common.fat")}</span>
-																<span className="value">
-																	{food.fat_per_100g}g/100g
-																</span>
-															</div>
-															<div className="nutrition-item">
-																<span className="label">
-																	{t("common.carbs")}
-																</span>
-																<span className="value">
-																	{food.carbs_per_100g}g/100g
-																</span>
-															</div>
+												{food.image_url && (
+													<img src={food.image_url} alt={food.name} className="food-image" />
+												)}
+
+												<div className="nutrition-summary">
+													<div className="nutrition-grid">
+														<div className="nutrition-item">
+															<span className="label">{t("common.calories")}</span>
+															<span className="value">{food.calories_per_100g} kcal/100g</span>
+														</div>
+														<div className="nutrition-item">
+															<span className="label">{t("common.protein")}</span>
+															<span className="value">{food.protein_per_100g}g/100g</span>
+														</div>
+														<div className="nutrition-item">
+															<span className="label">{t("common.fat")}</span>
+															<span className="value">{food.fat_per_100g}g/100g</span>
+														</div>
+														<div className="nutrition-item">
+															<span className="label">{t("common.carbs")}</span>
+															<span className="value">{food.carbs_per_100g}g/100g</span>
 														</div>
 													</div>
-
-													<div className="food-meta">
-														<p>
-															<strong>{t("barcode.scanBarcode")}:</strong> {food.barcode}
-														</p>
-														<p>
-															<strong>{t("common.source", "Source")}:</strong>{" "}
-															{food.data_source}
-														</p>
-														<p>
-															<strong>Food ID:</strong> {food.id}
-														</p>
-													</div>
-
-													<div className="food-actions">
-														<button
-															className="btn btn-primary add-to-meal-btn"
-															onClick={() =>
-																handleAddBarcodeFood(food)
-															}
-														>
-															📝 {t("foodSearch.addToMeal")}
-														</button>
-													</div>
 												</div>
-											)
-										)}
+
+												<div className="food-meta">
+													<p>
+														<strong>{t("barcode.scanBarcode")}:</strong> {food.barcode}
+													</p>
+													<p>
+														<strong>{t("common.source", "Source")}:</strong>{" "}
+														{food.data_source}
+													</p>
+													<p>
+														<strong>Food ID:</strong> {food.id}
+													</p>
+												</div>
+
+												<div className="food-actions">
+													<button
+														className="btn btn-primary add-to-meal-btn"
+														onClick={() => handleAddBarcodeFood(food)}
+													>
+														📝 {t("foodSearch.addToMeal")}
+													</button>
+												</div>
+											</div>
+										))}
 									</div>
 								</div>
 							)}

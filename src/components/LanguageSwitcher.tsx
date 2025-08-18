@@ -19,7 +19,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className }) => {
 		<div className={`language-switcher ${className || ""}`}>
 			<select
 				value={currentLanguage}
-				onChange={(e) => changeLanguage(e.target.value)}
+				onChange={e => changeLanguage(e.target.value)}
 				aria-label="Select Language"
 			>
 				<option value="en">English</option>

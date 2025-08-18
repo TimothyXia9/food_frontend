@@ -10,7 +10,9 @@ interface StatisticsProps {
 const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 	const { t } = useTranslation();
 	const { isAuthenticated } = useAuth();
-	const [selectedPeriod, setSelectedPeriod] = React.useState<"week" | "month" | "year">("week");
+	const [selectedPeriod, setSelectedPeriod] = React.useState<
+		"week" | "month" | "year"
+	>("week");
 	const [currentDate, setCurrentDate] = React.useState(
 		createLocalDate(new Date().toISOString().split("T")[0])
 	);
@@ -30,11 +32,20 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 		fiber: { current: 25, previous: 22, trend: "up" },
 	};
 	const achievements = [
-		{ id: 1, title: t("statistics.achievementsList.streak7Days"), description: t("statistics.achievementsList.streak7DaysDesc"), achieved: true, icon: "🏆" },
+		{
+			id: 1,
+			title: t("statistics.achievementsList.streak7Days"),
+			description: t("statistics.achievementsList.streak7DaysDesc"),
+			achieved: true,
+			icon: "🏆",
+		},
 		{
 			id: 2,
 			title: t("statistics.achievement1", "Reached Calorie Goal"),
-			description: t("statistics.achievement1Desc", "Daily calorie intake on target"),
+			description: t(
+				"statistics.achievement1Desc",
+				"Daily calorie intake on target"
+			),
 			achieved: true,
 			icon: "🎯",
 		},
@@ -45,7 +56,13 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 			achieved: true,
 			icon: "💪",
 		},
-		{ id: 4, title: t("statistics.achievementsList.weightLoss"), description: t("statistics.achievementsList.weightLossDesc"), achieved: true, icon: "📉" },
+		{
+			id: 4,
+			title: t("statistics.achievementsList.weightLoss"),
+			description: t("statistics.achievementsList.weightLossDesc"),
+			achieved: true,
+			icon: "📉",
+		},
 		{
 			id: 5,
 			title: t("statistics.achievementsList.streak30Days"),
@@ -70,7 +87,10 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 			startDate.setDate(currentDate.getDate() - 6);
 			return `${formatDate(startDate)} - ${formatDate(currentDate)}`;
 		} else if (selectedPeriod === "month") {
-			return currentDate.toLocaleDateString("zh-CN", { year: "numeric", month: "long" });
+			return currentDate.toLocaleDateString("zh-CN", {
+				year: "numeric",
+				month: "long",
+			});
 		} else {
 			return currentDate.getFullYear().toString();
 		}
@@ -80,13 +100,16 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 		const avgCalories = Math.round(totalCalories / weeklyData.length);
 		const avgWeight =
 			Math.round(
-				(weeklyData.reduce((sum, day) => sum + day.weight, 0) / weeklyData.length) * 10
+				(weeklyData.reduce((sum, day) => sum + day.weight, 0) / weeklyData.length) *
+					10
 			) / 10;
 		const daysOnTarget = weeklyData.filter(
 			day => day.calories >= day.goal * 0.9 && day.calories <= day.goal * 1.1
 		).length;
 		const weightChange =
-			Math.round((weeklyData[weeklyData.length - 1].weight - weeklyData[0].weight) * 10) / 10;
+			Math.round(
+				(weeklyData[weeklyData.length - 1].weight - weeklyData[0].weight) * 10
+			) / 10;
 
 		return {
 			avgCalories,
@@ -103,7 +126,9 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 		} else if (selectedPeriod === "month") {
 			newDate.setMonth(currentDate.getMonth() + (direction === "next" ? 1 : -1));
 		} else {
-			newDate.setFullYear(currentDate.getFullYear() + (direction === "next" ? 1 : -1));
+			newDate.setFullYear(
+				currentDate.getFullYear() + (direction === "next" ? 1 : -1)
+			);
 		}
 		setCurrentDate(newDate);
 	};
@@ -151,12 +176,21 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 			<div className="date-navigation">
 				<button onClick={() => navigateDate("prev")} className="nav-btn">
 					← {t("statistics.previous")}
-					{selectedPeriod === "week" ? t("statistics.week") : selectedPeriod === "month" ? t("statistics.month") : t("statistics.year")}
+					{selectedPeriod === "week"
+						? t("statistics.week")
+						: selectedPeriod === "month"
+							? t("statistics.month")
+							: t("statistics.year")}
 				</button>
 				<h2 className="current-period">{getDateRange()}</h2>
 				<button onClick={() => navigateDate("next")} className="nav-btn">
 					{t("statistics.next")}
-					{selectedPeriod === "week" ? t("statistics.week") : selectedPeriod === "month" ? t("statistics.month") : t("statistics.year")} →
+					{selectedPeriod === "week"
+						? t("statistics.week")
+						: selectedPeriod === "month"
+							? t("statistics.month")
+							: t("statistics.year")}{" "}
+					→
 				</button>
 			</div>
 			<div className="stats-grid">
@@ -171,7 +205,9 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 							<div className="overview-icon">🍽️</div>
 							<div className="overview-info">
 								<span className="overview-value">{stats.avgCalories}</span>
-								<span className="overview-label">{t("statistics.averageCalories")}</span>
+								<span className="overview-label">
+									{t("statistics.averageCalories")}
+								</span>
 							</div>
 						</div>
 
@@ -200,7 +236,9 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 									{stats.weightChange > 0 ? "+" : ""}
 									{stats.weightChange}
 								</span>
-								<span className="overview-label">{t("statistics.weightProgress")} ({t("common.kilograms")})</span>
+								<span className="overview-label">
+									{t("statistics.weightProgress")} ({t("common.kilograms")})
+								</span>
 							</div>
 						</div>
 					</div>
@@ -293,9 +331,7 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 								<div className="achievement-icon">{achievement.icon}</div>
 								<div className="achievement-info">
 									<h4 className="achievement-title">{achievement.title}</h4>
-									<p className="achievement-description">
-										{achievement.description}
-									</p>
+									<p className="achievement-description">{achievement.description}</p>
 								</div>
 								{achievement.achieved && <div className="achievement-badge">✓</div>}
 							</div>

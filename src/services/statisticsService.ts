@@ -12,7 +12,9 @@ interface NutritionStatsParams {
 }
 
 class StatisticsService {
-	async getDailySummary(params: DailySummaryParams = {}): Promise<ApiResponse<DailySummary>> {
+	async getDailySummary(
+		params: DailySummaryParams = {}
+	): Promise<ApiResponse<DailySummary>> {
 		return apiClient.get<DailySummary>(
 			"/meals/daily-summary/",
 			params as unknown as Record<string, unknown>
@@ -55,7 +57,11 @@ class StatisticsService {
 		}>("/meals/nutrition-stats/", params as unknown as Record<string, unknown>);
 	}
 
-	async recordWeight(data: { weight: number; date?: string; notes?: string }): Promise<
+	async recordWeight(data: {
+		weight: number;
+		date?: string;
+		notes?: string;
+	}): Promise<
 		ApiResponse<{
 			id: number;
 			weight: number;

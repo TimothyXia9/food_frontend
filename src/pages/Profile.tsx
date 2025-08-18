@@ -118,9 +118,18 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 		return bmi.toFixed(1);
 	};
 	const getBMICategory = (bmi: number) => {
-		if (bmi < 18.5) return { category: t("profile.bmi.underweight"), color: "var(--bmi-underweight)" };
-		if (bmi < 25) return { category: t("profile.bmi.normal"), color: "var(--bmi-normal)" };
-		if (bmi < 30) return { category: t("profile.bmi.overweight"), color: "var(--bmi-overweight)" };
+		if (bmi < 18.5)
+			return {
+				category: t("profile.bmi.underweight"),
+				color: "var(--bmi-underweight)",
+			};
+		if (bmi < 25)
+			return { category: t("profile.bmi.normal"), color: "var(--bmi-normal)" };
+		if (bmi < 30)
+			return {
+				category: t("profile.bmi.overweight"),
+				color: "var(--bmi-overweight)",
+			};
 		return { category: t("profile.bmi.obese"), color: "var(--bmi-obese)" };
 	};
 	const calculateAge = () => {
@@ -128,7 +137,10 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 		const birthDate = new Date(profile.date_of_birth);
 		let age = today.getFullYear() - birthDate.getFullYear();
 		const monthDiff = today.getMonth() - birthDate.getMonth();
-		if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+		if (
+			monthDiff < 0 ||
+			(monthDiff === 0 && today.getDate() < birthDate.getDate())
+		) {
 			age--;
 		}
 		return age;
@@ -270,7 +282,9 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 
 							<div className="info-item">
 								<span className="info-label">{t("profile.age")}</span>
-								<span className="info-value">{age} {t("profile.years")}</span>
+								<span className="info-value">
+									{age} {t("profile.years")}
+								</span>
 							</div>
 							<div className="info-item">
 								<span className="info-label">{t("profile.gender", "Gender")}</span>
@@ -294,7 +308,9 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 					{isEditing ? (
 						<div className="edit-form">
 							<div className="form-group">
-								<label className="form-label">{t("profile.height")} ({t("common.centimeters")})</label>
+								<label className="form-label">
+									{t("profile.height")} ({t("common.centimeters")})
+								</label>
 								<input
 									type="number"
 									value={editProfile.height}
@@ -309,7 +325,9 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 							</div>
 
 							<div className="form-group">
-								<label className="form-label">{t("profile.weight")} ({t("common.kilograms")})</label>
+								<label className="form-label">
+									{t("profile.weight")} ({t("common.kilograms")})
+								</label>
 								<input
 									type="number"
 									step="0.1"
@@ -325,7 +343,9 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 							</div>
 
 							<div className="form-group">
-								<label className="form-label">{t("profile.goalCalories", "Daily Calorie Goal")}</label>
+								<label className="form-label">
+									{t("profile.goalCalories", "Daily Calorie Goal")}
+								</label>
 								<input
 									type="number"
 									value={editProfile.daily_calorie_goal}
@@ -361,9 +381,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 								<div className="stat-item">
 									<div className="stat-icon">🎯</div>
 									<div className="stat-info">
-										<span className="stat-value">
-											{profile.daily_calorie_goal}
-										</span>
+										<span className="stat-value">{profile.daily_calorie_goal}</span>
 										<span className="stat-unit">kcal</span>
 									</div>
 								</div>
@@ -428,17 +446,23 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 					<div className="settings-list">
 						<div className="setting-item">
 							<span className="setting-label">{t("profile.changePassword")}</span>
-							<button className="btn btn-secondary setting-btn">{t("profile.modify")}</button>
+							<button className="btn btn-secondary setting-btn">
+								{t("profile.modify")}
+							</button>
 						</div>
 
 						<div className="setting-item">
 							<span className="setting-label">{t("profile.exportData")}</span>
-							<button className="btn btn-secondary setting-btn">{t("profile.export")}</button>
+							<button className="btn btn-secondary setting-btn">
+								{t("profile.export")}
+							</button>
 						</div>
 
 						<div className="setting-item">
 							<span className="setting-label">{t("profile.deleteAccount")}</span>
-							<button className="btn btn-danger setting-btn">{t("profile.delete")}</button>
+							<button className="btn btn-danger setting-btn">
+								{t("profile.delete")}
+							</button>
 						</div>
 					</div>
 				</div>

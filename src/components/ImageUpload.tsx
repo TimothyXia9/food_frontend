@@ -4,7 +4,11 @@ import { imageService } from "../services/imageService";
 import { useNotification } from "../contexts/NotificationContext";
 
 interface ImageUploadProps {
-	onImageUploaded: (imageId: number, results: any, imagePreview?: string) => void;
+	onImageUploaded: (
+		imageId: number,
+		results: any,
+		imagePreview?: string
+	) => void;
 	onImagePreview?: (imagePreview: string) => void;
 	onStreamingProgress?: (data: {
 		step: string;
@@ -40,7 +44,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 		fileInputRef.current?.click();
 	};
 
-	const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileChange = async (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
 		const file = event.target.files?.[0];
 		if (!file) return;
 
@@ -160,7 +166,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 				}
 
 				const data = analyzeResponse.data;
-				if (data.status === "completed" && data.keywords && data.keywords.length > 0) {
+				if (
+					data.status === "completed" &&
+					data.keywords &&
+					data.keywords.length > 0
+				) {
 					showSuccess(t("photoRecognition.analysisComplete"));
 					setAnalyzing(false);
 					onUploadEnd?.();
@@ -195,7 +205,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 			}
 		} catch (err) {
 			console.error("Image upload analysis failed:", err);
-			showError(err instanceof Error ? err.message : t("photoRecognition.processingFailed"));
+			showError(
+				err instanceof Error ? err.message : t("photoRecognition.processingFailed")
+			);
 			// Clean up preview URL
 			URL.revokeObjectURL(imagePreviewUrl);
 		} finally {

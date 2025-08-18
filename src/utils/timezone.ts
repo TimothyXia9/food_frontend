@@ -13,7 +13,11 @@ export const utcToLocal = (utcTimeString: string): Date => {
 
 	// 确保UTC时间字符串正确解析
 	let timeStr = utcTimeString;
-	if (!timeStr.endsWith("Z") && !timeStr.includes("+") && !timeStr.includes("-", 10)) {
+	if (
+		!timeStr.endsWith("Z") &&
+		!timeStr.includes("+") &&
+		!timeStr.includes("-", 10)
+	) {
 		timeStr += "Z";
 	}
 	return new Date(timeStr);
@@ -25,7 +29,8 @@ export const utcToLocal = (utcTimeString: string): Date => {
  * @returns UTC时间字符串，如 "2025-07-19T15:30:00.000Z"
  */
 export const localToUTC = (localDateTime: Date | string): string => {
-	const date = typeof localDateTime === "string" ? new Date(localDateTime) : localDateTime;
+	const date =
+		typeof localDateTime === "string" ? new Date(localDateTime) : localDateTime;
 	return date.toISOString();
 };
 

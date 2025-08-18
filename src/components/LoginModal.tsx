@@ -10,7 +10,11 @@ interface LoginModalProps {
 	onSuccess?: () => void;
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) => {
+const LoginModal: React.FC<LoginModalProps> = ({
+	isOpen,
+	onClose,
+	onSuccess,
+}) => {
 	const { t } = useTranslation();
 	const [activeTab, setActiveTab] = useState<"login" | "register">("login");
 	const [formData, setFormData] = useState({
@@ -72,7 +76,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 				}
 			} else {
 				const errorMsg =
-					activeTab === "login" ? t("auth.invalidCredentials") : t("auth.registrationFailed", "Registration failed, please check information");
+					activeTab === "login"
+						? t("auth.invalidCredentials")
+						: t(
+								"auth.registrationFailed",
+								"Registration failed, please check information"
+							);
 				setError(errorMsg);
 				showError(errorMsg);
 			}
@@ -102,7 +111,9 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 		<div className="modal-overlay" onClick={onClose}>
 			<div className="modal-content" onClick={e => e.stopPropagation()}>
 				<div className="modal-header">
-					<h2 className="modal-title">{activeTab === "login" ? t("auth.login") : t("auth.register")}</h2>
+					<h2 className="modal-title">
+						{activeTab === "login" ? t("auth.login") : t("auth.register")}
+					</h2>
 					<button className="close-button" onClick={onClose}>
 						×
 					</button>
@@ -191,7 +202,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 					{error && <div className="error-message">{error}</div>}
 
 					<button className="submit-button" type="submit" disabled={loading}>
-						{loading ? t("common.loading") : activeTab === "login" ? t("auth.login") : t("auth.register")}
+						{loading
+							? t("common.loading")
+							: activeTab === "login"
+								? t("auth.login")
+								: t("auth.register")}
 					</button>
 
 					{activeTab === "login" && (

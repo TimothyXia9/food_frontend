@@ -9,7 +9,10 @@ interface AuthContextType {
 	loading: boolean;
 	showLoginModal: boolean;
 	setShowLoginModal: (show: boolean) => void;
-	login: (credentials: { username: string; password: string }) => Promise<boolean>;
+	login: (credentials: {
+		username: string;
+		password: string;
+	}) => Promise<boolean>;
 	setUserData: (user: User, token: string) => void;
 	register: (data: {
 		username: string;
@@ -31,7 +34,9 @@ export const useAuth = () => {
 	return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+	children,
+}) => {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [showLoginModal, setShowLoginModal] = useState(false);
@@ -93,7 +98,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		checkAuthStatus();
 	}, []);
 
-	const login = async (credentials: { username: string; password: string }): Promise<boolean> => {
+	const login = async (credentials: {
+		username: string;
+		password: string;
+	}): Promise<boolean> => {
 		try {
 			const response = await authService.login(credentials);
 			if (response.success && response.data) {

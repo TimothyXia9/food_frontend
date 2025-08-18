@@ -8,7 +8,11 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 import { DateTimePicker } from "../components/DateTimePicker";
 import FoodSearchToolbar from "../components/FoodSearchToolbar";
-import { getCurrentLocalDateTime, createLocalDateTime, localToUTC } from "../utils/timezone";
+import {
+	getCurrentLocalDateTime,
+	createLocalDateTime,
+	localToUTC,
+} from "../utils/timezone";
 
 interface FoodSearchProps {
 	onLoginRequired: () => void;
@@ -175,7 +179,9 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						setMealCart(cartItems);
 					}
 
-					showSuccess(`${t("foodSearch.mealBasketLoaded")}: ${mealData.name || "Unnamed"}`);
+					showSuccess(
+						`${t("foodSearch.mealBasketLoaded")}: ${mealData.name || "Unnamed"}`
+					);
 				} catch (error) {
 					console.error("Error loading editing meal data:", error);
 					showError(t("foodSearch.loadEditMealError"));
@@ -225,7 +231,9 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			if (response.success && response.data) {
 				setUserFoods(response.data.foods);
 			} else {
-				setErrorMessage(response.error?.message || t("foodSearch.getUserFoodsFailed"));
+				setErrorMessage(
+					response.error?.message || t("foodSearch.getUserFoodsFailed")
+				);
 			}
 		} catch (error) {
 			setErrorMessage(t("foodSearch.getUserFoodsError"));
@@ -278,14 +286,18 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		}
 		setMealCart(
 			mealCart.map(item =>
-				item.food.id === foodId ? { ...item, quantity: newQuantity, updated: false } : item
+				item.food.id === foodId
+					? { ...item, quantity: newQuantity, updated: false }
+					: item
 			)
 		);
 	};
 
 	const clearUpdatedStatus = (foodId: number) => {
 		setMealCart(prevCart =>
-			prevCart.map(item => (item.food.id === foodId ? { ...item, updated: false } : item))
+			prevCart.map(item =>
+				item.food.id === foodId ? { ...item, updated: false } : item
+			)
 		);
 	};
 
@@ -382,7 +394,9 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			}
 
 			if (response.success) {
-				showSuccess(`${editingMealId ? t("foodSearch.mealUpdated") : t("foodSearch.mealSaved")}: ${finalMealName}`);
+				showSuccess(
+					`${editingMealId ? t("foodSearch.mealUpdated") : t("foodSearch.mealSaved")}: ${finalMealName}`
+				);
 				// Clear meal cart and localStorage after successful save
 				setMealCart([]);
 				setMealName("");
@@ -394,12 +408,19 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				sessionStorage.removeItem("editingMeal");
 			} else {
 				showError(
-					response.error?.message || (editingMealId ? t("foodSearch.mealUpdateFailed") : t("foodSearch.mealSaveFailed"))
+					response.error?.message ||
+						(editingMealId
+							? t("foodSearch.mealUpdateFailed")
+							: t("foodSearch.mealSaveFailed"))
 				);
 			}
 		} catch (error) {
 			console.error("Save meal error:", error);
-			showError(editingMealId ? t("foodSearch.mealUpdateError") : t("foodSearch.mealSaveError"));
+			showError(
+				editingMealId
+					? t("foodSearch.mealUpdateError")
+					: t("foodSearch.mealSaveError")
+			);
 		} finally {
 			setIsSavingMeal(false);
 		}
@@ -452,7 +473,11 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			}
 
 			if (response.success) {
-				showSuccess(isEditingUserFood ? t("foodSearch.customFoodUpdated") : t("foodSearch.customFoodCreated"));
+				showSuccess(
+					isEditingUserFood
+						? t("foodSearch.customFoodUpdated")
+						: t("foodSearch.customFoodCreated")
+				);
 
 				// Update meal cart if the edited food is in the cart
 				if (isEditingUserFood && response.data && editingFood) {
@@ -467,7 +492,8 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						carbs_per_100g: response.data.carbs_per_100g || foodData.carbs_per_100g,
 						fiber_per_100g: response.data.fiber_per_100g || foodData.fiber_per_100g,
 						sugar_per_100g: response.data.sugar_per_100g || foodData.sugar_per_100g,
-						sodium_per_100g: response.data.sodium_per_100g || foodData.sodium_per_100g,
+						sodium_per_100g:
+							response.data.sodium_per_100g || foodData.sodium_per_100g,
 					};
 
 					// Update cart if this food is in the cart
@@ -493,7 +519,10 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				}
 			} else {
 				setErrorMessage(
-					response.error?.message || (isEditingUserFood ? t("foodSearch.updateFailed") : t("foodSearch.createFailed"))
+					response.error?.message ||
+						(isEditingUserFood
+							? t("foodSearch.updateFailed")
+							: t("foodSearch.createFailed"))
 				);
 			}
 		} catch (error) {
@@ -586,7 +615,10 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 				if (response.data?.removed_from_meals) {
 					impacts.push(
-						t("foodSearch.removedFromMeals", { count: response.data.meal_count, foodCount: response.data.meal_foods_count })
+						t("foodSearch.removedFromMeals", {
+							count: response.data.meal_count,
+							foodCount: response.data.meal_foods_count,
+						})
 					);
 				}
 
@@ -637,7 +669,11 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				<div className="meal-cart-section">
 					{/* Fixed header */}
 					<div className="meal-cart-header-fixed">
-						<h3>{editingMealId ? t("foodSearch.editingBasket") : t("foodSearch.currentBasket")}</h3>
+						<h3>
+							{editingMealId
+								? t("foodSearch.editingBasket")
+								: t("foodSearch.currentBasket")}
+						</h3>
 						<div className="meal-controls">
 							<input
 								type="text"
@@ -687,10 +723,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 												)}
 											</h4>
 											<p>
-												{Math.round(
-													(item.food.calories_per_100g * item.quantity) /
-														100
-												)}{" "}
+												{Math.round((item.food.calories_per_100g * item.quantity) / 100)}{" "}
 												kcal
 											</p>
 											{item.updated && (
@@ -711,10 +744,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 												type="number"
 												value={item.quantity}
 												onChange={e =>
-													handleUpdateCartQuantity(
-														item.food.id,
-														Number(e.target.value)
-													)
+													handleUpdateCartQuantity(item.food.id, Number(e.target.value))
 												}
 												min="1"
 												className="quantity-input-small"
@@ -824,9 +854,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 						{!userFoodsLoading && viewMode === "user" && userFoods.length === 0 && (
 							<div className="empty-message">
-								<p>
-									{t("foodSearch.noCustomFoods")}
-								</p>
+								<p>{t("foodSearch.noCustomFoods")}</p>
 							</div>
 						)}
 
@@ -906,9 +934,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 								<input
 									type="text"
 									value={customFood.name}
-									onChange={e =>
-										setCustomFood({ ...customFood, name: e.target.value })
-									}
+									onChange={e => setCustomFood({ ...customFood, name: e.target.value })}
 									className="form-input"
 									required
 									disabled={loading}
@@ -917,7 +943,9 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 							</div>
 
 							<div className="form-group">
-								<label className="form-label">🔥 {t("foodSearch.caloriesPerServing")} *</label>
+								<label className="form-label">
+									🔥 {t("foodSearch.caloriesPerServing")} *
+								</label>
 								<input
 									type="number"
 									value={customFood.calories}
@@ -933,7 +961,9 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 							<div className="form-row">
 								<div className="form-group">
-									<label className="form-label">{t("common.protein")} ({t("common.grams")})</label>
+									<label className="form-label">
+										{t("common.protein")} ({t("common.grams")})
+									</label>
 									<input
 										type="number"
 										step="0.1"
@@ -957,15 +987,15 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 										type="number"
 										step="0.1"
 										value={customFood.fat}
-										onChange={e =>
-											setCustomFood({ ...customFood, fat: e.target.value })
-										}
+										onChange={e => setCustomFood({ ...customFood, fat: e.target.value })}
 										className="form-input"
 										disabled={loading}
 									/>
 								</div>
 								<div className="form-group">
-									<label className="form-label">{t("common.carbs")} ({t("common.grams")})</label>
+									<label className="form-label">
+										{t("common.carbs")} ({t("common.grams")})
+									</label>
 									<input
 										type="number"
 										step="0.1"
@@ -1036,11 +1066,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 								>
 									{t("common.cancel")}
 								</button>
-								<button
-									type="submit"
-									className="btn btn-primary"
-									disabled={loading}
-								>
+								<button type="submit" className="btn btn-primary" disabled={loading}>
 									{loading
 										? editingFood && editingFood.is_custom
 											? t("foodSearch.updating")
@@ -1454,11 +1480,15 @@ const FoodItem = ({
 
 	// Use nutrition data if available, otherwise use food data
 	const activeFood = nutritionData || food;
-	const calculatedCalories = Math.round((activeFood.calories_per_100g * quantity) / 100);
+	const calculatedCalories = Math.round(
+		(activeFood.calories_per_100g * quantity) / 100
+	);
 	const calculatedProtein =
 		Math.round(((activeFood.protein_per_100g * quantity) / 100) * 10) / 10;
-	const calculatedFat = Math.round(((activeFood.fat_per_100g * quantity) / 100) * 10) / 10;
-	const calculatedCarbs = Math.round(((activeFood.carbs_per_100g * quantity) / 100) * 10) / 10;
+	const calculatedFat =
+		Math.round(((activeFood.fat_per_100g * quantity) / 100) * 10) / 10;
+	const calculatedCarbs =
+		Math.round(((activeFood.carbs_per_100g * quantity) / 100) * 10) / 10;
 
 	const handleGetNutrition = async () => {
 		if (!food.is_usda || !food.fdc_id) return;
@@ -1500,13 +1530,17 @@ const FoodItem = ({
 				<div className="food-badges">
 					{food.is_usda && <span className="usda-badge">USDA</span>}
 					{food.brand && <span className="brand-badge">{food.brand}</span>}
-					{food.is_custom && <span className="custom-badge">{t("foodSearch.custom")}</span>}
+					{food.is_custom && (
+						<span className="custom-badge">{t("foodSearch.custom")}</span>
+					)}
 				</div>
 			</div>
 
 			<div className="food-nutrition">
 				<div className="nutrition-summary">
-					<span className="calories">{activeFood.calories_per_100g || 0} kcal/100g</span>
+					<span className="calories">
+						{activeFood.calories_per_100g || 0} kcal/100g
+					</span>
 					<div className="nutrition-actions">
 						{food.is_usda && activeFood.calories_per_100g === 0 && (
 							<button
@@ -1514,7 +1548,9 @@ const FoodItem = ({
 								className="get-nutrition-btn"
 								disabled={loadingNutrition}
 							>
-								{loadingNutrition ? t("foodSearch.getting") : t("foodSearch.getNutrition")}
+								{loadingNutrition
+									? t("foodSearch.getting")
+									: t("foodSearch.getNutrition")}
 							</button>
 						)}
 						<button
@@ -1529,31 +1565,43 @@ const FoodItem = ({
 				{showDetails && (
 					<div className="nutrition-details">
 						<div className="nutrition-row">
-							<span>{t("common.protein")}: {activeFood.protein_per_100g || 0}g</span>
-							<span>{t("common.fat")}: {activeFood.fat_per_100g || 0}g</span>
-							<span>{t("common.carbs")}: {activeFood.carbs_per_100g || 0}g</span>
+							<span>
+								{t("common.protein")}: {activeFood.protein_per_100g || 0}g
+							</span>
+							<span>
+								{t("common.fat")}: {activeFood.fat_per_100g || 0}g
+							</span>
+							<span>
+								{t("common.carbs")}: {activeFood.carbs_per_100g || 0}g
+							</span>
 						</div>
 						<div className="nutrition-row">
-							<span>{t("common.fiber")}: {activeFood.fiber_per_100g || 0}g</span>
-							<span>{t("common.sugar")}: {activeFood.sugar_per_100g || 0}g</span>
-							<span>{t("common.sodium")}: {activeFood.sodium_per_100g || 0}mg</span>
+							<span>
+								{t("common.fiber")}: {activeFood.fiber_per_100g || 0}g
+							</span>
+							<span>
+								{t("common.sugar")}: {activeFood.sugar_per_100g || 0}g
+							</span>
+							<span>
+								{t("common.sodium")}: {activeFood.sodium_per_100g || 0}mg
+							</span>
 						</div>
 						{food.is_usda && (
 							<div className="usda-details">
 								<div className="nutrition-row">
 									{food.fdc_id && <span>USDA ID: {food.fdc_id}</span>}
-									{food.brand && <span>{t("foodSearch.brand")}: {food.brand}</span>}
+									{food.brand && (
+										<span>
+											{t("foodSearch.brand")}: {food.brand}
+										</span>
+									)}
 								</div>
 								<div className="usda-info">
 									<span className="info-text">{t("foodSearch.usdaSource")}</span>
-									<span className="readonly-text">
-										{t("foodSearch.usdaReadonly")}
-									</span>
+									<span className="readonly-text">{t("foodSearch.usdaReadonly")}</span>
 								</div>
 								<div className="usda-actions">
-									<small className="copy-hint">
-										{t("foodSearch.usdaEditTip")}
-									</small>
+									<small className="copy-hint">{t("foodSearch.usdaEditTip")}</small>
 								</div>
 							</div>
 						)}
@@ -1579,8 +1627,8 @@ const FoodItem = ({
 						<span className="calc-label">kcal</span>
 					</div>
 					<div className="calc-details">
-						{t("common.protein")}: {calculatedProtein}g | {t("common.fat")}: {calculatedFat}g | {t("common.carbs")}:{" "}
-						{calculatedCarbs}g
+						{t("common.protein")}: {calculatedProtein}g | {t("common.fat")}:{" "}
+						{calculatedFat}g | {t("common.carbs")}: {calculatedCarbs}g
 					</div>
 				</div>
 
@@ -1599,18 +1647,13 @@ const FoodItem = ({
 								<>
 									{/* USDA foods are read-only, only allow copying */}
 									<button
-										onClick={() =>
-											isAuthenticated ? onCopy(food) : onLoginRequired()
-										}
+										onClick={() => (isAuthenticated ? onCopy(food) : onLoginRequired())}
 										className="btn btn-info copy-btn"
 										title={t("foodSearch.copyAsCustomTitle")}
 									>
 										{t("foodSearch.copyAsCustom")}
 									</button>
-									<span
-										className="readonly-badge"
-										title={t("foodSearch.readonlyTitle")}
-									>
+									<span className="readonly-badge" title={t("foodSearch.readonlyTitle")}>
 										{t("foodSearch.readonly")}
 									</span>
 								</>

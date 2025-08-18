@@ -25,7 +25,8 @@ const ForgotPassword: React.FC = () => {
 				setEmailSent(true);
 				showSuccess("Password reset email sent successfully!");
 			} else {
-				const errorMsg = response.error?.message || "Failed to send password reset email";
+				const errorMsg =
+					response.error?.message || "Failed to send password reset email";
 				showError(errorMsg);
 			}
 		} catch (err) {
@@ -66,8 +67,8 @@ const ForgotPassword: React.FC = () => {
 								Password Reset Email Sent
 							</h3>
 							<p className="mt-2 text-gray-600">
-								If an account with email <strong>{email}</strong> exists, we've sent
-								you a password reset link. Please check your inbox and follow the
+								If an account with email <strong>{email}</strong> exists, we've sent you
+								a password reset link. Please check your inbox and follow the
 								instructions.
 							</p>
 							<p className="mt-2 text-sm text-gray-500">

@@ -21,13 +21,13 @@ TS2305: Module '"react"' has no exported member 'useState'.
 ### 2. TypeScript 版本兼容性问题
 
 - **发现**：`@types/react` 18.3.23 有条件类型导出：
-    ```json
-    "typesVersions": {
-      "<=5.0": {
-        "*": ["ts5.0/*"]
-      }
+  ```json
+  "typesVersions": {
+    "<=5.0": {
+      "*": ["ts5.0/*"]
     }
-    ```
+  }
+  ```
 - **问题**：TypeScript 4.9.5 被重定向到 `ts5.0/index.d.ts`，而 TypeScript 5.0+ 使用主 `index.d.ts`
 - **尝试**：升级 TypeScript 到 5.x，但与 react-scripts 5.0.1 不兼容
 
@@ -47,14 +47,14 @@ TS2305: Module '"react"' has no exported member 'useState'.
 
 - **关键发现**：`src/types/styled-jsx.d.ts` 文件重新声明了整个 React 模块
 - **问题代码**：
-    ```typescript
-    declare module "react" {
-    	interface HTMLAttributes<T> {
-    		jsx?: boolean;
-    		global?: boolean;
-    	}
-    }
-    ```
+  ```typescript
+  declare module "react" {
+  	interface HTMLAttributes<T> {
+  		jsx?: boolean;
+  		global?: boolean;
+  	}
+  }
+  ```
 - **影响**：这个声明覆盖了原始的 React 类型定义，导致 `useState` 等函数丢失
 
 ## 解决方案

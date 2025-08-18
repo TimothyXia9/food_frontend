@@ -6,7 +6,11 @@ import {
 	AddFoodToMealRequest,
 	UpdateFoodInMealRequest,
 } from "../types/api";
-import { localToUTC, localDateToUTCRange, localDateRangeToUTCRange } from "../utils/timezone";
+import {
+	localToUTC,
+	localDateToUTCRange,
+	localDateRangeToUTCRange,
+} from "../utils/timezone";
 
 interface MealListParams {
 	date?: string;
@@ -18,7 +22,8 @@ interface MealListParams {
 }
 
 // 内部使用的参数接口，包含 UTC 时间参数
-interface InternalMealListParams extends Omit<MealListParams, "date" | "start_date" | "end_date"> {
+interface InternalMealListParams
+	extends Omit<MealListParams, "date" | "start_date" | "end_date"> {
 	start_datetime_utc?: string;
 	end_datetime_utc?: string;
 }
@@ -62,7 +67,10 @@ class MealService {
 		return apiClient.get<Meal>(`/meals/${mealId}/`);
 	}
 
-	async updateMeal(mealId: number, data: CreateMealRequest): Promise<ApiResponse<Meal>> {
+	async updateMeal(
+		mealId: number,
+		data: CreateMealRequest
+	): Promise<ApiResponse<Meal>> {
 		return apiClient.put<Meal>(`/meals/${mealId}/update/`, data);
 	}
 
@@ -94,7 +102,10 @@ class MealService {
 		}
 		// 如果有日期范围参数，转换为 UTC 时间范围
 		else if (params.start_date && params.end_date) {
-			const utcRange = localDateRangeToUTCRange(params.start_date, params.end_date);
+			const utcRange = localDateRangeToUTCRange(
+				params.start_date,
+				params.end_date
+			);
 			processedParams.start_datetime_utc = utcRange.start_datetime_utc;
 			processedParams.end_datetime_utc = utcRange.end_datetime_utc;
 		}
@@ -127,7 +138,12 @@ class MealService {
 		mealId: number,
 		data: AddFoodToMealRequest
 	): Promise<
-		ApiResponse<{ meal_food_id: number; food: object; quantity: number; calories: number }>
+		ApiResponse<{
+			meal_food_id: number;
+			food: object;
+			quantity: number;
+			calories: number;
+		}>
 	> {
 		return apiClient.post<{
 			meal_food_id: number;
@@ -164,14 +180,20 @@ class MealService {
 		start_date: string;
 		end_date: string;
 		meal_template: MealTemplate;
-	}): Promise<ApiResponse<{ meals_created: number; start_date: string; end_date: string }>> {
-		return apiClient.post<{ meals_created: number; start_date: string; end_date: string }>(
-			"/meals/plan/",
-			data
-		);
+	}): Promise<
+		ApiResponse<{ meals_created: number; start_date: string; end_date: string }>
+	> {
+		return apiClient.post<{
+			meals_created: number;
+			start_date: string;
+			end_date: string;
+		}>("/meals/plan/", data);
 	}
 
-	async getMealStatistics(date: string, mealType?: string): Promise<ApiResponse<object>> {
+	async getMealStatistics(
+		date: string,
+		mealType?: string
+	): Promise<ApiResponse<object>> {
 		// 将本地日期转换为 UTC 时间范围
 		const utcRange = localDateToUTCRange(date);
 		const params: MealStatisticsParams = {
@@ -206,7 +228,10 @@ class MealService {
 		return apiClient.get<object>("/meals/daily-summary/", { date });
 	}
 
-	async getNutritionStats(startDate: string, endDate: string): Promise<ApiResponse<object>> {
+	async getNutritionStats(
+		startDate: string,
+		endDate: string
+	): Promise<ApiResponse<object>> {
 		// 将本地日期范围转换为 UTC 时间范围
 		const utcRange = localDateRangeToUTCRange(startDate, endDate);
 		return apiClient.get<object>("/meals/nutrition-stats/", {

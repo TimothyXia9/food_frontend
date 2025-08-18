@@ -51,7 +51,11 @@
 	--bg-tertiary: #edf2f7; /* 第三背景色 (浅灰) */
 	--bg-modal: rgba(0, 0, 0, 0.4); /* 模态框背景 */
 	--bg-overlay: rgba(0, 0, 0, 0.15); /* 覆盖层背景 */
-	--bg-loading: linear-gradient(135deg, #f56565 0%, #ed8936 100%); /* 加载背景渐变 (红橙渐变) */
+	--bg-loading: linear-gradient(
+		135deg,
+		#f56565 0%,
+		#ed8936 100%
+	); /* 加载背景渐变 (红橙渐变) */
 
 	/* 文字颜色 - Text Colors */
 	--text-primary: #2d3748; /* 主文字颜色 (深灰) */
@@ -126,7 +130,9 @@
 	--date-picker-muted: var(--text-muted); /* 次要文字 → 灰色文字 */
 	--date-picker-hover: var(--bg-tertiary); /* 悬停背景 → 第三背景 */
 	--date-picker-border: var(--border-primary); /* 边框 → 主要边框 */
-	--date-picker-disabled-border: var(--border-secondary); /* 禁用边框 → 次要边框 */
+	--date-picker-disabled-border: var(
+		--border-secondary
+	); /* 禁用边框 → 次要边框 */
 	--date-picker-disabled-text: var(--text-lighter); /* 禁用文字 → 浅灰文字 */
 	--date-picker-selected-text: var(--text-white); /* 选中文字 → 白色文字 */
 }

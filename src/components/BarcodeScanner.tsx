@@ -43,7 +43,11 @@ interface CreatedFood {
 	image_url?: string;
 }
 
-const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onBarcodeDetected }) => {
+const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
+	isOpen,
+	onClose,
+	onBarcodeDetected,
+}) => {
 	const [isScanning, setIsScanning] = useState(false);
 	const [scanResults, setScanResults] = useState<{
 		barcodes: BarcodeResult[];
@@ -53,7 +57,9 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onBarc
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const { showSuccess, showError } = useNotification();
 
-	const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileSelect = async (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
 		const file = event.target.files?.[0];
 		if (!file) return;
 
@@ -98,7 +104,9 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onBarc
 
 			for (const barcode of foodBarcodes) {
 				try {
-					const foodResponse = await imageService.createFoodFromBarcode(barcode.data);
+					const foodResponse = await imageService.createFoodFromBarcode(
+						barcode.data
+					);
 					if (foodResponse.success && foodResponse.data?.food) {
 						createdFoods.push(foodResponse.data.food);
 						if (foodResponse.data.is_existing) {
@@ -215,9 +223,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onBarc
 								{scanResults.barcodes.map((barcode, index) => (
 									<div key={index} className="barcode-item">
 										<div className="barcode-info">
-											<span className="barcode-data">
-												{barcode.formatted_data}
-											</span>
+											<span className="barcode-data">{barcode.formatted_data}</span>
 											<span className="barcode-type">{barcode.type}</span>
 										</div>
 									</div>
@@ -233,11 +239,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onBarc
 											<div key={index} className="created-food">
 												<div className="food-header">
 													<h6>{food.name}</h6>
-													{food.brand && (
-														<span className="food-brand">
-															{food.brand}
-														</span>
-													)}
+													{food.brand && <span className="food-brand">{food.brand}</span>}
 													{food.nutrition_grade && (
 														<span
 															className={`nutrition-grade grade-${food.nutrition_grade.toLowerCase()}`}
@@ -248,57 +250,37 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onBarc
 												</div>
 
 												{food.image_url && (
-													<img
-														src={food.image_url}
-														alt={food.name}
-														className="food-image"
-													/>
+													<img src={food.image_url} alt={food.name} className="food-image" />
 												)}
 
 												<div className="nutrition-info">
 													<div className="nutrition-grid">
 														<div className="nutrition-item">
 															<span className="label">热量</span>
-															<span className="value">
-																{food.calories_per_100g} kcal/100g
-															</span>
+															<span className="value">{food.calories_per_100g} kcal/100g</span>
 														</div>
 														<div className="nutrition-item">
 															<span className="label">蛋白质</span>
-															<span className="value">
-																{food.protein_per_100g}g/100g
-															</span>
+															<span className="value">{food.protein_per_100g}g/100g</span>
 														</div>
 														<div className="nutrition-item">
 															<span className="label">脂肪</span>
-															<span className="value">
-																{food.fat_per_100g}g/100g
-															</span>
+															<span className="value">{food.fat_per_100g}g/100g</span>
 														</div>
 														<div className="nutrition-item">
-															<span className="label">
-																碳水化合物
-															</span>
-															<span className="value">
-																{food.carbs_per_100g}g/100g
-															</span>
+															<span className="label">碳水化合物</span>
+															<span className="value">{food.carbs_per_100g}g/100g</span>
 														</div>
 														{food.fiber_per_100g > 0 && (
 															<div className="nutrition-item">
-																<span className="label">
-																	膳食纤维
-																</span>
-																<span className="value">
-																	{food.fiber_per_100g}g/100g
-																</span>
+																<span className="label">膳食纤维</span>
+																<span className="value">{food.fiber_per_100g}g/100g</span>
 															</div>
 														)}
 														{food.sugar_per_100g > 0 && (
 															<div className="nutrition-item">
 																<span className="label">糖分</span>
-																<span className="value">
-																	{food.sugar_per_100g}g/100g
-																</span>
+																<span className="value">{food.sugar_per_100g}g/100g</span>
 															</div>
 														)}
 													</div>
@@ -308,16 +290,12 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ isOpen, onClose, onBarc
 															<strong>条形码:</strong> {food.barcode}
 														</p>
 														<p>
-															<strong>数据来源:</strong>{" "}
-															{food.data_source}
+															<strong>数据来源:</strong> {food.data_source}
 														</p>
 														{food.ingredients && (
 															<p>
-																<strong>成分:</strong>{" "}
-																{food.ingredients.substring(0, 100)}
-																{food.ingredients.length > 100
-																	? "..."
-																	: ""}
+																<strong>成分:</strong> {food.ingredients.substring(0, 100)}
+																{food.ingredients.length > 100 ? "..." : ""}
 															</p>
 														)}
 													</div>

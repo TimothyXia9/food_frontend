@@ -25,7 +25,8 @@ const ResendVerification: React.FC = () => {
 				setEmailSent(true);
 				showSuccess("Verification email sent successfully!");
 			} else {
-				const errorMsg = response.error?.message || "Failed to send verification email";
+				const errorMsg =
+					response.error?.message || "Failed to send verification email";
 				showError(errorMsg);
 			}
 		} catch (err) {
@@ -66,8 +67,8 @@ const ResendVerification: React.FC = () => {
 								Verification Email Sent
 							</h3>
 							<p className="mt-2 text-gray-600">
-								We've sent a new verification email to <strong>{email}</strong>.
-								Please check your inbox and click the verification link.
+								We've sent a new verification email to <strong>{email}</strong>. Please
+								check your inbox and click the verification link.
 							</p>
 							<div className="mt-6">
 								<button

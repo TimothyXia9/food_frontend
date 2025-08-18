@@ -77,7 +77,9 @@ class AuthService {
 	}
 
 	async verifyEmail(token: string): Promise<ApiResponse<AuthData>> {
-		const response = await apiClient.post<AuthData>("/auth/verify-email", { token });
+		const response = await apiClient.post<AuthData>("/auth/verify-email", {
+			token,
+		});
 
 		if (
 			response.success &&
@@ -92,16 +94,26 @@ class AuthService {
 		return response;
 	}
 
-	async resendVerificationEmail(email: string): Promise<ApiResponse<{ email_sent: boolean }>> {
-		return apiClient.post<{ email_sent: boolean }>("/auth/resend-verification", { email });
+	async resendVerificationEmail(
+		email: string
+	): Promise<ApiResponse<{ email_sent: boolean }>> {
+		return apiClient.post<{ email_sent: boolean }>("/auth/resend-verification", {
+			email,
+		});
 	}
 
 	async requestPasswordReset(email: string): Promise<ApiResponse<void>> {
 		return apiClient.post<void>("/auth/password-reset", { email });
 	}
 
-	async confirmPasswordReset(token: string, password: string): Promise<ApiResponse<void>> {
-		return apiClient.post<void>("/auth/password-reset-confirm", { token, password });
+	async confirmPasswordReset(
+		token: string,
+		password: string
+	): Promise<ApiResponse<void>> {
+		return apiClient.post<void>("/auth/password-reset-confirm", {
+			token,
+			password,
+		});
 	}
 }
 

@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./DateRangePicker.css";
-import { getCurrentLocalDate, getLocalDateOffset, createLocalDate } from "../utils/timezone";
+import {
+	getCurrentLocalDate,
+	getLocalDateOffset,
+	createLocalDate,
+} from "../utils/timezone";
 import { useTranslation } from "react-i18next";
 
 interface DateRangePickerProps {
@@ -23,19 +27,19 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 	onApply,
 }) => {
 	const { t } = useTranslation();
-	
+
 	// 格式化年月显示
 	const formatMonthYear = (date: Date): string => {
 		const year = date.getFullYear();
 		const month = date.getMonth() + 1;
 		const format = t("dateTime.monthYearFormat.format");
-		
+
 		return format
 			.replace("YYYY", year.toString())
 			.replace("MM", month.toString().padStart(2, "0"))
 			.replace("M", month.toString());
 	};
-	
+
 	// 本地的日期格式化函数
 	const formatDateToLocal = (date: Date): string => {
 		const year = date.getFullYear();
@@ -61,14 +65,19 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 	useEffect(() => {
 		if (isOpen && startDate) {
 			const selectedDateObj = new Date(startDate);
-			setCurrentMonth(new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), 1));
+			setCurrentMonth(
+				new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), 1)
+			);
 		}
 	}, [isOpen, startDate]);
 
 	// Close popup when clicking outside
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+			if (
+				containerRef.current &&
+				!containerRef.current.contains(event.target as Node)
+			) {
 				setIsOpen(false);
 			}
 		};
@@ -196,12 +205,16 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
 	// Navigate to previous month
 	const goToPreviousMonth = () => {
-		setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+		setCurrentMonth(
+			new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
+		);
 	};
 
 	// Navigate to next month
 	const goToNextMonth = () => {
-		setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+		setCurrentMonth(
+			new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
+		);
 	};
 
 	// Handle date selection from calendar
@@ -291,9 +304,17 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
 	return (
 		<div className="date-range-picker" ref={containerRef}>
-			<div className="date-range-picker-trigger" onClick={() => setIsOpen(!isOpen)}>
+			<div
+				className="date-range-picker-trigger"
+				onClick={() => setIsOpen(!isOpen)}
+			>
 				<span className="date-range-value">{formatDisplayValue()}</span>
-				<svg className="date-range-picker-icon" width="16" height="16" viewBox="0 0 16 16">
+				<svg
+					className="date-range-picker-icon"
+					width="16"
+					height="16"
+					viewBox="0 0 16 16"
+				>
 					<path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1H2zm13 3H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5z" />
 				</svg>
 			</div>
@@ -356,19 +377,13 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
 							{/* Calendar Header */}
 							<div className="calendar-header">
-								<button
-									type="button"
-									className="nav-btn"
-									onClick={goToPreviousMonth}
-								>
+								<button type="button" className="nav-btn" onClick={goToPreviousMonth}>
 									<svg width="16" height="16" viewBox="0 0 16 16">
 										<path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
 									</svg>
 								</button>
 
-								<span className="month-year">
-									{formatMonthYear(currentMonth)}
-								</span>
+								<span className="month-year">{formatMonthYear(currentMonth)}</span>
 
 								<button type="button" className="nav-btn" onClick={goToNextMonth}>
 									<svg width="16" height="16" viewBox="0 0 16 16">
@@ -414,15 +429,11 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 							<div className="selection-status">
 								<div className="status-item">
 									<span className="status-label">{t("dateTime.startDate")}:</span>
-									<span className="status-value">
-										{formatSingleDate(tempStartDate)}
-									</span>
+									<span className="status-value">{formatSingleDate(tempStartDate)}</span>
 								</div>
 								<div className="status-item">
 									<span className="status-label">{t("dateTime.endDate")}:</span>
-									<span className="status-value">
-										{formatSingleDate(tempEndDate)}
-									</span>
+									<span className="status-value">{formatSingleDate(tempEndDate)}</span>
 								</div>
 								<div className="status-hint">
 									{selectionStep === "start"

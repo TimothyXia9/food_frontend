@@ -13,7 +13,9 @@ import {
 } from "../types/api";
 
 class FoodService {
-	async searchFoods(params: FoodSearchParams): Promise<ApiResponse<FoodSearchResult>> {
+	async searchFoods(
+		params: FoodSearchParams
+	): Promise<ApiResponse<FoodSearchResult>> {
 		return apiClient.get<FoodSearchResult>(
 			"/foods/search/",
 			params as unknown as Record<string, unknown>
@@ -28,11 +30,16 @@ class FoodService {
 		return apiClient.post<Food>("/foods/create/", data);
 	}
 
-	async updateCustomFood(foodId: number, data: CreateFoodRequest): Promise<ApiResponse<Food>> {
+	async updateCustomFood(
+		foodId: number,
+		data: CreateFoodRequest
+	): Promise<ApiResponse<Food>> {
 		return apiClient.put<Food>(`/foods/${foodId}/update/`, data);
 	}
 
-	async deleteCustomFood(foodId: number): Promise<ApiResponse<DeleteFoodResponse>> {
+	async deleteCustomFood(
+		foodId: number
+	): Promise<ApiResponse<DeleteFoodResponse>> {
 		return apiClient.delete<DeleteFoodResponse>(`/foods/${foodId}/delete/`);
 	}
 
@@ -46,22 +53,31 @@ class FoodService {
 		);
 	}
 
-	async getUSDANutrition(fdcId: string): Promise<ApiResponse<USDANutritionData>> {
+	async getUSDANutrition(
+		fdcId: string
+	): Promise<ApiResponse<USDANutritionData>> {
 		return apiClient.get<USDANutritionData>(`/foods/usda/nutrition/${fdcId}/`);
 	}
 
-	async createFoodFromUSDA(data: CreateFoodFromUSDARequest): Promise<ApiResponse<Food>> {
+	async createFoodFromUSDA(
+		data: CreateFoodFromUSDARequest
+	): Promise<ApiResponse<Food>> {
 		return apiClient.post<Food>("/foods/usda/create/", data);
 	}
 
-	async getUserFoods(page?: number, page_size?: number): Promise<ApiResponse<FoodSearchResult>> {
+	async getUserFoods(
+		page?: number,
+		page_size?: number
+	): Promise<ApiResponse<FoodSearchResult>> {
 		const params: Record<string, unknown> = {};
 		if (page) params.page = page;
 		if (page_size) params.page_size = page_size;
 		return apiClient.get<FoodSearchResult>("/foods/user/", params);
 	}
 
-	async getSearchHistory(limit?: number): Promise<ApiResponse<{ searches: any[] }>> {
+	async getSearchHistory(
+		limit?: number
+	): Promise<ApiResponse<{ searches: any[] }>> {
 		const params = limit ? { limit } : {};
 		return apiClient.get<{ searches: any[] }>("/foods/search/history/", params);
 	}

@@ -68,9 +68,12 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 		try {
 			showInfo("正在测试流式分析认证...");
 			// This will test the streaming request with token handling
-			const response = await apiClient.streamingRequest("/images/analyze-stream/", {
-				image_id: 1,
-			});
+			const response = await apiClient.streamingRequest(
+				"/images/analyze-stream/",
+				{
+					image_id: 1,
+				}
+			);
 			if (response.ok) {
 				showInfo("流式分析请求成功！认证有效");
 				// Close the stream immediately since we're just testing auth
@@ -98,7 +101,8 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 					<strong>认证状态:</strong> {isAuthenticated ? "已登录" : "未登录"}
 				</p>
 				<p>
-					<strong>用户信息:</strong> {user ? `${user.username} (${user.nickname})` : "无"}
+					<strong>用户信息:</strong>{" "}
+					{user ? `${user.username} (${user.nickname})` : "无"}
 				</p>
 				<p>
 					<strong>Access Token:</strong>{" "}
@@ -185,7 +189,9 @@ const TokenTest: React.FC<TokenTestProps> = ({ onLoginRequired }) => {
 				</div>
 			</div>
 
-			<div style={{ padding: "1rem", backgroundColor: "#e9ecef", borderRadius: "8px" }}>
+			<div
+				style={{ padding: "1rem", backgroundColor: "#e9ecef", borderRadius: "8px" }}
+			>
 				<h3>测试步骤</h3>
 				<ol>
 					<li>首先确保你已经登录</li>

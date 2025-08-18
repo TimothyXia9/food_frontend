@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import React, {
+	createContext,
+	useContext,
+	useState,
+	useCallback,
+	ReactNode,
+} from "react";
 import { useTranslation } from "react-i18next";
 import NotificationContainer from "../components/NotificationContainer";
 import "./NotificationContext.css";
@@ -21,50 +27,57 @@ interface NotificationContextType {
 	showConfirm: (message: string) => Promise<boolean>;
 }
 
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+const NotificationContext = createContext<NotificationContextType | undefined>(
+	undefined
+);
 
 interface NotificationProviderProps {
 	children: ReactNode;
 }
 
-export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
+export const NotificationProvider: React.FC<NotificationProviderProps> = ({
+	children,
+}) => {
 	const [notifications, setNotifications] = useState<NotificationData[]>([]);
 	const [confirmDialog, setConfirmDialog] = useState<{
 		message: string;
 		resolve: (value: boolean) => void;
-			} | null>(null);
+	} | null>(null);
 
 	const generateId = () =>
 		`notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-	const addNotification = useCallback((notification: Omit<NotificationData, "id">) => {
-		// 检查是否已有相同类型和消息的通知
-		setNotifications(prev => {
-			const existingIndex = prev.findIndex(
-				n => n.type === notification.type && n.message === notification.message
-			);
+	const addNotification = useCallback(
+		(notification: Omit<NotificationData, "id">) => {
+			// 检查是否已有相同类型和消息的通知
+			setNotifications(prev => {
+				const existingIndex = prev.findIndex(
+					n => n.type === notification.type && n.message === notification.message
+				);
 
-			if (existingIndex !== -1) {
-				// 更新现有通知的计数和时间戳
-				const updated = [...prev];
-				updated[existingIndex] = {
-					...updated[existingIndex],
-					count: (updated[existingIndex].count || 1) + 1,
-					id: generateId(), // 更新ID以触发重新渲染
-				};
-				return updated;
-			} else {
-				// 添加新通知
-				const id = generateId();
-				const newNotification: NotificationData = {
-					...notification,
-					id,
-					count: 1,
-				};
-				return [...prev, newNotification];
-			}
-		});
-	}, []);
+				if (existingIndex !== -1) {
+					// 更新现有通知的计数和时间戳
+					const updated = [...prev];
+					updated[existingIndex] = {
+						...updated[existingIndex],
+						count: (updated[existingIndex].count || 1) + 1,
+						id: generateId(), // 更新ID以触发重新渲染
+					};
+					return updated;
+				} else {
+					// 添加新通知
+					const id = generateId();
+					const newNotification: NotificationData = {
+						...notification,
+						id,
+						count: 1,
+					};
+					return [...prev, newNotification];
+				}
+			});
+		},
+		[]
+	);
 
 	const removeNotification = useCallback((id: string) => {
 		setNotifications(prev => prev.filter(notification => notification.id !== id));
@@ -127,9 +140,15 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 	return (
 		<NotificationContext.Provider value={contextValue}>
 			{children}
-			<NotificationContainer notifications={notifications} onClose={removeNotification} />
+			<NotificationContainer
+				notifications={notifications}
+				onClose={removeNotification}
+			/>
 			{confirmDialog && (
-				<ConfirmDialog message={confirmDialog.message} onClose={handleConfirmClose} />
+				<ConfirmDialog
+					message={confirmDialog.message}
+					onClose={handleConfirmClose}
+				/>
 			)}
 		</NotificationContext.Provider>
 	);

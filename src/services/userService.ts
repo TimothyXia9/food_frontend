@@ -20,7 +20,9 @@ class UserService {
 		return apiClient.get<UserProfileResponse>("/users/profile/");
 	}
 
-	async updateProfile(data: UpdateProfileRequest): Promise<ApiResponse<UserProfileResponse>> {
+	async updateProfile(
+		data: UpdateProfileRequest
+	): Promise<ApiResponse<UserProfileResponse>> {
 		return apiClient.put<UserProfileResponse>("/users/profile/", data);
 	}
 }

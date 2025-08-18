@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./DateTimePicker.css";
-import { getCurrentLocalDate, getCurrentLocalDateTime, createLocalDate } from "../utils/timezone";
+import {
+	getCurrentLocalDate,
+	getCurrentLocalDateTime,
+	createLocalDate,
+} from "../utils/timezone";
 import { useTranslation } from "react-i18next";
 
 interface DateTimePickerProps {
@@ -15,19 +19,19 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 	placeholder,
 }) => {
 	const { t } = useTranslation();
-	
+
 	// 格式化年月显示
 	const formatMonthYear = (date: Date): string => {
 		const year = date.getFullYear();
 		const month = date.getMonth() + 1;
 		const format = t("dateTime.monthYearFormat.format");
-		
+
 		return format
 			.replace("YYYY", year.toString())
 			.replace("MM", month.toString().padStart(2, "0"))
 			.replace("M", month.toString());
 	};
-	
+
 	// 本地工具函数
 	const formatDateToLocal = (date: Date): string => {
 		const year = date.getFullYear();
@@ -104,14 +108,19 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 	useEffect(() => {
 		if (isOpen && selectedDate) {
 			const selectedDateObj = new Date(selectedDate);
-			setCurrentMonth(new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), 1));
+			setCurrentMonth(
+				new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), 1)
+			);
 		}
 	}, [isOpen, selectedDate]);
 
 	// Close popup when clicking outside
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+			if (
+				containerRef.current &&
+				!containerRef.current.contains(event.target as Node)
+			) {
 				setIsOpen(false);
 			}
 		};
@@ -217,12 +226,16 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
 	// Navigate to previous month
 	const goToPreviousMonth = () => {
-		setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+		setCurrentMonth(
+			new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)
+		);
 	};
 
 	// Navigate to next month
 	const goToNextMonth = () => {
-		setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+		setCurrentMonth(
+			new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)
+		);
 	};
 
 	// Handle date selection from calendar
@@ -337,7 +350,12 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 		<div className="datetime-picker" ref={containerRef}>
 			<div className="datetime-picker-trigger" onClick={() => setIsOpen(!isOpen)}>
 				<span className="datetime-value">{formatDisplayValue()}</span>
-				<svg className="datetime-picker-icon" width="16" height="16" viewBox="0 0 16 16">
+				<svg
+					className="datetime-picker-icon"
+					width="16"
+					height="16"
+					viewBox="0 0 16 16"
+				>
 					<path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v1h14V3a1 1 0 0 0-1-1H2zm13 3H1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5z" />
 				</svg>
 			</div>
@@ -355,19 +373,13 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
 							{/* Calendar Header */}
 							<div className="calendar-header">
-								<button
-									type="button"
-									className="nav-btn"
-									onClick={goToPreviousMonth}
-								>
+								<button type="button" className="nav-btn" onClick={goToPreviousMonth}>
 									<svg width="16" height="16" viewBox="0 0 16 16">
 										<path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
 									</svg>
 								</button>
 
-								<span className="month-year">
-									{formatMonthYear(currentMonth)}
-								</span>
+								<span className="month-year">{formatMonthYear(currentMonth)}</span>
 
 								<button type="button" className="nav-btn" onClick={goToNextMonth}>
 									<svg width="16" height="16" viewBox="0 0 16 16">
@@ -395,9 +407,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 										type="button"
 										className={`calendar-day ${
 											day.isCurrentMonth ? "current-month" : "other-month"
-										} ${day.isToday ? "today" : ""} ${
-											day.isSelected ? "selected" : ""
-										}`}
+										} ${day.isToday ? "today" : ""} ${day.isSelected ? "selected" : ""}`}
 										onClick={() => handleCalendarDateSelect(day.fullDate)}
 									>
 										{day.date}

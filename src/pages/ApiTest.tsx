@@ -22,7 +22,12 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	const [results, setResults] = useState<any[]>([]);
 	const [loading, setLoading] = useState(false);
 
-	const addResult = (testName: string, success: boolean, data: any, error?: any) => {
+	const addResult = (
+		testName: string,
+		success: boolean,
+		data: any,
+		error?: any
+	) => {
 		const result = {
 			id: Date.now(),
 			testName,
@@ -58,7 +63,9 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			password: "password123",
 			nickname: "Test User",
 		};
-		return runTest(t("apiTest.userRegister"), () => authService.register(registerData));
+		return runTest(t("apiTest.userRegister"), () =>
+			authService.register(registerData)
+		);
 	};
 
 	const testLogin = () => {
@@ -89,7 +96,9 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			weight: 70,
 			daily_calorie_goal: 2000,
 		};
-		return runTest(t("apiTest.updateUserProfile"), () => userService.updateProfile(profileData));
+		return runTest(t("apiTest.updateUserProfile"), () =>
+			userService.updateProfile(profileData)
+		);
 	};
 
 	// Food Service Tests
@@ -100,7 +109,9 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testGetFoodDetails = () => {
-		return runTest(t("apiTest.getFoodDetails"), () => foodService.getFoodDetails(1));
+		return runTest(t("apiTest.getFoodDetails"), () =>
+			foodService.getFoodDetails(1)
+		);
 	};
 
 	const testCreateCustomFood = () => {
@@ -155,17 +166,20 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 
 	const testCreateFoodFromUSDA = () => {
 		return runTest(t("apiTest.createFromUsda"), async () => {
-			const response = await fetch("http://localhost:8000/api/v1/foods/usda/create/", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${authService.getCurrentToken()}`,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					fdc_id: "1102702",
-					custom_name: "Test Apple from USDA",
-				}),
-			});
+			const response = await fetch(
+				"http://localhost:8000/api/v1/foods/usda/create/",
+				{
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${authService.getCurrentToken()}`,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						fdc_id: "1102702",
+						custom_name: "Test Apple from USDA",
+					}),
+				}
+			);
 			return response.json();
 		});
 	};
@@ -191,7 +205,9 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			notes: "Test meal",
 			foods: [{ food_id: 1, quantity: 150 }],
 		};
-		return runTest(t("apiTest.createMeal"), () => mealService.createMeal(mealData));
+		return runTest(t("apiTest.createMeal"), () =>
+			mealService.createMeal(mealData)
+		);
 	};
 
 	const testGetMealDetails = () => {
@@ -209,30 +225,36 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 
 	const testGetRecentMeals = () => {
 		return runTest(t("apiTest.getRecentMeals"), async () => {
-			const response = await fetch("http://localhost:8000/api/v1/meals/recent/?limit=5", {
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${authService.getCurrentToken()}`,
-					"Content-Type": "application/json",
-				},
-			});
+			const response = await fetch(
+				"http://localhost:8000/api/v1/meals/recent/?limit=5",
+				{
+					method: "GET",
+					headers: {
+						Authorization: `Bearer ${authService.getCurrentToken()}`,
+						"Content-Type": "application/json",
+					},
+				}
+			);
 			return response.json();
 		});
 	};
 
 	const testAddFoodToMeal = () => {
 		return runTest(t("apiTest.addFoodToMeal"), async () => {
-			const response = await fetch("http://localhost:8000/api/v1/meals/1/add-food/", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${authService.getCurrentToken()}`,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					food_id: 2,
-					quantity: 100,
-				}),
-			});
+			const response = await fetch(
+				"http://localhost:8000/api/v1/meals/1/add-food/",
+				{
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${authService.getCurrentToken()}`,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						food_id: 2,
+						quantity: 100,
+					}),
+				}
+			);
 			return response.json();
 		});
 	};
@@ -268,7 +290,10 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 
 	const testGetNutritionStats = () => {
 		return runTest(t("apiTest.getNutritionStats"), () =>
-			statisticsService.getNutritionStats({ start_date: "2024-01-15", period: "weekly" })
+			statisticsService.getNutritionStats({
+				start_date: "2024-01-15",
+				period: "weekly",
+			})
 		);
 	};
 
@@ -323,30 +348,36 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 
 	const testAnalyzeImage = () => {
 		return runTest(t("apiTest.analyzeImage"), async () => {
-			const response = await fetch("http://localhost:8000/api/v1/images/analyze/", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${authService.getCurrentToken()}`,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					image_id: 1,
-					analysis_type: "full",
-				}),
-			});
+			const response = await fetch(
+				"http://localhost:8000/api/v1/images/analyze/",
+				{
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${authService.getCurrentToken()}`,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						image_id: 1,
+						analysis_type: "full",
+					}),
+				}
+			);
 			return response.json();
 		});
 	};
 
 	const testGetImageResults = () => {
 		return runTest(t("apiTest.getImageResults"), async () => {
-			const response = await fetch("http://localhost:8000/api/v1/images/1/results/", {
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${authService.getCurrentToken()}`,
-					"Content-Type": "application/json",
-				},
-			});
+			const response = await fetch(
+				"http://localhost:8000/api/v1/images/1/results/",
+				{
+					method: "GET",
+					headers: {
+						Authorization: `Bearer ${authService.getCurrentToken()}`,
+						"Content-Type": "application/json",
+					},
+				}
+			);
 			return response.json();
 		});
 	};
@@ -369,37 +400,43 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 
 	const testConfirmFoodRecognition = () => {
 		return runTest(t("apiTest.confirmFoodRecognition"), async () => {
-			const response = await fetch("http://localhost:8000/api/v1/images/confirm/", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${authService.getCurrentToken()}`,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					result_id: 1,
-					is_confirmed: true,
-					corrections: [],
-				}),
-			});
+			const response = await fetch(
+				"http://localhost:8000/api/v1/images/confirm/",
+				{
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${authService.getCurrentToken()}`,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						result_id: 1,
+						is_confirmed: true,
+						corrections: [],
+					}),
+				}
+			);
 			return response.json();
 		});
 	};
 
 	const testCreateMealFromImage = () => {
 		return runTest(t("apiTest.createMealFromImage"), async () => {
-			const response = await fetch("http://localhost:8000/api/v1/images/create-meal/", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${authService.getCurrentToken()}`,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					image_id: 1,
-					meal_type: "breakfast",
-					date: "2024-01-15",
-					meal_name: "Test Breakfast from Image",
-				}),
-			});
+			const response = await fetch(
+				"http://localhost:8000/api/v1/images/create-meal/",
+				{
+					method: "POST",
+					headers: {
+						Authorization: `Bearer ${authService.getCurrentToken()}`,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						image_id: 1,
+						meal_type: "breakfast",
+						date: "2024-01-15",
+						meal_name: "Test Breakfast from Image",
+					}),
+				}
+			);
 			return response.json();
 		});
 	};
@@ -408,7 +445,10 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	const testAuthStatus = () => {
 		const isAuthenticated = authService.isAuthenticated();
 		const token = authService.getCurrentToken();
-		addResult(t("apiTest.checkAuthStatus"), true, { isAuthenticated, hasToken: !!token });
+		addResult(t("apiTest.checkAuthStatus"), true, {
+			isAuthenticated,
+			hasToken: !!token,
+		});
 	};
 
 	return (
@@ -447,7 +487,11 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 						>
 							测试注册
 						</button>
-						<button onClick={testLogin} className="btn btn-primary" disabled={loading}>
+						<button
+							onClick={testLogin}
+							className="btn btn-primary"
+							disabled={loading}
+						>
 							测试登录
 						</button>
 						<button
@@ -457,7 +501,11 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 						>
 							刷新令牌
 						</button>
-						<button onClick={testLogout} className="btn btn-danger" disabled={loading}>
+						<button
+							onClick={testLogout}
+							className="btn btn-danger"
+							disabled={loading}
+						>
 							测试登出
 						</button>
 					</div>

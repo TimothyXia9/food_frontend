@@ -2,21 +2,31 @@ import { apiClient } from "../utils/api";
 import { ApiResponse, ImageUpload, ImageRecognition } from "../types/api";
 
 class ImageService {
-	async uploadImage(file: File, notes?: string): Promise<ApiResponse<ImageUpload>> {
+	async uploadImage(
+		file: File,
+		notes?: string
+	): Promise<ApiResponse<ImageUpload>> {
 		const additionalData = notes ? { notes } : undefined;
-		return apiClient.uploadFile<ImageUpload>("/images/upload/", file, additionalData);
+		return apiClient.uploadFile<ImageUpload>(
+			"/images/upload/",
+			file,
+			additionalData
+		);
 	}
 
 	async analyzeImage(
 		imageId: number,
 		_analysisType: "full" | "quick" = "full"
-	): Promise<ApiResponse<{ analysis_id: number; status: string; keywords?: string[] }>> {
-		return apiClient.post<{ analysis_id: number; status: string; keywords?: string[] }>(
-			"/images/analyze/",
-			{
-				image_id: imageId,
-			}
-		);
+	): Promise<
+		ApiResponse<{ analysis_id: number; status: string; keywords?: string[] }>
+	> {
+		return apiClient.post<{
+			analysis_id: number;
+			status: string;
+			keywords?: string[];
+		}>("/images/analyze/", {
+			image_id: imageId,
+		});
 	}
 
 	async analyzeImageStreaming(
@@ -32,7 +42,12 @@ class ImageService {
 			error?: string;
 		}) => void,
 		abortController?: AbortController
-	): Promise<{ success: boolean; finalResult?: any; error?: string; cancelled?: boolean }> {
+	): Promise<{
+		success: boolean;
+		finalResult?: any;
+		error?: string;
+		cancelled?: boolean;
+	}> {
 		try {
 			// Use the unified API client for streaming requests with token handling
 			const response = await apiClient.streamingRequest(
@@ -112,7 +127,9 @@ class ImageService {
 		}
 	}
 
-	async getImageResults(imageId: number): Promise<ApiResponse<ImageRecognition>> {
+	async getImageResults(
+		imageId: number
+	): Promise<ApiResponse<ImageRecognition>> {
 		return apiClient.get<ImageRecognition>(`/images/${imageId}/results/`);
 	}
 
@@ -121,7 +138,11 @@ class ImageService {
 		is_confirmed: boolean;
 		corrections?: any[];
 	}): Promise<
-		ApiResponse<{ result_id: number; confirmed: boolean; corrections_applied: number }>
+		ApiResponse<{
+			result_id: number;
+			confirmed: boolean;
+			corrections_applied: number;
+		}>
 	> {
 		return apiClient.post<{
 			result_id: number;
@@ -155,7 +176,11 @@ class ImageService {
 		return apiClient.delete<void>(`/images/${imageId}/delete/`);
 	}
 
-	async getUserImages(params?: { page?: number; page_size?: number; status?: string }): Promise<
+	async getUserImages(params?: {
+		page?: number;
+		page_size?: number;
+		status?: string;
+	}): Promise<
 		ApiResponse<{
 			images: ImageUpload[];
 			total_count: number;

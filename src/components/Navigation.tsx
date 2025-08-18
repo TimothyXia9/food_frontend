@@ -8,20 +8,53 @@ interface NavigationProps {
 	onLoginRequired: () => void;
 	isAuthenticated: boolean;
 }
-const Navigation = ({ onLogout, onLoginRequired, isAuthenticated }: NavigationProps) => {
+const Navigation = ({
+	onLogout,
+	onLoginRequired,
+	isAuthenticated,
+}: NavigationProps) => {
 	const location = useLocation();
 	const { t } = useTranslation();
 
 	const menuItems = [
-		{ path: "/dashboard", label: t("navigation.dashboard"), icon: "🏠", requiresAuth: true },
-		{ path: "/", label: t("navigation.foodSearch"), icon: "🔍", requiresAuth: false },
-		{ path: "/statistics", label: t("navigation.statistics"), icon: "📊", requiresAuth: true },
-		{ path: "/profile", label: t("navigation.profile"), icon: "👤", requiresAuth: true },
-		{ path: "/api-test", label: t("navigation.apiTest"), icon: "🧪", requiresAuth: false },
+		{
+			path: "/dashboard",
+			label: t("navigation.dashboard"),
+			icon: "🏠",
+			requiresAuth: true,
+		},
+		{
+			path: "/",
+			label: t("navigation.foodSearch"),
+			icon: "🔍",
+			requiresAuth: false,
+		},
+		{
+			path: "/statistics",
+			label: t("navigation.statistics"),
+			icon: "📊",
+			requiresAuth: true,
+		},
+		{
+			path: "/profile",
+			label: t("navigation.profile"),
+			icon: "👤",
+			requiresAuth: true,
+		},
+		{
+			path: "/api-test",
+			label: t("navigation.apiTest"),
+			icon: "🧪",
+			requiresAuth: false,
+		},
 		{ path: "/token-test", label: "Token Test", icon: "🔑", requiresAuth: false },
 	];
 
-	const handleNavClick = (path: string, requiresAuth: boolean, e?: React.MouseEvent) => {
+	const handleNavClick = (
+		path: string,
+		requiresAuth: boolean,
+		e?: React.MouseEvent
+	) => {
 		if (requiresAuth && !isAuthenticated) {
 			// 阻止导航，显示登录模态框
 			e?.preventDefault();
@@ -34,9 +67,7 @@ const Navigation = ({ onLogout, onLoginRequired, isAuthenticated }: NavigationPr
 
 	return (
 		<nav className="navigation">
-			<div className="nav-brand">
-				{t("common.name", "Calorie Tracker")}
-			</div>
+			<div className="nav-brand">{t("common.name", "Calorie Tracker")}</div>
 
 			<ul className="nav-menu">
 				{menuItems.map(item => (

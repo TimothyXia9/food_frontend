@@ -1,6 +1,7 @@
 import { ApiResponse } from "../types/api";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api/v1";
+const API_BASE_URL =
+	process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api/v1";
 
 class ApiClient {
 	private baseURL: string;
@@ -75,7 +76,10 @@ class ApiClient {
 
 			if (!response.ok) {
 				const errorMessage =
-					data.detail || data.error?.message || data.message || `HTTP ${response.status}`;
+					data.detail ||
+					data.error?.message ||
+					data.message ||
+					`HTTP ${response.status}`;
 				const error = new Error(errorMessage);
 				// Attach the full response data to the error for better handling
 				(error as any).response = { data, status: response.status };
@@ -135,7 +139,10 @@ class ApiClient {
 		console.log("Authentication failed - tokens cleared");
 	}
 
-	async get<T>(endpoint: string, params?: Record<string, unknown>): Promise<ApiResponse<T>> {
+	async get<T>(
+		endpoint: string,
+		params?: Record<string, unknown>
+	): Promise<ApiResponse<T>> {
 		let finalEndpoint = endpoint;
 		if (params) {
 			const searchParams = new URLSearchParams();
@@ -266,7 +273,10 @@ class ApiClient {
 
 			if (!response.ok) {
 				const errorMessage =
-					data.detail || data.error?.message || data.message || `HTTP ${response.status}`;
+					data.detail ||
+					data.error?.message ||
+					data.message ||
+					`HTTP ${response.status}`;
 				const error = new Error(errorMessage);
 				// Attach the full response data to the error for better handling
 				(error as any).response = { data, status: response.status };

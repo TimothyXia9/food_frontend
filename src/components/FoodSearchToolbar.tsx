@@ -74,9 +74,7 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 						</button>
 						<button
 							className="btn btn-warning"
-							onClick={() =>
-								isAuthenticated ? onCameraCapture() : onLoginRequired()
-							}
+							onClick={() => (isAuthenticated ? onCameraCapture() : onLoginRequired())}
 						>
 							{t("foodSearchToolbar.photoRecognition")}
 						</button>

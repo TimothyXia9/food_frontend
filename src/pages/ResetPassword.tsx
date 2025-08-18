@@ -118,8 +118,8 @@ const ResetPassword: React.FC = () => {
 								Password Successfully Reset
 							</h3>
 							<p className="mt-2 text-gray-600">
-								Your password has been successfully reset. You can now log in with
-								your new password.
+								Your password has been successfully reset. You can now log in with your
+								new password.
 							</p>
 							<div className="mt-6">
 								<button

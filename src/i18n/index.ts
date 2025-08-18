@@ -8,11 +8,11 @@ import zh from "./locales/zh.json";
 
 const resources = {
 	en: {
-		translation: en
+		translation: en,
 	},
 	zh: {
-		translation: zh
-	}
+		translation: zh,
+	},
 };
 
 // Initialize i18n
@@ -23,18 +23,18 @@ void i18n
 		resources,
 		fallbackLng: "en",
 		debug: false,
-		
+
 		interpolation: {
 			escapeValue: false,
 		},
-		
+
 		detection: {
 			order: ["localStorage", "navigator", "cookie"],
 			caches: ["localStorage"],
 			lookupLocalStorage: "i18nextLng",
 			lookupFromPathIndex: 0,
 			lookupFromSubdomainIndex: 0,
-			
+
 			// Custom language mapping for browser detection
 			convertDetectedLanguage: (lng: string) => {
 				// Map Chinese language variants to 'zh'
@@ -46,8 +46,8 @@ void i18n
 					return "en";
 				}
 				return lng;
-			}
-		}
+			},
+		},
 	});
 
 export default i18n;

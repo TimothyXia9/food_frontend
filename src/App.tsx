@@ -1,6 +1,11 @@
 import React from "react";
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+	BrowserRouter as Router,
+	Routes,
+	Route,
+	Navigate,
+} from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Navigation from "./components/Navigation";
 import LoginModal from "./components/LoginModal";
@@ -18,7 +23,9 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
 
 // Protected Route component
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+	children,
+}) => {
 	const { isAuthenticated, loading, setShowLoginModal } = useAuth();
 	const { t } = useTranslation();
 
@@ -39,7 +46,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 };
 
 function AppContent() {
-	const { isAuthenticated, loading, logout, showLoginModal, setShowLoginModal } = useAuth();
+	const { isAuthenticated, loading, logout, showLoginModal, setShowLoginModal } =
+		useAuth();
 	const { t } = useTranslation();
 
 	const handleLogout = async () => {
