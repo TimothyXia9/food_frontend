@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 import { createLocalDate } from "../utils/timezone";
 
@@ -7,6 +8,7 @@ interface StatisticsProps {
 }
 
 const Statistics = ({ onLoginRequired }: StatisticsProps) => {
+	const { t } = useTranslation();
 	const { isAuthenticated } = useAuth();
 	const [selectedPeriod, setSelectedPeriod] = React.useState<"week" | "month" | "year">("week");
 	const [currentDate, setCurrentDate] = React.useState(
@@ -28,33 +30,33 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 		fiber: { current: 25, previous: 22, trend: "up" },
 	};
 	const achievements = [
-		{ id: 1, title: "连续记录7天", description: "坚持记录饮食7天", achieved: true, icon: "🏆" },
+		{ id: 1, title: t("statistics.achievementsList.streak7Days"), description: t("statistics.achievementsList.streak7DaysDesc"), achieved: true, icon: "🏆" },
 		{
 			id: 2,
-			title: "达到卡路里目标",
-			description: "单日卡路里摄入达标",
+			title: t("statistics.achievement1", "Reached Calorie Goal"),
+			description: t("statistics.achievement1Desc", "Daily calorie intake on target"),
 			achieved: true,
 			icon: "🎯",
 		},
 		{
 			id: 3,
-			title: "蛋白质达标",
-			description: "单日蛋白质摄入达标",
+			title: t("statistics.achievementsList.proteinGoal"),
+			description: t("statistics.achievementsList.proteinGoalDesc"),
 			achieved: true,
 			icon: "💪",
 		},
-		{ id: 4, title: "体重下降", description: "相比上周体重下降", achieved: true, icon: "📉" },
+		{ id: 4, title: t("statistics.achievementsList.weightLoss"), description: t("statistics.achievementsList.weightLossDesc"), achieved: true, icon: "📉" },
 		{
 			id: 5,
-			title: "连续记录30天",
-			description: "坚持记录饮食30天",
+			title: t("statistics.achievementsList.streak30Days"),
+			description: t("statistics.achievementsList.streak30DaysDesc"),
 			achieved: false,
 			icon: "🔥",
 		},
 		{
 			id: 6,
-			title: "完美一周",
-			description: "一周内每天都达到目标",
+			title: t("statistics.achievementsList.perfectWeek"),
+			description: t("statistics.achievementsList.perfectWeekDesc"),
 			achieved: false,
 			icon: "⭐",
 		},
@@ -110,10 +112,10 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 		return (
 			<div className="statistics">
 				<div className="not-authenticated">
-					<h2>查看数据统计</h2>
-					<p>请先登录以查看您的饮食和健康数据统计</p>
+					<h2>{t("statistics.title")}</h2>
+					<p>{t("auth.loginToAccess")}</p>
 					<button onClick={onLoginRequired} className="btn btn-primary">
-						登录
+						{t("auth.login")}
 					</button>
 				</div>
 			</div>
@@ -123,45 +125,45 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 	return (
 		<div className="statistics">
 			<div className="stats-header">
-				<h1>数据统计</h1>
+				<h1>{t("statistics.title")}</h1>
 
 				<div className="period-selector">
 					<button
 						className={`period-btn ${selectedPeriod === "week" ? "active" : ""}`}
 						onClick={() => setSelectedPeriod("week")}
 					>
-						周
+						{t("statistics.week")}
 					</button>
 					<button
 						className={`period-btn ${selectedPeriod === "month" ? "active" : ""}`}
 						onClick={() => setSelectedPeriod("month")}
 					>
-						月
+						{t("statistics.month")}
 					</button>
 					<button
 						className={`period-btn ${selectedPeriod === "year" ? "active" : ""}`}
 						onClick={() => setSelectedPeriod("year")}
 					>
-						年
+						{t("statistics.year")}
 					</button>
 				</div>
 			</div>
 			<div className="date-navigation">
 				<button onClick={() => navigateDate("prev")} className="nav-btn">
-					← 上一
-					{selectedPeriod === "week" ? "周" : selectedPeriod === "month" ? "月" : "年"}
+					← {t("statistics.previous")}
+					{selectedPeriod === "week" ? t("statistics.week") : selectedPeriod === "month" ? t("statistics.month") : t("statistics.year")}
 				</button>
 				<h2 className="current-period">{getDateRange()}</h2>
 				<button onClick={() => navigateDate("next")} className="nav-btn">
-					下一
-					{selectedPeriod === "week" ? "周" : selectedPeriod === "month" ? "月" : "年"} →
+					{t("statistics.next")}
+					{selectedPeriod === "week" ? t("statistics.week") : selectedPeriod === "month" ? t("statistics.month") : t("statistics.year")} →
 				</button>
 			</div>
 			<div className="stats-grid">
-				{/* 概览统计 */}
+				{/* Overview Statistics */}
 				<div className="card overview-stats">
 					<div className="card-header">
-						<h3 className="card-title">本周概览</h3>
+						<h3 className="card-title">{t("statistics.thisWeek")}</h3>
 					</div>
 
 					<div className="overview-grid">
@@ -169,7 +171,7 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 							<div className="overview-icon">🍽️</div>
 							<div className="overview-info">
 								<span className="overview-value">{stats.avgCalories}</span>
-								<span className="overview-label">平均卡路里</span>
+								<span className="overview-label">{t("statistics.averageCalories")}</span>
 							</div>
 						</div>
 
@@ -177,7 +179,7 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 							<div className="overview-icon">⚖️</div>
 							<div className="overview-info">
 								<span className="overview-value">{stats.avgWeight}</span>
-								<span className="overview-label">平均体重 (kg)</span>
+								<span className="overview-label">{t("statistics.averageWeight")}</span>
 							</div>
 						</div>
 
@@ -185,7 +187,7 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 							<div className="overview-icon">🎯</div>
 							<div className="overview-info">
 								<span className="overview-value">{stats.daysOnTarget}</span>
-								<span className="overview-label">达标天数</span>
+								<span className="overview-label">{t("statistics.targetDays")}</span>
 							</div>
 						</div>
 
@@ -198,15 +200,15 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 									{stats.weightChange > 0 ? "+" : ""}
 									{stats.weightChange}
 								</span>
-								<span className="overview-label">体重变化 (kg)</span>
+								<span className="overview-label">{t("statistics.weightProgress")} ({t("common.kilograms")})</span>
 							</div>
 						</div>
 					</div>
 				</div>
-				{/* 卡路里趋势图 */}
+				{/* Calorie Trends Chart */}
 				<div className="card chart-card">
 					<div className="card-header">
-						<h3 className="card-title">卡路里趋势</h3>
+						<h3 className="card-title">{t("statistics.calorieTrend")}</h3>
 					</div>
 
 					<div className="chart-container">
@@ -234,29 +236,29 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 							<div className="chart-legend">
 								<div className="legend-item">
 									<div className="legend-color below-goal"></div>
-									<span>未达目标</span>
+									<span>{t("statistics.underGoal")}</span>
 								</div>
 								<div className="legend-item">
 									<div className="legend-color above-goal"></div>
-									<span>超过目标</span>
+									<span>{t("statistics.overGoal")}</span>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				{/* 营养素趋势 */}
+				{/* Nutrition Trends */}
 				<div className="card nutrition-trends">
 					<div className="card-header">
-						<h3 className="card-title">营养素趋势</h3>
+						<h3 className="card-title">{t("statistics.nutritionTrend")}</h3>
 					</div>
 
 					<div className="nutrition-trends-grid">
 						{Object.entries(nutritionTrends).map(([key, data]) => {
 							const labels: Record<string, string> = {
-								protein: "蛋白质",
-								fat: "脂肪",
-								carbs: "碳水化合物",
-								fiber: "纤维",
+								protein: t("statistics.proteinNutrient"),
+								fat: t("statistics.fatNutrient"),
+								carbs: t("statistics.carbsNutrient"),
+								fiber: t("statistics.fiberNutrient"),
 							};
 
 							return (
@@ -276,10 +278,10 @@ const Statistics = ({ onLoginRequired }: StatisticsProps) => {
 						})}
 					</div>
 				</div>
-				{/* 成就系统 */}
+				{/* Achievement System */}
 				<div className="card achievements">
 					<div className="card-header">
-						<h3 className="card-title">成就徽章</h3>
+						<h3 className="card-title">{t("statistics.achievementsBadges")}</h3>
 					</div>
 
 					<div className="achievements-grid">

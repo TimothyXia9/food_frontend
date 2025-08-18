@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
 
@@ -10,6 +11,7 @@ interface LoginModalProps {
 }
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) => {
+	const { t } = useTranslation();
 	const [activeTab, setActiveTab] = useState<"login" | "register">("login");
 	const [formData, setFormData] = useState({
 		username: "",
@@ -64,18 +66,18 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 				});
 				// Show success notification
 				if (activeTab === "login") {
-					showSuccess("登录成功！");
+					showSuccess(t("auth.loginSuccess"));
 				} else {
-					showSuccess("注册成功！请检查您的邮箱并点击验证链接完成注册。");
+					showSuccess(t("auth.registrationSuccess"));
 				}
 			} else {
 				const errorMsg =
-					activeTab === "login" ? "登录失败，请检查用户名和密码" : "注册失败，请检查信息";
+					activeTab === "login" ? t("auth.invalidCredentials") : t("auth.registrationFailed", "Registration failed, please check information");
 				setError(errorMsg);
 				showError(errorMsg);
 			}
 		} catch (err) {
-			const errorMsg = "网络错误，请稍后重试";
+			const errorMsg = t("api.connectionError");
 			setError(errorMsg);
 			showError(errorMsg);
 		} finally {
@@ -100,7 +102,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 		<div className="modal-overlay" onClick={onClose}>
 			<div className="modal-content" onClick={e => e.stopPropagation()}>
 				<div className="modal-header">
-					<h2 className="modal-title">{activeTab === "login" ? "登录" : "注册"}</h2>
+					<h2 className="modal-title">{activeTab === "login" ? t("auth.login") : t("auth.register")}</h2>
 					<button className="close-button" onClick={onClose}>
 						×
 					</button>
@@ -111,20 +113,20 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 						className={`tab ${activeTab === "login" ? "active" : ""}`}
 						onClick={() => handleTabChange("login")}
 					>
-						登录
+						{t("auth.login")}
 					</button>
 					<button
 						className={`tab ${activeTab === "register" ? "active" : ""}`}
 						onClick={() => handleTabChange("register")}
 					>
-						注册
+						{t("auth.register")}
 					</button>
 				</div>
 
 				<form className="login-form" onSubmit={handleSubmit}>
 					<div className="form-group">
 						<label className="form-label" htmlFor="username">
-							用户名
+							{t("auth.username")}
 						</label>
 						<input
 							className="form-input"
@@ -141,7 +143,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 						<>
 							<div className="form-group">
 								<label className="form-label" htmlFor="email">
-									邮箱
+									{t("auth.email")}
 								</label>
 								<input
 									className="form-input"
@@ -156,7 +158,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 
 							<div className="form-group">
 								<label className="form-label" htmlFor="nickname">
-									昵称
+									{t("auth.firstName")}
 								</label>
 								<input
 									className="form-input"
@@ -173,7 +175,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 
 					<div className="form-group">
 						<label className="form-label" htmlFor="password">
-							密码
+							{t("auth.password")}
 						</label>
 						<input
 							className="form-input"
@@ -189,13 +191,13 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) =
 					{error && <div className="error-message">{error}</div>}
 
 					<button className="submit-button" type="submit" disabled={loading}>
-						{loading ? "处理中..." : activeTab === "login" ? "登录" : "注册"}
+						{loading ? t("common.loading") : activeTab === "login" ? t("auth.login") : t("auth.register")}
 					</button>
 
 					{activeTab === "login" && (
 						<div className="forgot-password-link">
 							<Link to="/forgot-password" onClick={onClose}>
-								忘记密码？
+								{t("auth.forgotPassword")}
 							</Link>
 						</div>
 					)}

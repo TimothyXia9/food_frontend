@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./DateTimePicker.css";
 import { getCurrentLocalDate, getCurrentLocalDateTime, createLocalDate } from "../utils/timezone";
+import { useTranslation } from "react-i18next";
 
 interface DateTimePickerProps {
 	value: string; // ISO datetime string (YYYY-MM-DDTHH:mm)
@@ -11,8 +12,22 @@ interface DateTimePickerProps {
 export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 	value,
 	onChange,
-	placeholder = "选择日期和时间",
+	placeholder,
 }) => {
+	const { t } = useTranslation();
+	
+	// 格式化年月显示
+	const formatMonthYear = (date: Date): string => {
+		const year = date.getFullYear();
+		const month = date.getMonth() + 1;
+		const format = t("dateTime.monthYearFormat.format");
+		
+		return format
+			.replace("YYYY", year.toString())
+			.replace("MM", month.toString().padStart(2, "0"))
+			.replace("M", month.toString());
+	};
+	
 	// 本地工具函数
 	const formatDateToLocal = (date: Date): string => {
 		const year = date.getFullYear();
@@ -351,8 +366,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 								</button>
 
 								<span className="month-year">
-									{currentMonth.getFullYear()}年
-									{(currentMonth.getMonth() + 1).toString().padStart(2, "0")}月
+									{formatMonthYear(currentMonth)}
 								</span>
 
 								<button type="button" className="nav-btn" onClick={goToNextMonth}>
@@ -364,13 +378,13 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
 							{/* Week Days Header */}
 							<div className="weekdays">
-								<div className="weekday">日</div>
-								<div className="weekday">一</div>
-								<div className="weekday">二</div>
-								<div className="weekday">三</div>
-								<div className="weekday">四</div>
-								<div className="weekday">五</div>
-								<div className="weekday">六</div>
+								<div className="weekday">{t("dateTime.weekdays.sun")}</div>
+								<div className="weekday">{t("dateTime.weekdays.mon")}</div>
+								<div className="weekday">{t("dateTime.weekdays.tue")}</div>
+								<div className="weekday">{t("dateTime.weekdays.wed")}</div>
+								<div className="weekday">{t("dateTime.weekdays.thu")}</div>
+								<div className="weekday">{t("dateTime.weekdays.fri")}</div>
+								<div className="weekday">{t("dateTime.weekdays.sat")}</div>
 							</div>
 
 							{/* Calendar Grid */}
@@ -394,7 +408,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
 						{/* Time Selection */}
 						<div className="time-section">
-							<label className="section-label">选择时间</label>
+							<label className="section-label">{t("dateTime.selectTime")}</label>
 
 							{/* Direct Time Input */}
 							<div className="time-input-container">
@@ -404,7 +418,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 									onChange={e => handleTimeInputChange(e.target.value)}
 									onBlur={handleTimeInputBlur}
 									onKeyDown={handleTimeInputKeyPress}
-									placeholder="例如: 14:30, 2:30pm, 1430, noon"
+									placeholder={t("dateTime.timeInputPlaceholder")}
 									className="time-text-input"
 								/>
 							</div>
@@ -413,7 +427,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
 					<div className="datetime-picker-footer">
 						<button className="confirm-btn" onClick={() => setIsOpen(false)}>
-							确定
+							{t("dateTime.confirm")}
 						</button>
 					</div>
 				</div>

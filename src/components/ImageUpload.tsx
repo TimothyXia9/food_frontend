@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { imageService } from "../services/imageService";
 import { useNotification } from "../contexts/NotificationContext";
 
@@ -27,6 +28,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 	disabled = false,
 	useStreaming = true,
 }) => {
+	const { t } = useTranslation();
 	const [uploading, setUploading] = useState(false);
 	const [analyzing, setAnalyzing] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,19 +44,19 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 		const file = event.target.files?.[0];
 		if (!file) return;
 
-		// 验证文件类型
+		// {t("photoRecognition.validatingFile")}
 		if (!file.type.startsWith("image/")) {
-			showError("请选择图片文件");
+			showError(t("photoRecognition.selectImageFile"));
 			return;
 		}
 
-		// 验证文件大小 (10MB)
+		// {t("photoRecognition.validatingSize")}
 		if (file.size > 10 * 1024 * 1024) {
-			showError("图片文件大小不能超过10MB");
+			showError(t("photoRecognition.fileSizeExceeded"));
 			return;
 		}
 
-		// 创建图片预览URL并立即显示
+		// Create image preview URL and display immediately
 		const imagePreviewUrl = URL.createObjectURL(file);
 		onImagePreview?.(imagePreviewUrl);
 
@@ -62,28 +64,28 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 			setUploading(true);
 			onUploadStart?.();
 
-			// 步骤1: 上传图片
-			showInfo("正在上传图片...");
+			// Step 1: Upload image
+			showInfo(t("photoRecognition.uploadingImage"));
 			const uploadResponse = await imageService.uploadImage(file);
 
 			if (!uploadResponse.success || !uploadResponse.data) {
-				throw new Error("图片上传失败");
+				throw new Error(t("photoRecognition.uploadFailed"));
 			}
 
 			const imageId = uploadResponse.data.id;
-			showSuccess("图片上传成功，开始分析...");
+			showSuccess(t("photoRecognition.uploadSuccess"));
 
 			setUploading(false);
 			setAnalyzing(true);
 
 			if (useStreaming) {
-				// 创建取消控制器
+				// Create abort controller
 				abortControllerRef.current = new AbortController();
 
 				const streamResult = await imageService.analyzeImageStreaming(
 					imageId,
 					data => {
-						// 处理流式进度更新
+						// Handle streaming progress updates
 						if (data.message) {
 							showInfo(data.message);
 						}
@@ -94,25 +96,25 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 				);
 
 				if (streamResult.cancelled) {
-					showInfo("图片分析已取消");
-					return; // 直接返回，不抛出错误
+					showInfo(t("photoRecognition.analysisCancelled"));
+					return; // Return directly, don't throw error
 				} else if (streamResult.success && streamResult.finalResult) {
-					showSuccess("图片分析完成！");
+					showSuccess(t("photoRecognition.analysisComplete"));
 					setAnalyzing(false);
 					onUploadEnd?.();
 
-					// 使用流式分析的结果
+					// Use streaming analysis results
 					const finalData = streamResult.finalResult;
 					const mockResults = {
 						image_id: imageId,
 						processing_status: "completed" as const,
 						streaming_result: finalData,
-						// 保持向后兼容性
+						// Maintain backward compatibility
 						keywords:
 							finalData.stage_1?.food_types?.map((food: any) => food.name) || [],
 						results:
 							finalData.stage_1?.food_types?.map((food: any, index: number) => {
-								// 找到对应的分量信息
+								// Find corresponding portion information
 								const portionInfo = finalData.stage_2?.food_portions?.find(
 									(portion: any) => portion.name === food.name
 								);
@@ -127,8 +129,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 										cooking_method: portionInfo?.cooking_method || "",
 										portion_description:
 											portionInfo?.portion_description ||
-											`约${portionInfo?.estimated_grams || 100}克`,
-										calories_per_100g: 100, // 模拟数据
+											`${t("photoRecognition.about")}${portionInfo?.estimated_grams || 100}${t("photoRecognition.grams")}`,
+										calories_per_100g: 100, // Simulated data
 										protein_per_100g: 10,
 										fat_per_100g: 5,
 										carbs_per_100g: 20,
@@ -144,24 +146,26 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
 					onImageUploaded(imageId, mockResults, imagePreviewUrl);
 				} else {
-					throw new Error(streamResult.error || "流式分析失败");
+					throw new Error(
+						streamResult.error || t("photoRecognition.streamAnalysisFailed")
+					);
 				}
 			} else {
-				// 使用传统分析方式（向后兼容）
-				showInfo("正在分析图片中的食物...");
+				// Use traditional analysis method (backward compatibility)
+				showInfo(t("photoRecognition.analyzingImage"));
 				const analyzeResponse = await imageService.analyzeImage(imageId);
 
 				if (!analyzeResponse.success || !analyzeResponse.data) {
-					throw new Error("图片分析失败");
+					throw new Error(t("photoRecognition.analysisFailed"));
 				}
 
 				const data = analyzeResponse.data;
 				if (data.status === "completed" && data.keywords && data.keywords.length > 0) {
-					showSuccess("图片分析完成！");
+					showSuccess(t("photoRecognition.analysisComplete"));
 					setAnalyzing(false);
 					onUploadEnd?.();
 
-					// 将关键词转换为模拟的识别结果格式
+					// Convert keywords to simulated recognition result format
 					const mockResults = {
 						image_id: imageId,
 						processing_status: "completed" as const,
@@ -171,7 +175,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 							food: {
 								id: index + 1,
 								name: keyword,
-								calories_per_100g: 100, // 模拟数据
+								calories_per_100g: 100, // Simulated data
 								protein_per_100g: 10,
 								fat_per_100g: 5,
 								carbs_per_100g: 20,
@@ -186,23 +190,23 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
 					onImageUploaded(imageId, mockResults, imagePreviewUrl);
 				} else {
-					throw new Error("未能识别到食物关键词");
+					throw new Error(t("photoRecognition.noFoodKeywords"));
 				}
 			}
 		} catch (err) {
-			console.error("图片上传分析失败:", err);
-			showError(err instanceof Error ? err.message : "图片处理失败，请重试");
-			// 清理预览URL
+			console.error("Image upload analysis failed:", err);
+			showError(err instanceof Error ? err.message : t("photoRecognition.processingFailed"));
+			// Clean up preview URL
 			URL.revokeObjectURL(imagePreviewUrl);
 		} finally {
 			setUploading(false);
 			setAnalyzing(false);
 			onUploadEnd?.();
 
-			// 清理取消控制器
+			// Clean up abort controller
 			abortControllerRef.current = null;
 
-			// 清空文件输入
+			// Clear file input
 			if (fileInputRef.current) {
 				fileInputRef.current.value = "";
 			}
@@ -212,12 +216,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 	const handleCancel = () => {
 		if (abortControllerRef.current && analyzing) {
 			abortControllerRef.current.abort();
-			showInfo("正在取消分析...");
+			showInfo(t("photoRecognition.cancellingAnalysis"));
 		}
 	};
 
 	const isProcessing = uploading || analyzing;
-	const buttonText = uploading ? "上传中..." : analyzing ? "分析中..." : "📸 拍照识别";
+	const buttonText = uploading
+		? t("foodSearchToolbar.uploading")
+		: analyzing
+			? t("photoRecognition.analyzing")
+			: t("photoRecognition.capture");
 
 	return (
 		<div className="image-upload">
@@ -241,9 +249,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 					<button
 						className="btn btn-secondary cancel-btn"
 						onClick={handleCancel}
-						title="取消分析"
+						title={t("photoRecognition.cancelTitle")}
 					>
-						❌ 取消
+						{t("photoRecognition.cancel")}
 					</button>
 				)}
 			</div>

@@ -1,5 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 interface NavigationProps {
 	onLogout: () => void;
@@ -8,14 +10,15 @@ interface NavigationProps {
 }
 const Navigation = ({ onLogout, onLoginRequired, isAuthenticated }: NavigationProps) => {
 	const location = useLocation();
+	const { t } = useTranslation();
 
 	const menuItems = [
-		{ path: "/dashboard", label: "我的首页", icon: "🏠", requiresAuth: true },
-		{ path: "/", label: "搜索食物", icon: "🔍", requiresAuth: false },
-		{ path: "/statistics", label: "每餐统计", icon: "📊", requiresAuth: true },
-		{ path: "/profile", label: "个人资料", icon: "👤", requiresAuth: true },
-		{ path: "/api-test", label: "API测试", icon: "🧪", requiresAuth: false },
-		{ path: "/token-test", label: "Token测试", icon: "🔑", requiresAuth: false },
+		{ path: "/dashboard", label: t("navigation.dashboard"), icon: "🏠", requiresAuth: true },
+		{ path: "/", label: t("navigation.foodSearch"), icon: "🔍", requiresAuth: false },
+		{ path: "/statistics", label: t("navigation.statistics"), icon: "📊", requiresAuth: true },
+		{ path: "/profile", label: t("navigation.profile"), icon: "👤", requiresAuth: true },
+		{ path: "/api-test", label: t("navigation.apiTest"), icon: "🧪", requiresAuth: false },
+		{ path: "/token-test", label: "Token Test", icon: "🔑", requiresAuth: false },
 	];
 
 	const handleNavClick = (path: string, requiresAuth: boolean, e?: React.MouseEvent) => {
@@ -31,7 +34,9 @@ const Navigation = ({ onLogout, onLoginRequired, isAuthenticated }: NavigationPr
 
 	return (
 		<nav className="navigation">
-			<div className="nav-brand">卡路里追踪器</div>
+			<div className="nav-brand">
+				{t("common.name", "Calorie Tracker")}
+			</div>
 
 			<ul className="nav-menu">
 				{menuItems.map(item => (
@@ -63,13 +68,14 @@ const Navigation = ({ onLogout, onLoginRequired, isAuthenticated }: NavigationPr
 			</ul>
 
 			<div className="nav-user">
+				<LanguageSwitcher className="language-switcher-nav" />
 				{isAuthenticated ? (
 					<button className="logout-btn" onClick={onLogout}>
-						登出
+						{t("navigation.logout")}
 					</button>
 				) : (
 					<button className="login-btn" onClick={onLoginRequired}>
-						登录
+						{t("navigation.login")}
 					</button>
 				)}
 			</div>

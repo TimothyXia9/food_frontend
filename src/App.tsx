@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navigation from "./components/Navigation";
 import LoginModal from "./components/LoginModal";
 import Dashboard from "./pages/Dashboard";
@@ -14,16 +15,17 @@ import ResendVerification from "./pages/ResendVerification";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { NotificationProvider, useNotification } from "./contexts/NotificationContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
 // Protected Route component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const { isAuthenticated, loading, setShowLoginModal } = useAuth();
+	const { t } = useTranslation();
 
 	if (loading) {
 		return (
 			<div className="loading-container">
-				<div className="loading-spinner">加载中...</div>
+				<div className="loading-spinner">{t("common.loading")}</div>
 			</div>
 		);
 	}
@@ -38,6 +40,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 function AppContent() {
 	const { isAuthenticated, loading, logout, showLoginModal, setShowLoginModal } = useAuth();
+	const { t } = useTranslation();
 
 	const handleLogout = async () => {
 		await logout();
@@ -54,7 +57,7 @@ function AppContent() {
 	if (loading) {
 		return (
 			<div className="loading-container">
-				<div className="loading-spinner">加载中...</div>
+				<div className="loading-spinner">{t("common.loading")}</div>
 			</div>
 		);
 	}

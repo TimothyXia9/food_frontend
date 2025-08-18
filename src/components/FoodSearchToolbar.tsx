@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface FoodSearchToolbarProps {
 	viewMode: "search" | "user";
@@ -29,26 +30,27 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 	onBarcodeCapture,
 	onLoginRequired,
 }) => {
+	const { t } = useTranslation();
 	return (
 		<div className="food-search-toolbar">
-			{/* 模式选择器 */}
+			{/* Mode Selector */}
 			<div className="view-mode-selector">
 				<button
 					onClick={() => onViewModeChange("search")}
 					className={`view-mode-btn ${viewMode === "search" ? "active" : ""}`}
 				>
-					搜索食物
+					{t("foodSearchToolbar.searchFood")}
 				</button>
 				<button
 					onClick={() => onViewModeChange("user")}
 					className={`view-mode-btn ${viewMode === "user" ? "active" : ""}`}
 					disabled={!isAuthenticated}
 				>
-					我的食物
+					{t("foodSearchToolbar.myFood")}
 				</button>
 			</div>
 
-			{/* 搜索区域 */}
+			{/* Search Area */}
 			{viewMode === "search" && (
 				<div className="search-section">
 					<div className="search-bar">
@@ -56,7 +58,7 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 							type="text"
 							value={searchQuery}
 							onChange={e => onSearchQueryChange(e.target.value)}
-							placeholder="搜索食物..."
+							placeholder={t("foodSearchToolbar.searchPlaceholder")}
 							className="search-input"
 							onKeyPress={e => e.key === "Enter" && onSearch()}
 							disabled={loading}
@@ -66,7 +68,9 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 							className="btn btn-primary search-btn"
 							disabled={loading}
 						>
-							{loading ? "搜索中..." : "搜索"}
+							{loading
+								? t("foodSearchToolbar.searching")
+								: t("foodSearchToolbar.search")}
 						</button>
 						<button
 							className="btn btn-warning"
@@ -74,7 +78,7 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 								isAuthenticated ? onCameraCapture() : onLoginRequired()
 							}
 						>
-							📸 拍照识别
+							{t("foodSearchToolbar.photoRecognition")}
 						</button>
 						{onBarcodeCapture && (
 							<button
@@ -83,7 +87,7 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 									isAuthenticated ? onBarcodeCapture() : onLoginRequired()
 								}
 							>
-								📊 条形码识别
+								{t("foodSearchToolbar.barcodeRecognition")}
 							</button>
 						)}
 					</div>
@@ -99,18 +103,18 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 							}}
 							className="btn btn-success"
 						>
-							+ 创建自定义食物
+							{t("foodSearchToolbar.createCustomFood")}
 						</button>
 
 					</div> */}
 				</div>
 			)}
 
-			{/* 我的食物区域 */}
+			{/* My Food Area */}
 			{viewMode === "user" && (
 				<div className="user-foods-section">
 					<div className="user-foods-header">
-						<h3>我的自定义食物</h3>
+						<h3>{t("foodSearchToolbar.myCustomFood")}</h3>
 						<button
 							onClick={() => {
 								if (isAuthenticated) {
@@ -122,7 +126,7 @@ const FoodSearchToolbar: React.FC<FoodSearchToolbarProps> = ({
 							className="btn btn-success"
 							disabled={userFoodsLoading}
 						>
-							+ 创建自定义食物
+							{t("foodSearchToolbar.createCustomFood")}
 						</button>
 					</div>
 				</div>

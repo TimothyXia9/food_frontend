@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	authService,
 	userService,
@@ -16,6 +17,7 @@ interface ApiTestProps {
 }
 
 const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
+	const { t } = useTranslation();
 	const { isAuthenticated } = useAuth();
 	const [results, setResults] = useState<any[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -56,7 +58,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			password: "password123",
 			nickname: "Test User",
 		};
-		return runTest("用户注册", () => authService.register(registerData));
+		return runTest(t("apiTest.userRegister"), () => authService.register(registerData));
 	};
 
 	const testLogin = () => {
@@ -64,20 +66,20 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			username: "testuser",
 			password: "password123",
 		};
-		return runTest("用户登录", () => authService.login(loginData));
+		return runTest(t("apiTest.userLogin"), () => authService.login(loginData));
 	};
 
 	const testRefreshToken = () => {
-		return runTest("刷新令牌", () => authService.refreshToken());
+		return runTest(t("apiTest.refreshToken"), () => authService.refreshToken());
 	};
 
 	const testLogout = () => {
-		return runTest("用户登出", () => authService.logout());
+		return runTest(t("apiTest.userLogout"), () => authService.logout());
 	};
 
 	// User Service Tests
 	const testGetProfile = () => {
-		return runTest("获取用户资料", () => userService.getProfile());
+		return runTest(t("apiTest.getUserProfile"), () => userService.getProfile());
 	};
 
 	const testUpdateProfile = () => {
@@ -87,18 +89,18 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			weight: 70,
 			daily_calorie_goal: 2000,
 		};
-		return runTest("更新用户资料", () => userService.updateProfile(profileData));
+		return runTest(t("apiTest.updateUserProfile"), () => userService.updateProfile(profileData));
 	};
 
 	// Food Service Tests
 	const testSearchFoods = () => {
-		return runTest("搜索食物 (GET /foods/search/)", () =>
+		return runTest(t("apiTest.searchFood"), () =>
 			foodService.searchFoods({ query: "apple", page_size: 10 })
 		);
 	};
 
 	const testGetFoodDetails = () => {
-		return runTest("获取食物详情 (GET /foods/{id}/)", () => foodService.getFoodDetails(1));
+		return runTest(t("apiTest.getFoodDetails"), () => foodService.getFoodDetails(1));
 	};
 
 	const testCreateCustomFood = () => {
@@ -114,14 +116,14 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			sugar_per_100g: 2,
 			sodium_per_100g: 100,
 		};
-		return runTest("创建自定义食物 (POST /foods/create/)", () =>
+		return runTest(t("apiTest.createCustomFood"), () =>
 			foodService.createCustomFood(foodData)
 		);
 	};
 
 	// USDA API Tests
 	const testSearchUSDAFoods = () => {
-		return runTest("搜索USDA食物 (GET /foods/usda/search/)", async () => {
+		return runTest(t("apiTest.searchUsdaFood"), async () => {
 			const response = await fetch(
 				"http://localhost:8000/api/v1/foods/usda/search/?query=apple&page_size=5",
 				{
@@ -137,7 +139,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testGetUSDANutrition = () => {
-		return runTest("获取USDA营养信息 (GET /foods/usda/nutrition/{fdc_id}/)", async () => {
+		return runTest(t("apiTest.getUsdaNutrition"), async () => {
 			const response = await fetch(
 				"http://localhost:8000/api/v1/foods/usda/nutrition/1102702/",
 				{
@@ -152,7 +154,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testCreateFoodFromUSDA = () => {
-		return runTest("从USDA创建食物 (POST /foods/usda/create/)", async () => {
+		return runTest(t("apiTest.createFromUsda"), async () => {
 			const response = await fetch("http://localhost:8000/api/v1/foods/usda/create/", {
 				method: "POST",
 				headers: {
@@ -169,14 +171,14 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testGetSearchHistory = () => {
-		return runTest("获取搜索历史 (GET /foods/search/history/)", () =>
+		return runTest(t("apiTest.getSearchHistory"), () =>
 			foodService.getSearchHistory(10)
 		);
 	};
 
 	// Meal Service Tests
 	const testGetMealsByDate = () => {
-		return runTest("获取用户餐食 (GET /meals/list/)", () =>
+		return runTest(t("apiTest.getDateMeals"), () =>
 			mealService.getUserMeals({ date: "2024-01-15" })
 		);
 	};
@@ -189,11 +191,11 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			notes: "Test meal",
 			foods: [{ food_id: 1, quantity: 150 }],
 		};
-		return runTest("创建餐食 (POST /meals/create/)", () => mealService.createMeal(mealData));
+		return runTest(t("apiTest.createMeal"), () => mealService.createMeal(mealData));
 	};
 
 	const testGetMealDetails = () => {
-		return runTest("获取餐食详情 (GET /meals/{id}/)", async () => {
+		return runTest(t("apiTest.getMealDetails"), async () => {
 			const response = await fetch("http://localhost:8000/api/v1/meals/1/", {
 				method: "GET",
 				headers: {
@@ -206,7 +208,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testGetRecentMeals = () => {
-		return runTest("获取最近餐食 (GET /meals/recent/)", async () => {
+		return runTest(t("apiTest.getRecentMeals"), async () => {
 			const response = await fetch("http://localhost:8000/api/v1/meals/recent/?limit=5", {
 				method: "GET",
 				headers: {
@@ -219,7 +221,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testAddFoodToMeal = () => {
-		return runTest("添加食物到餐食 (POST /meals/{id}/add-food/)", async () => {
+		return runTest(t("apiTest.addFoodToMeal"), async () => {
 			const response = await fetch("http://localhost:8000/api/v1/meals/1/add-food/", {
 				method: "POST",
 				headers: {
@@ -236,7 +238,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testCreateMealPlan = () => {
-		return runTest("创建餐食计划 (POST /meals/plan/)", async () => {
+		return runTest(t("apiTest.createMealPlan"), async () => {
 			const response = await fetch("http://localhost:8000/api/v1/meals/plan/", {
 				method: "POST",
 				headers: {
@@ -259,13 +261,13 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 
 	// Statistics Service Tests
 	const testGetDailySummary = () => {
-		return runTest("获取每日汇总 (GET /meals/daily-summary/)", () =>
+		return runTest(t("apiTest.getDailySummary"), () =>
 			statisticsService.getDailySummary({ date: "2024-01-15" })
 		);
 	};
 
 	const testGetNutritionStats = () => {
-		return runTest("获取营养统计 (GET /meals/nutrition-stats/)", () =>
+		return runTest(t("apiTest.getNutritionStats"), () =>
 			statisticsService.getNutritionStats({ start_date: "2024-01-15", period: "weekly" })
 		);
 	};
@@ -276,14 +278,14 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 			weight: 70.5,
 			notes: "Morning weight",
 		};
-		return runTest("记录体重 (POST /meals/record-weight/)", () =>
+		return runTest(t("apiTest.recordWeight"), () =>
 			statisticsService.recordWeight(weightData)
 		);
 	};
 
 	// Image Service Tests
 	const testUploadImage = () => {
-		return runTest("上传图片 (POST /images/upload/)", async () => {
+		return runTest(t("apiTest.uploadImage"), async () => {
 			// Create a mock image file
 			const canvas = document.createElement("canvas");
 			canvas.width = 100;
@@ -320,7 +322,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testAnalyzeImage = () => {
-		return runTest("分析图片 (POST /images/analyze/)", async () => {
+		return runTest(t("apiTest.analyzeImage"), async () => {
 			const response = await fetch("http://localhost:8000/api/v1/images/analyze/", {
 				method: "POST",
 				headers: {
@@ -337,7 +339,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testGetImageResults = () => {
-		return runTest("获取图片分析结果 (GET /images/{id}/results/)", async () => {
+		return runTest(t("apiTest.getImageResults"), async () => {
 			const response = await fetch("http://localhost:8000/api/v1/images/1/results/", {
 				method: "GET",
 				headers: {
@@ -350,7 +352,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testGetUserImages = () => {
-		return runTest("获取用户图片 (GET /images/list/)", async () => {
+		return runTest(t("apiTest.getUserImages"), async () => {
 			const response = await fetch(
 				"http://localhost:8000/api/v1/images/list/?page=1&page_size=10",
 				{
@@ -366,7 +368,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testConfirmFoodRecognition = () => {
-		return runTest("确认食物识别 (POST /images/confirm/)", async () => {
+		return runTest(t("apiTest.confirmFoodRecognition"), async () => {
 			const response = await fetch("http://localhost:8000/api/v1/images/confirm/", {
 				method: "POST",
 				headers: {
@@ -384,7 +386,7 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	};
 
 	const testCreateMealFromImage = () => {
-		return runTest("从图片创建餐食 (POST /images/create-meal/)", async () => {
+		return runTest(t("apiTest.createMealFromImage"), async () => {
 			const response = await fetch("http://localhost:8000/api/v1/images/create-meal/", {
 				method: "POST",
 				headers: {
@@ -406,17 +408,17 @@ const ApiTest = ({ onLoginRequired }: ApiTestProps) => {
 	const testAuthStatus = () => {
 		const isAuthenticated = authService.isAuthenticated();
 		const token = authService.getCurrentToken();
-		addResult("检查认证状态", true, { isAuthenticated, hasToken: !!token });
+		addResult(t("apiTest.checkAuthStatus"), true, { isAuthenticated, hasToken: !!token });
 	};
 
 	return (
 		<div className="api-test">
 			<div className="test-header">
-				<h1>API 服务测试</h1>
+				<h1>{t("apiTest.title")}</h1>
 				<div className="test-controls">
 					{!isAuthenticated && (
 						<button onClick={onLoginRequired} className="btn btn-primary">
-							登录以测试API
+							{t("apiTest.loginToTest")}
 						</button>
 					)}
 					<button onClick={clearResults} className="btn btn-secondary">

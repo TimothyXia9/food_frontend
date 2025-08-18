@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./DateRangePicker.css";
 import { getCurrentLocalDate, getLocalDateOffset, createLocalDate } from "../utils/timezone";
+import { useTranslation } from "react-i18next";
 
 interface DateRangePickerProps {
 	startDate: string; // ISO date string (YYYY-MM-DD)
@@ -21,6 +22,20 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 	onModeChange,
 	onApply,
 }) => {
+	const { t } = useTranslation();
+	
+	// 格式化年月显示
+	const formatMonthYear = (date: Date): string => {
+		const year = date.getFullYear();
+		const month = date.getMonth() + 1;
+		const format = t("dateTime.monthYearFormat.format");
+		
+		return format
+			.replace("YYYY", year.toString())
+			.replace("MM", month.toString().padStart(2, "0"))
+			.replace("M", month.toString());
+	};
+	
 	// 本地的日期格式化函数
 	const formatDateToLocal = (date: Date): string => {
 		const year = date.getFullYear();
@@ -84,11 +99,11 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
 		// Check if it's today, yesterday, or tomorrow
 		if (dateStr === todayStr) {
-			return "今天";
+			return t("dateTime.today");
 		} else if (dateStr === yesterdayStr) {
-			return "昨天";
+			return t("dateTime.yesterday");
 		} else if (dateStr === tomorrowStr) {
-			return "明天";
+			return t("dateTime.tomorrow");
 		} else {
 			// Format as MM-DD if same year, otherwise YYYY-MM-DD
 			const currentYear = new Date().getFullYear();
@@ -286,21 +301,21 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 			{isOpen && (
 				<div className="date-range-picker-popup">
 					<div className="date-range-picker-header">
-						<h3>选择统计时间</h3>
+						<h3>{t("dateTime.selectStatisticsTime")}</h3>
 						<div className="mode-toggle">
 							<button
 								type="button"
 								className={`mode-btn ${isSingleMode ? "active" : ""}`}
 								onClick={() => handleModeChange(true)}
 							>
-								单日
+								{t("dateTime.singleDay")}
 							</button>
 							<button
 								type="button"
 								className={`mode-btn ${!isSingleMode ? "active" : ""}`}
 								onClick={() => handleModeChange(false)}
 							>
-								多日
+								{t("dateTime.multiDay")}
 							</button>
 						</div>
 					</div>
@@ -309,21 +324,21 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 						{/* Quick Selection Buttons */}
 						{!isSingleMode && (
 							<div className="quick-select-section">
-								<label className="section-label">快速选择</label>
+								<label className="section-label">{t("dateTime.quickSelect")}</label>
 								<div className="quick-select-buttons">
 									<button
 										type="button"
 										className="quick-select-btn"
 										onClick={() => handleQuickSelect("week")}
 									>
-										前一周
+										{t("dateTime.previousWeek")}
 									</button>
 									<button
 										type="button"
 										className="quick-select-btn"
 										onClick={() => handleQuickSelect("month")}
 									>
-										前一个月
+										{t("dateTime.previousMonth")}
 									</button>
 								</div>
 							</div>
@@ -333,10 +348,10 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 						<div className="calendar-section">
 							<label className="section-label">
 								{isSingleMode
-									? "选择日期"
+									? t("dateTime.selectDate")
 									: selectionStep === "start"
-										? "选择开始日期"
-										: "选择结束日期"}
+										? t("dateTime.selectStartDate")
+										: t("dateTime.selectEndDate")}
 							</label>
 
 							{/* Calendar Header */}
@@ -352,8 +367,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 								</button>
 
 								<span className="month-year">
-									{currentMonth.getFullYear()}年
-									{(currentMonth.getMonth() + 1).toString().padStart(2, "0")}月
+									{formatMonthYear(currentMonth)}
 								</span>
 
 								<button type="button" className="nav-btn" onClick={goToNextMonth}>
@@ -365,13 +379,13 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
 							{/* Week Days Header */}
 							<div className="weekdays">
-								<div className="weekday">日</div>
-								<div className="weekday">一</div>
-								<div className="weekday">二</div>
-								<div className="weekday">三</div>
-								<div className="weekday">四</div>
-								<div className="weekday">五</div>
-								<div className="weekday">六</div>
+								<div className="weekday">{t("dateTime.weekdays.sun")}</div>
+								<div className="weekday">{t("dateTime.weekdays.mon")}</div>
+								<div className="weekday">{t("dateTime.weekdays.tue")}</div>
+								<div className="weekday">{t("dateTime.weekdays.wed")}</div>
+								<div className="weekday">{t("dateTime.weekdays.thu")}</div>
+								<div className="weekday">{t("dateTime.weekdays.fri")}</div>
+								<div className="weekday">{t("dateTime.weekdays.sat")}</div>
 							</div>
 
 							{/* Calendar Grid */}
@@ -399,21 +413,21 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 						{!isSingleMode && (
 							<div className="selection-status">
 								<div className="status-item">
-									<span className="status-label">开始日期:</span>
+									<span className="status-label">{t("dateTime.startDate")}:</span>
 									<span className="status-value">
 										{formatSingleDate(tempStartDate)}
 									</span>
 								</div>
 								<div className="status-item">
-									<span className="status-label">结束日期:</span>
+									<span className="status-label">{t("dateTime.endDate")}:</span>
 									<span className="status-value">
 										{formatSingleDate(tempEndDate)}
 									</span>
 								</div>
 								<div className="status-hint">
 									{selectionStep === "start"
-										? "点击日历选择开始日期"
-										: "点击日历选择结束日期"}
+										? t("dateTime.clickToSelectStart")
+										: t("dateTime.clickToSelectEnd")}
 								</div>
 							</div>
 						)}
@@ -425,10 +439,10 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 							className="cancel-btn"
 							onClick={() => setIsOpen(false)}
 						>
-							取消
+							{t("dateTime.cancel")}
 						</button>
 						<button type="button" className="apply-btn" onClick={handleApply}>
-							应用
+							{t("dateTime.apply")}
 						</button>
 					</div>
 				</div>

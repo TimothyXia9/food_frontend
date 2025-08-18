@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import NotificationContainer from "../components/NotificationContainer";
 import "./NotificationContext.css";
 
@@ -31,7 +32,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 	const [confirmDialog, setConfirmDialog] = useState<{
 		message: string;
 		resolve: (value: boolean) => void;
-	} | null>(null);
+			} | null>(null);
 
 	const generateId = () =>
 		`notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -141,6 +142,8 @@ interface ConfirmDialogProps {
 }
 
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ message, onClose }) => {
+	const { t } = useTranslation();
+
 	return (
 		<div className="confirm-dialog-overlay">
 			<div className="confirm-dialog">
@@ -151,13 +154,13 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ message, onClose }) => {
 							className="confirm-dialog__button confirm-dialog__button--cancel"
 							onClick={() => onClose(false)}
 						>
-							取消
+							{t("notifications.cancel")}
 						</button>
 						<button
 							className="confirm-dialog__button confirm-dialog__button--confirm"
 							onClick={() => onClose(true)}
 						>
-							确认
+							{t("notifications.confirm")}
 						</button>
 					</div>
 				</div>

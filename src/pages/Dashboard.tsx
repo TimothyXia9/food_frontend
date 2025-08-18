@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 import { getCurrentLocalDate } from "../utils/timezone";
 import ImageUpload from "../components/ImageUpload";
@@ -10,56 +11,57 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ onLoginRequired }: DashboardProps) => {
+	const { t } = useTranslation();
 	const { isAuthenticated } = useAuth();
 	const { showSuccess, showError } = useNotification();
 	const todayDate = new Date(getCurrentLocalDate()).toLocaleDateString("zh-CN");
 
-	// 图像识别相关状态
+	// Image recognition related state
 	const [imageRecognitionHistory, setImageRecognitionHistory] = useState<any[]>([]);
 	const [currentImagePreview, setCurrentImagePreview] = useState<string | null>(null);
 	const [currentImageId, setCurrentImageId] = useState<number | null>(null);
 
-	// 流式分析状态
+	// Streaming analysis state
 	const [analysisProgress, setAnalysisProgress] = useState<number>(0);
 	const [analysisStep, setAnalysisStep] = useState<string>("");
 	const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
 	const [detectedFoods, setDetectedFoods] = useState<any[]>([]);
 	const [estimatedPortions, setEstimatedPortions] = useState<any[]>([]);
 
-	// 条形码扫描状态
+	// Barcode scanning state
 	const [showBarcodeScanner, setShowBarcodeScanner] = useState<boolean>(false);
 	const [barcodeResults, setBarcodeResults] = useState<any>(null);
 
-	// 清理资源
+	// Cleanup resources
 	useEffect(() => {
 		return () => {
-			// 组件卸载时清理预览URL
+			// Cleanup preview URL on component unmount
 			if (currentImagePreview) {
 				URL.revokeObjectURL(currentImagePreview);
 			}
 		};
 	}, [currentImagePreview]);
 
-	// 检查URL参数，如果有条形码模式则打开扫描器
+	// Check URL parameters, open scanner if barcode mode is set
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const mode = urlParams.get("mode");
 
 		if (mode === "barcode") {
 			setShowBarcodeScanner(true);
-			// 清理URL参数
+			// Clear URL parameters
 			window.history.replaceState(null, "", window.location.pathname);
 		}
 	}, []);
 
-	// 处理图片预览（立即显示）
+	// Handle image preview (display immediately)
 	const handleImagePreview = (imagePreview: string) => {
-		// 清理之前的预览URL
+		// Clear previous preview URL
 		if (currentImagePreview) {
 			URL.revokeObjectURL(currentImagePreview);
 		}
 		setCurrentImagePreview(imagePreview);
-		// 清空之前的识别结果
+		// Clear previous recognition results
 		setDetectedFoods([]);
 		setEstimatedPortions([]);
 		setAnalysisProgress(0);
@@ -67,7 +69,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		setIsAnalyzing(true);
 	};
 
-	// 处理流式分析进度
+	// Handle streaming analysis progress
 	const handleStreamingProgress = (data: {
 		step: string;
 		message?: string;
@@ -85,14 +87,14 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			setAnalysisProgress(data.progress);
 		}
 
-		// 检查是否有 portions 数据（不管在哪个阶段）
+		// Check if there's portions data (regardless of stage)
 		if (data.portions) {
 			setEstimatedPortions(data.portions);
 		}
 		if (data.stage_2?.portions) {
 			setEstimatedPortions(data.stage_2.portions);
 		}
-		// 检查 food_portions 字段
+		// Check food_portions field
 		if (data.stage_2?.food_portions) {
 			setEstimatedPortions(data.stage_2.food_portions);
 		}
@@ -103,7 +105,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				break;
 
 			case "food_detection":
-				// 正在检测食物
+				// Detecting food
 				break;
 
 			case "food_detection_complete":
@@ -113,7 +115,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				break;
 
 			case "portion_estimation":
-				// 正在估算分量
+				// Estimating portions
 				// 这里可能也会有 portions 数据
 				if (data.portions) {
 					setEstimatedPortions(data.portions);
@@ -136,7 +138,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 
 			case "error":
 				setIsAnalyzing(false);
-				showError(data.message || "分析过程中出现错误");
+				showError(data.message || t("dashboard.analysisError"));
 				break;
 		}
 	};
@@ -178,7 +180,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]); // 只保留最近5次
 
 			// 显示成功消息
-			showSuccess(`识别到 ${recognizedFoods.length} 个食物关键词！`);
+			showSuccess(`${t("dashboard.analysisComplete")}: ${recognizedFoods.length} ${t("dashboard.foodCount")}`);
 		} else if (results && results.portions && results.portions.length > 0) {
 			// 处理新的portions格式的识别结果
 			const recognizedFoods = results.portions.map((portion: any, index: number) => ({
@@ -199,7 +201,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			};
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]);
 
-			showSuccess(`识别到 ${recognizedFoods.length} 种食物！`);
+			showSuccess(t("imageUpload.analysisComplete"));
 		} else if (results && results.results && results.results.length > 0) {
 			// 处理完整的识别结果（向后兼容）
 			const recognizedFoods = results.results.map((result: any) => ({
@@ -216,10 +218,10 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			};
 			setImageRecognitionHistory(prev => [historyItem, ...prev.slice(0, 4)]);
 
-			showSuccess(`识别到 ${recognizedFoods.length} 种食物！`);
+			showSuccess(t("imageUpload.analysisComplete"));
 		} else {
 			// 没有识别到食物
-			showError("未能识别到食物，请尝试拍摄更清晰的图片");
+			showError(t("imageUpload.noFoodDetected"));
 		}
 	};
 
@@ -239,7 +241,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		setBarcodeResults(results);
 
 		if (results.createdFoods && results.createdFoods.length > 0) {
-			showSuccess(`成功创建 ${results.createdFoods.length} 个食品`);
+			showSuccess(t("foodSearch.foodCreated"));
 		}
 	};
 
@@ -252,7 +254,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 
 			// 暂时显示成功信息，提示用户食物可用
 			showSuccess(
-				`${food.name} 已准备添加到餐食！可通过搜索 "${food.name}" 或 ID:${food.id} 找到此食物。`
+				`${food.name} ${t("dashboard.addToMealSuccess")} ID:${food.id}`
 			);
 
 			// TODO: 实现具体的添加到餐食逻辑
@@ -260,7 +262,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 			// 或者：直接创建一个新的餐食并添加该食物
 		} catch (err) {
 			console.error("Error adding barcode food to meal:", err);
-			showError(`添加食物失败: ${err instanceof Error ? err.message : "未知错误"}`);
+			showError(`${t("dashboard.addToMealError")}: ${err instanceof Error ? err.message : t("api.unknownError")}`);
 		}
 	};
 
@@ -279,23 +281,23 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	const recentMeals = [
 		{
 			id: 1,
-			type: "早餐",
+			type: t("meal.breakfast"),
 			time: "08:30",
-			items: ["燕麦粥", "香蕉", "牛奶"],
+			items: ["Oatmeal", "Banana", "Milk"],
 			calories: 320,
 		},
 		{
 			id: 2,
-			type: "午餐",
+			type: t("meal.lunch"),
 			time: "12:45",
-			items: ["鸡胸肉沙拉", "全麦面包"],
+			items: ["Chicken Salad", "Whole Wheat Bread"],
 			calories: 480,
 		},
 		{
 			id: 3,
-			type: "晚餐",
+			type: t("meal.dinner"),
 			time: "18:20",
-			items: ["蒸蛋", "青菜", "米饭"],
+			items: ["Steamed Egg", "Vegetables", "Rice"],
 			calories: 650,
 		},
 	];
@@ -304,10 +306,10 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		return (
 			<div className="dashboard">
 				<div className="not-authenticated">
-					<h2>我的首页</h2>
-					<p>请先登录以查看您的个人数据和饮食统计</p>
+					<h2>{t("dashboard.title")}</h2>
+					<p>{t("auth.loginToAccess")}</p>
 					<button onClick={onLoginRequired} className="btn btn-primary">
-						登录
+						{t("auth.login")}
 					</button>
 				</div>
 			</div>
@@ -317,20 +319,20 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	return (
 		<div className="dashboard">
 			<div className="dashboard-header">
-				<h1>今日餐食</h1>
+				<h1>{t("dashboard.todayMeals")}</h1>
 				<p className="date">{todayDate}</p>
 			</div>
 			<div className="dashboard-grid">
 				{/* 图像识别 */}
 				<div className="card image-recognition-card">
 					<div className="card-header">
-						<h3 className="card-title">📸 拍照识别食物</h3>
+						<h3 className="card-title">📸 {t("dashboard.uploadImage")}</h3>
 						<button
 							className="btn btn-info"
 							onClick={openBarcodeScanner}
 							disabled={!isAuthenticated}
 						>
-							📊 条形码扫描
+							📊 {t("dashboard.scanBarcodeMode")}
 						</button>
 					</div>
 					<div className="image-recognition-content">
@@ -339,7 +341,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 								<div className="image-preview-container">
 									<img
 										src={currentImagePreview}
-										alt="上传的食物图片"
+										alt={t("dashboard.uploadImage")}
 										className="uploaded-image-preview"
 									/>
 									<div className="image-overlay">
@@ -353,7 +355,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 										<button
 											className="btn btn-secondary clear-btn"
 											onClick={clearCurrentImage}
-											title="清除当前图片"
+											title={t("common.clear")}
 										>
 											✕
 										</button>
@@ -362,7 +364,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 							) : (
 								<>
 									<p className="upload-description">
-										上传食物图片，AI会自动识别并分析营养成分
+										{t("dashboard.uploadImage")}
 									</p>
 									<ImageUpload
 										onImageUploaded={handleImageRecognitionResults}
@@ -380,12 +382,12 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 							<div className="analysis-progress">
 								<div className="progress-header">
 									<h4>
-										分析进度：
+										{t("common.loading")}:
 										{analysisStep === "food_detection"
-											? "识别食物中..."
+											? t("dashboard.detectingFood")
 											: analysisStep === "portion_estimation"
-												? "估算分量中..."
-												: "处理中..."}
+												? t("dashboard.estimatingPortion")
+												: t("common.loading")}
 									</h4>
 									<div className="progress-percentage">{analysisProgress}%</div>
 								</div>
@@ -399,7 +401,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 								{/* 显示已检测到的食物 */}
 								{detectedFoods.length > 0 && (
 									<div className="detected-foods">
-										<h5>检测到的食物：</h5>
+										<h5>{t("imageUpload.identifiedFoods")}:</h5>
 										<div className="foods-list">
 											{detectedFoods.map((food, index) => (
 												<span key={index} className="food-item">
@@ -417,7 +419,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 
 								{estimatedPortions.length > 0 && (
 									<div className="estimated-portions">
-										<h5>估算分量：</h5>
+										<h5>{t("imageUpload.estimatedPortion")}:</h5>
 										<div className="portions-list">
 											{estimatedPortions.map((portion, index) => (
 												<div key={index} className="portion-item">
@@ -442,7 +444,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 
 						{estimatedPortions.length > 0 && (
 							<div className="recognition-results">
-								<h4>识别结果：</h4>
+								<h4>{t("imageUpload.identifiedFoods")}:</h4>
 								<div className="estimated-portions-final">
 									{estimatedPortions.map((portion, index) => (
 										<div key={index} className="recognized-food-item">
@@ -451,7 +453,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 												<div className="food-details">
 													<div className="weight-recommendation">
 														<span className="weight-label">
-															识别重量：
+															{t("dashboard.portion")}:
 														</span>
 														<span className="weight-amount">
 															{portion.estimated_grams}g
@@ -472,13 +474,13 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 
 						{imageRecognitionHistory.length > 0 && (
 							<div className="recognition-history">
-								<h4>识别历史：</h4>
+								<h4>{t("dashboard.recentActivity")}:</h4>
 								<div className="history-list">
 									{imageRecognitionHistory.map((item, index) => (
 										<div key={index} className="history-item">
 											<div className="history-time">{item.recognizedAt}</div>
 											<div className="history-foods">
-												识别到 {item.foodCount} 种食物：{item.foods}
+												{t("dashboard.analysisComplete")}: {item.foodCount} {t("dashboard.foodCount")}: {item.foods}
 											</div>
 										</div>
 									))}
@@ -491,14 +493,14 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				{/* 今日餐食 */}
 				<div className="card meals-card">
 					<div className="card-header">
-						<h3 className="card-title">今日餐食</h3>
+						<h3 className="card-title">{t("dashboard.todayMeals")}</h3>
 						<button
 							className="btn btn-primary"
 							onClick={() =>
 								isAuthenticated ? console.log("Add meal") : onLoginRequired()
 							}
 						>
-							+ 添加食物篮
+							+ {t("dashboard.addMeal")}
 						</button>
 					</div>
 					<div className="meals-list">
@@ -522,18 +524,18 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				{barcodeResults && (
 					<div className="card barcode-results-card">
 						<div className="card-header">
-							<h3 className="card-title">📊 条形码识别结果</h3>
+							<h3 className="card-title">📊 {t("barcode.scanBarcode")}</h3>
 							<button
 								className="btn btn-secondary"
 								onClick={() => setBarcodeResults(null)}
 							>
-								清除结果
+								{t("common.clear")}
 							</button>
 						</div>
 						<div className="barcode-results-content">
 							{/* 检测到的条形码 */}
 							<div className="detected-barcodes">
-								<h4>检测到的条形码</h4>
+								<h4>{t("barcode.scanBarcode")}</h4>
 								<div className="barcodes-list">
 									{barcodeResults.barcodes?.map((barcode: any, index: number) => (
 										<div key={index} className="barcode-item">
@@ -551,7 +553,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 							{/* 创建的食品信息 */}
 							{barcodeResults.createdFoods?.length > 0 && (
 								<div className="created-foods">
-									<h4>扫描创建的食品 ({barcodeResults.createdFoods.length})</h4>
+									<h4>{t("imageUpload.identifiedFoods")} ({barcodeResults.createdFoods.length})</h4>
 									<div className="foods-list">
 										{barcodeResults.createdFoods.map(
 											(food: any, index: number) => (
@@ -583,7 +585,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 													<div className="nutrition-summary">
 														<div className="nutrition-grid">
 															<div className="nutrition-item">
-																<span className="label">热量</span>
+																<span className="label">{t("common.calories")}</span>
 																<span className="value">
 																	{food.calories_per_100g}{" "}
 																	kcal/100g
@@ -591,21 +593,21 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 															</div>
 															<div className="nutrition-item">
 																<span className="label">
-																	蛋白质
+																	{t("common.protein")}
 																</span>
 																<span className="value">
 																	{food.protein_per_100g}g/100g
 																</span>
 															</div>
 															<div className="nutrition-item">
-																<span className="label">脂肪</span>
+																<span className="label">{t("common.fat")}</span>
 																<span className="value">
 																	{food.fat_per_100g}g/100g
 																</span>
 															</div>
 															<div className="nutrition-item">
 																<span className="label">
-																	碳水化合物
+																	{t("common.carbs")}
 																</span>
 																<span className="value">
 																	{food.carbs_per_100g}g/100g
@@ -616,10 +618,10 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 
 													<div className="food-meta">
 														<p>
-															<strong>条形码:</strong> {food.barcode}
+															<strong>{t("barcode.scanBarcode")}:</strong> {food.barcode}
 														</p>
 														<p>
-															<strong>数据来源:</strong>{" "}
+															<strong>{t("common.source", "Source")}:</strong>{" "}
 															{food.data_source}
 														</p>
 														<p>
@@ -634,7 +636,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 																handleAddBarcodeFood(food)
 															}
 														>
-															📝 添加到餐食
+															📝 {t("foodSearch.addToMeal")}
 														</button>
 													</div>
 												</div>
@@ -646,7 +648,7 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 
 							{barcodeResults.createdFoods?.length === 0 && (
 								<div className="no-food-results">
-									<p>未能从条形码创建食品，请检查网络连接或尝试其他产品。</p>
+									<p>{t("barcode.productNotFound")}</p>
 								</div>
 							)}
 						</div>

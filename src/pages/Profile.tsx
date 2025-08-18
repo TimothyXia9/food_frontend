@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { userService } from "../services";
 import { useAuth } from "../contexts/AuthContext";
 import { useNotification } from "../contexts/NotificationContext";
@@ -8,6 +9,7 @@ interface ProfileProps {
 }
 
 const Profile = ({ onLoginRequired }: ProfileProps) => {
+	const { t } = useTranslation();
 	const { isAuthenticated } = useAuth();
 	const { showSuccess } = useNotification();
 	const [isEditing, setIsEditing] = React.useState(false);
@@ -54,7 +56,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 				setEditProfile(profileData);
 			}
 		} catch (err) {
-			setError("加载用户资料失败");
+			setError(t("profile.loadError"));
 			console.error("Failed to load profile:", err);
 			// Use fallback data for demo
 			const fallbackProfile = {
@@ -91,17 +93,17 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 			if (response.success) {
 				setProfile({ ...editProfile });
 				setIsEditing(false);
-				showSuccess("个人资料已更新！");
+				showSuccess(t("profile.profileUpdated"));
 			} else {
-				throw new Error(response.error?.message || "更新失败");
+				throw new Error(response.error?.message || t("profile.updateError"));
 			}
 		} catch (err) {
-			setError("更新用户资料失败");
+			setError(t("profile.profileError"));
 			console.error("Failed to update profile:", err);
 			// For demo purposes, still update locally
 			setProfile({ ...editProfile });
 			setIsEditing(false);
-			showSuccess("个人资料已更新！(演示模式)");
+			showSuccess(t("profile.profileUpdated"));
 		} finally {
 			setSaving(false);
 		}
@@ -116,10 +118,10 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 		return bmi.toFixed(1);
 	};
 	const getBMICategory = (bmi: number) => {
-		if (bmi < 18.5) return { category: "偏瘦", color: "var(--bmi-underweight)" };
-		if (bmi < 25) return { category: "正常", color: "var(--bmi-normal)" };
-		if (bmi < 30) return { category: "超重", color: "var(--bmi-overweight)" };
-		return { category: "肥胖", color: "var(--bmi-obese)" };
+		if (bmi < 18.5) return { category: t("profile.bmi.underweight"), color: "var(--bmi-underweight)" };
+		if (bmi < 25) return { category: t("profile.bmi.normal"), color: "var(--bmi-normal)" };
+		if (bmi < 30) return { category: t("profile.bmi.overweight"), color: "var(--bmi-overweight)" };
+		return { category: t("profile.bmi.obese"), color: "var(--bmi-obese)" };
 	};
 	const calculateAge = () => {
 		const today = new Date();
@@ -139,7 +141,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 			<div className="profile">
 				<div className="loading-container">
 					<div className="loading-spinner"></div>
-					<p>加载用户资料中...</p>
+					<p>{t("profile.loadingProfile")}</p>
 				</div>
 			</div>
 		);
@@ -149,10 +151,10 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 		return (
 			<div className="profile">
 				<div className="not-authenticated">
-					<h2>查看个人资料</h2>
-					<p>请先登录以查看和编辑您的个人资料</p>
+					<h2>{t("profile.title")}</h2>
+					<p>{t("auth.loginToAccess")}</p>
 					<button onClick={onLoginRequired} className="btn btn-primary">
-						登录
+						{t("auth.login")}
 					</button>
 				</div>
 			</div>
@@ -162,12 +164,12 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 	return (
 		<div className="profile">
 			<div className="profile-header">
-				<h1>个人资料</h1>
+				<h1>{t("profile.title")}</h1>
 				{error && (
 					<div className="error-message">
 						⚠️ {error}
 						<button onClick={loadProfile} className="btn btn-small btn-primary">
-							重试
+							{t("profile.retry")}
 						</button>
 					</div>
 				)}
@@ -176,20 +178,20 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 					className={`btn ${isEditing ? "btn-secondary" : "btn-primary"}`}
 					disabled={saving}
 				>
-					{isEditing ? "取消编辑" : "编辑资料"}
+					{isEditing ? t("common.cancel") : t("profile.editProfile")}
 				</button>
 			</div>
 			<div className="profile-grid">
-				{/* 基本信息卡片 */}
+				{/* Basic Information Card */}
 				<div className="card profile-info">
 					<div className="card-header">
-						<h3 className="card-title">基本信息</h3>
+						<h3 className="card-title">{t("profile.basicInfo")}</h3>
 					</div>
 
 					{isEditing ? (
 						<div className="edit-form">
 							<div className="form-group">
-								<label className="form-label">用户名</label>
+								<label className="form-label">{t("auth.username")}</label>
 								<input
 									type="text"
 									value={editProfile.username}
@@ -201,7 +203,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 							</div>
 
 							<div className="form-group">
-								<label className="form-label">邮箱</label>
+								<label className="form-label">{t("auth.email")}</label>
 								<input
 									type="email"
 									value={editProfile.email}
@@ -213,7 +215,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 							</div>
 
 							<div className="form-group">
-								<label className="form-label">出生日期</label>
+								<label className="form-label">{t("common.date")}</label>
 								<input
 									type="date"
 									value={editProfile.date_of_birth}
@@ -228,7 +230,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 							</div>
 
 							<div className="form-group">
-								<label className="form-label">性别</label>
+								<label className="form-label">{t("profile.gender", "Gender")}</label>
 								<select
 									value={editProfile.gender}
 									onChange={e =>
@@ -236,9 +238,9 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 									}
 									className="form-input"
 								>
-									<option value="Male">男</option>
-									<option value="Female">女</option>
-									<option value="Other">其他</option>
+									<option value="Male">{t("profile.male")}</option>
+									<option value="Female">{t("profile.female")}</option>
+									<option value="Other">{t("profile.other")}</option>
 								</select>
 							</div>
 
@@ -248,51 +250,51 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 									className="btn btn-secondary"
 									disabled={saving}
 								>
-									取消
+									{t("common.cancel")}
 								</button>
 								<button
 									onClick={handleSave}
 									className="btn btn-primary"
 									disabled={saving}
 								>
-									{saving ? "保存中..." : "保存"}
+									{saving ? t("common.loading") : t("common.save")}
 								</button>
 							</div>
 						</div>
 					) : (
 						<div className="info-display">
 							<div className="info-item">
-								<span className="info-label">用户名</span>
+								<span className="info-label">{t("auth.username")}</span>
 								<span className="info-value">{profile.username}</span>
 							</div>
 
 							<div className="info-item">
-								<span className="info-label">年龄</span>
-								<span className="info-value">{age} 岁</span>
+								<span className="info-label">{t("profile.age")}</span>
+								<span className="info-value">{age} {t("profile.years")}</span>
 							</div>
 							<div className="info-item">
-								<span className="info-label">性别</span>
+								<span className="info-label">{t("profile.gender", "Gender")}</span>
 								<span className="info-value">
 									{profile.gender === "Male"
-										? "男"
+										? t("profile.male")
 										: profile.gender === "Female"
-											? "女"
-											: "其他"}
+											? t("profile.female")
+											: t("profile.other")}
 								</span>
 							</div>
 						</div>
 					)}
 				</div>
-				{/* 身体数据卡片 */}
+				{/* Body Data Card */}
 				<div className="card body-stats">
 					<div className="card-header">
-						<h3 className="card-title">身体数据</h3>
+						<h3 className="card-title">{t("profile.bodyData")}</h3>
 					</div>
 
 					{isEditing ? (
 						<div className="edit-form">
 							<div className="form-group">
-								<label className="form-label">身高 (cm)</label>
+								<label className="form-label">{t("profile.height")} ({t("common.centimeters")})</label>
 								<input
 									type="number"
 									value={editProfile.height}
@@ -307,7 +309,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 							</div>
 
 							<div className="form-group">
-								<label className="form-label">体重 (kg)</label>
+								<label className="form-label">{t("profile.weight")} ({t("common.kilograms")})</label>
 								<input
 									type="number"
 									step="0.1"
@@ -323,7 +325,7 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 							</div>
 
 							<div className="form-group">
-								<label className="form-label">每日卡路里目标</label>
+								<label className="form-label">{t("profile.goalCalories", "Daily Calorie Goal")}</label>
 								<input
 									type="number"
 									value={editProfile.daily_calorie_goal}
@@ -369,10 +371,10 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 						</div>
 					)}
 				</div>
-				{/* BMI 卡片 */}
+				{/* BMI Card */}
 				<div className="card bmi-card">
 					<div className="card-header">
-						<h3 className="card-title">BMI 指数</h3>
+						<h3 className="card-title">{t("profile.bmi.title")}</h3>
 					</div>
 
 					<div className="bmi-display">
@@ -391,52 +393,52 @@ const Profile = ({ onLoginRequired }: ProfileProps) => {
 									className="scale-color"
 									style={{ backgroundColor: "var(--bmi-underweight)" }}
 								></div>
-								<span>偏瘦 (&lt;18.5)</span>
+								<span>{t("profile.bmi.underweightRange")}</span>
 							</div>
 							<div className="scale-item">
 								<div
 									className="scale-color"
 									style={{ backgroundColor: "var(--bmi-normal)" }}
 								></div>
-								<span>正常 (18.5-24.9)</span>
+								<span>{t("profile.bmi.normalRange")}</span>
 							</div>
 							<div className="scale-item">
 								<div
 									className="scale-color"
 									style={{ backgroundColor: "var(--bmi-overweight)" }}
 								></div>
-								<span>超重 (25-29.9)</span>
+								<span>{t("profile.bmi.overweightRange")}</span>
 							</div>
 							<div className="scale-item">
 								<div
 									className="scale-color"
 									style={{ backgroundColor: "var(--bmi-obese)" }}
 								></div>
-								<span>肥胖 (≥30)</span>
+								<span>{t("profile.bmi.obeseRange")}</span>
 							</div>
 						</div>
 					</div>
 				</div>
-				{/* 账户设置卡片 */}
+				{/* Account Settings Card */}
 				<div className="card account-settings">
 					<div className="card-header">
-						<h3 className="card-title">账户设置</h3>
+						<h3 className="card-title">{t("profile.accountSettings")}</h3>
 					</div>
 
 					<div className="settings-list">
 						<div className="setting-item">
-							<span className="setting-label">修改密码</span>
-							<button className="btn btn-secondary setting-btn">修改</button>
+							<span className="setting-label">{t("profile.changePassword")}</span>
+							<button className="btn btn-secondary setting-btn">{t("profile.modify")}</button>
 						</div>
 
 						<div className="setting-item">
-							<span className="setting-label">导出数据</span>
-							<button className="btn btn-secondary setting-btn">导出</button>
+							<span className="setting-label">{t("profile.exportData")}</span>
+							<button className="btn btn-secondary setting-btn">{t("profile.export")}</button>
 						</div>
 
 						<div className="setting-item">
-							<span className="setting-label">删除账户</span>
-							<button className="btn btn-danger setting-btn">删除</button>
+							<span className="setting-label">{t("profile.deleteAccount")}</span>
+							<button className="btn btn-danger setting-btn">{t("profile.delete")}</button>
 						</div>
 					</div>
 				</div>

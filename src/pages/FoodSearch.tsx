@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { foodService } from "../services/foodService";
 import { mealService } from "../services/mealService";
 import { Food } from "../types/api";
@@ -14,6 +15,7 @@ interface FoodSearchProps {
 }
 
 const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { isAuthenticated } = useAuth();
 	const { showSuccess, showError, showConfirm } = useNotification();
@@ -173,10 +175,10 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						setMealCart(cartItems);
 					}
 
-					showSuccess(`已加载食物篮: ${mealData.name || "未命名"}`);
+					showSuccess(`${t("foodSearch.mealBasketLoaded")}: ${mealData.name || "Unnamed"}`);
 				} catch (error) {
 					console.error("Error loading editing meal data:", error);
-					showError("加载编辑餐食数据时发生错误");
+					showError(t("foodSearch.loadEditMealError"));
 				}
 			}
 
@@ -199,10 +201,10 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			if (response.success && response.data) {
 				setSearchResults(response.data.foods);
 			} else {
-				setErrorMessage(response.error?.message || "搜索失败");
+				setErrorMessage(response.error?.message || t("foodSearch.searchFailed"));
 			}
 		} catch (error) {
-			setErrorMessage("搜索时发生错误");
+			setErrorMessage(t("foodSearch.searchError"));
 			console.error("Search error:", error);
 		} finally {
 			setLoading(false);
@@ -223,10 +225,10 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			if (response.success && response.data) {
 				setUserFoods(response.data.foods);
 			} else {
-				setErrorMessage(response.error?.message || "获取用户食物失败");
+				setErrorMessage(response.error?.message || t("foodSearch.getUserFoodsFailed"));
 			}
 		} catch (error) {
-			setErrorMessage("获取用户食物时发生错误");
+			setErrorMessage(t("foodSearch.getUserFoodsError"));
 			console.error("Load user foods error:", error);
 		} finally {
 			setUserFoodsLoading(false);
@@ -262,7 +264,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			// Add new item, ensuring USDA properties are preserved
 			setMealCart([...mealCart, { food, quantity }]);
 		}
-		showSuccess(`已添加 ${quantity}g ${food.name} 到食物篮`);
+		showSuccess(`${t("foodSearch.addedToBasket")}: ${quantity}g ${food.name}`);
 	};
 
 	const handleRemoveFromCart = (foodId: number) => {
@@ -288,7 +290,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	};
 
 	const handleClearCart = async () => {
-		const confirmed = await showConfirm("确定要清空所有食物吗？");
+		const confirmed = await showConfirm(t("foodSearch.confirmClearAll"));
 		if (confirmed) {
 			setMealCart([]);
 			setMealName("");
@@ -297,7 +299,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			localStorage.removeItem("mealCart");
 			localStorage.removeItem("mealName");
 			localStorage.removeItem("mealTime");
-			showSuccess("已清空食物篮");
+			showSuccess(t("foodSearch.basketCleared"));
 		}
 	};
 
@@ -308,11 +310,11 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		}
 
 		if (mealCart.length === 0) {
-			showError("请先添加食物到食物篮");
+			showError(t("foodSearch.addFoodsFirst"));
 			return;
 		}
 
-		// 防抖保护：如果正在保存中，直接返回
+		// Debounce protection: return directly if currently saving
 		if (isSavingMeal) {
 			return;
 		}
@@ -326,7 +328,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			const mealDateTime = createLocalDateTime(mealTime);
 			const hour = mealDateTime.getHours();
 
-			// 将本地时间转换为UTC时间发送给后端
+			// Convert local time to UTC time to send to backend
 			const utcDateTime = localToUTC(mealDateTime);
 
 			// Determine meal type based on time
@@ -380,7 +382,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			}
 
 			if (response.success) {
-				showSuccess(`已${editingMealId ? "更新" : "保存"}食物篮: ${finalMealName}`);
+				showSuccess(`${editingMealId ? t("foodSearch.mealUpdated") : t("foodSearch.mealSaved")}: ${finalMealName}`);
 				// Clear meal cart and localStorage after successful save
 				setMealCart([]);
 				setMealName("");
@@ -392,12 +394,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				sessionStorage.removeItem("editingMeal");
 			} else {
 				showError(
-					response.error?.message || `${editingMealId ? "更新" : "保存"}食物篮失败`
+					response.error?.message || (editingMealId ? t("foodSearch.mealUpdateFailed") : t("foodSearch.mealSaveFailed"))
 				);
 			}
 		} catch (error) {
 			console.error("Save meal error:", error);
-			showError(`${editingMealId ? "更新" : "保存"}食物篮时发生错误`);
+			showError(editingMealId ? t("foodSearch.mealUpdateError") : t("foodSearch.mealSaveError"));
 		} finally {
 			setIsSavingMeal(false);
 		}
@@ -450,7 +452,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 			}
 
 			if (response.success) {
-				showSuccess(isEditingUserFood ? "自定义食物已更新！" : "自定义食物已创建！");
+				showSuccess(isEditingUserFood ? t("foodSearch.customFoodUpdated") : t("foodSearch.customFoodCreated"));
 
 				// Update meal cart if the edited food is in the cart
 				if (isEditingUserFood && response.data && editingFood) {
@@ -478,7 +480,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									: item
 							)
 						);
-						showSuccess("食物篮中的营养信息已同步更新！");
+						showSuccess(t("foodSearch.nutritionSynced"));
 					}
 				}
 
@@ -491,11 +493,11 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				}
 			} else {
 				setErrorMessage(
-					response.error?.message || (isEditingUserFood ? "更新失败" : "创建失败")
+					response.error?.message || (isEditingUserFood ? t("foodSearch.updateFailed") : t("foodSearch.createFailed"))
 				);
 			}
 		} catch (error) {
-			setErrorMessage("创建时发生错误");
+			setErrorMessage(t("foodSearch.createError"));
 			console.error("Create food error:", error);
 		} finally {
 			setLoading(false);
@@ -503,7 +505,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	};
 
 	const handleCopyFood = (food: Food) => {
-		// 复制食物数据到表单
+		// Copy food data to form
 		setCustomFood({
 			name: food.name,
 			calories: food.calories_per_100g.toString(),
@@ -535,7 +537,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 	};
 
 	const handleEditFood = (food: Food) => {
-		// 编辑用户自定义食物
+		// Edit user custom food
 		setCustomFood({
 			name: food.name,
 			calories: food.calories_per_100g.toString(),
@@ -556,13 +558,13 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 		const isInCart = mealCart.some(item => item.food.id === food.id);
 
 		// Build comprehensive confirmation message
-		let confirmMessage = `确定要删除食物 "${food.name}" 吗？此操作无法撤销。`;
+		let confirmMessage = t("foodSearch.deleteConfirm", { name: food.name });
 		if (isInCart) {
-			confirmMessage += "\n\n⚠️ 该食物将从以下位置移除：";
-			confirmMessage += "\n• 当前食物篮";
-			confirmMessage += "\n• 所有已保存的餐食记录（如有）";
+			confirmMessage += t("foodSearch.deleteWarning");
+			confirmMessage += t("foodSearch.deleteCurrentBasket");
+			confirmMessage += t("foodSearch.deleteSavedMeals");
 		} else {
-			confirmMessage += "\n\n⚠️ 该食物将从所有已保存的餐食记录中移除（如有）。";
+			confirmMessage += t("foodSearch.deleteWarningSimple");
 		}
 
 		const confirmed = await showConfirm(confirmMessage);
@@ -579,29 +581,29 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				}
 
 				// Build comprehensive success message
-				let successMessage = `食物 "${food.name}" 已成功删除！`;
+				let successMessage = t("foodSearch.deleteSuccess", { name: food.name });
 				const impacts = [];
 
 				if (response.data?.removed_from_meals) {
 					impacts.push(
-						`从 ${response.data.meal_count} 个餐食的 ${response.data.meal_foods_count} 条记录中移除`
+						t("foodSearch.removedFromMeals", { count: response.data.meal_count, foodCount: response.data.meal_foods_count })
 					);
 				}
 
 				if (isInCart) {
-					impacts.push("从当前食物篮中移除");
+					impacts.push(t("foodSearch.removedFromBasket"));
 				}
 
 				if (impacts.length > 0) {
-					successMessage += "\n\n✅ 已同时完成：\n• " + impacts.join("\n• ");
+					successMessage += t("foodSearch.deleteImpacts") + impacts.join("\n• ");
 				}
 
 				showSuccess(successMessage);
 
-				// 刷新用户食物列表
+				// Refresh user food list
 				handleLoadUserFoods();
 			} else {
-				throw new Error(response.error?.message || "删除失败");
+				throw new Error(response.error?.message || t("foodSearch.deleteFailed"));
 			}
 		} catch (err: unknown) {
 			console.error("Failed to delete food:", err);
@@ -611,20 +613,20 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				if (typeof error === "object" && error !== null && "message" in error) {
 					return (error as { message: string }).message;
 				}
-				return "请稍后重试";
+				return t("foodSearch.retryLater");
 			};
 
-			showError(`删除食物失败：${getErrorMessage(err)}`);
+			showError(t("foodSearch.deleteError", { error: getErrorMessage(err) }));
 		}
 	};
 
 	const handleCameraCapture = () => {
-		// 跳转到Dashboard进行拍照识别
+		// Navigate to Dashboard for photo recognition
 		navigate("/dashboard");
 	};
 
 	const handleBarcodeCapture = () => {
-		// 跳转到Dashboard进行条形码识别
+		// Navigate to Dashboard for barcode recognition
 		navigate("/dashboard?mode=barcode");
 	};
 
@@ -635,19 +637,19 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 				<div className="meal-cart-section">
 					{/* Fixed header */}
 					<div className="meal-cart-header-fixed">
-						<h3>{editingMealId ? "正在编辑食物篮" : "当前食物篮"}</h3>
+						<h3>{editingMealId ? t("foodSearch.editingBasket") : t("foodSearch.currentBasket")}</h3>
 						<div className="meal-controls">
 							<input
 								type="text"
 								value={mealName}
 								onChange={e => setMealName(e.target.value)}
-								placeholder={"输入食物篮名称 (默认: 创建时间)"}
+								placeholder={t("foodSearch.basketNamePlaceholder")}
 								className="meal-name-input"
 							/>
 							<DateTimePicker
 								value={mealTime}
 								onChange={setMealTime}
-								placeholder="选择餐食时间"
+								placeholder={t("foodSearch.selectMealTime")}
 							/>
 						</div>
 					</div>
@@ -656,14 +658,14 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					<div className="meal-cart-content">
 						{!isAuthenticated ? (
 							<div className="empty-cart">
-								<p>请先登录以使用食物篮功能</p>
+								<p>{t("foodSearch.loginToUseBasket")}</p>
 								<button onClick={onLoginRequired} className="btn btn-primary">
-									登录
+									{t("auth.login")}
 								</button>
 							</div>
 						) : mealCart.length === 0 ? (
 							<div className="empty-cart">
-								<p>食物篮为空，请从右侧添加食物</p>
+								<p>{t("foodSearch.basketEmpty")}</p>
 							</div>
 						) : (
 							<div className="cart-items">
@@ -678,7 +680,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 												{item.updated && (
 													<span
 														className="updated-badge"
-														title="营养信息已更新"
+														title={t("foodSearch.nutritionUpdated")}
 													>
 														🔄
 													</span>
@@ -692,7 +694,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 												kcal
 											</p>
 											{item.updated && (
-												<p className="updated-text">营养信息已更新</p>
+												<p className="updated-text">{t("foodSearch.nutritionUpdated")}</p>
 											)}
 										</div>
 										<div className="cart-item-controls">
@@ -700,7 +702,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 												<button
 													onClick={() => clearUpdatedStatus(item.food.id)}
 													className="clear-update-btn"
-													title="确认更新"
+													title={t("foodSearch.confirmUpdate")}
 												>
 													✓
 												</button>
@@ -740,25 +742,25 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									return (
 										<div className="nutrition-totals">
 											<div className="total-item">
-												<span className="total-label">总卡路里:</span>
+												<span className="total-label">{t("common.calories")}:</span>
 												<span className="total-value">
 													{Math.round(totals.calories)} kcal
 												</span>
 											</div>
 											<div className="total-item">
-												<span className="total-label">蛋白质:</span>
+												<span className="total-label">{t("common.protein")}:</span>
 												<span className="total-value">
 													{Math.round(totals.protein * 10) / 10}g
 												</span>
 											</div>
 											<div className="total-item">
-												<span className="total-label">脂肪:</span>
+												<span className="total-label">{t("common.fat")}:</span>
 												<span className="total-value">
 													{Math.round(totals.fat * 10) / 10}g
 												</span>
 											</div>
 											<div className="total-item">
-												<span className="total-label">碳水:</span>
+												<span className="total-label">{t("common.carbs")}:</span>
 												<span className="total-value">
 													{Math.round(totals.carbs * 10) / 10}g
 												</span>
@@ -773,7 +775,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									className="btn btn-danger clear-btn"
 									disabled={!isAuthenticated}
 								>
-									清空
+									{t("common.clear")}
 								</button>
 								<button
 									onClick={handleSaveMeal}
@@ -782,11 +784,11 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 								>
 									{isSavingMeal
 										? editingMealId
-											? "更新中..."
-											: "保存中..."
+											? t("foodSearch.updating")
+											: t("foodSearch.saving")
 										: editingMealId
-											? "更新食物篮"
-											: "保存食物篮"}
+											? t("foodSearch.updateBasket")
+											: t("foodSearch.saveBasket")}
 								</button>
 							</div>
 						</div>
@@ -816,15 +818,14 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 					<div className="food-results-content">
 						{userFoodsLoading && (
 							<div className="loading-message">
-								<p>加载中...</p>
+								<p>{t("common.loading")}</p>
 							</div>
 						)}
 
 						{!userFoodsLoading && viewMode === "user" && userFoods.length === 0 && (
 							<div className="empty-message">
 								<p>
-									您还没有创建任何自定义食物。点击上方工具栏中的"+
-									创建自定义食物"按钮创建您的第一个自定义食物！
+									{t("foodSearch.noCustomFoods")}
 								</p>
 							</div>
 						)}
@@ -837,7 +838,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 						{viewMode === "search" && searchResults.length > 0 && (
 							<div className="search-results">
-								<h3>搜索结果</h3>
+								<h3>{t("foodSearch.searchResults")}</h3>
 								<div className="results-grid">
 									{searchResults.map((food: Food) => (
 										<FoodItem
@@ -879,10 +880,10 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						<div className="modal-header">
 							<h3>
 								{editingFood && editingFood.is_custom
-									? `编辑食物: ${editingFood.name}`
+									? t("foodSearch.editFood", { name: editingFood.name })
 									: editingFood
-										? `复制并编辑: ${editingFood.name}`
-										: "创建自定义食物"}
+										? t("foodSearch.copyAndEdit", { name: editingFood.name })
+										: t("foodSearch.createCustomFood")}
 							</h3>
 							<button
 								onClick={() => {
@@ -901,7 +902,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 						)}
 						<form onSubmit={handleCustomFoodSubmit} className="custom-food-form">
 							<div className="form-group">
-								<label className="form-label">食物名称</label>
+								<label className="form-label">{t("foodSearch.foodNameLabel")}</label>
 								<input
 									type="text"
 									value={customFood.name}
@@ -911,12 +912,12 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									className="form-input"
 									required
 									disabled={loading}
-									placeholder="输入食物名称"
+									placeholder={t("foodSearch.foodNamePlaceholder")}
 								/>
 							</div>
 
 							<div className="form-group">
-								<label className="form-label">🔥 卡路里 (每100g) *</label>
+								<label className="form-label">🔥 {t("foodSearch.caloriesPerServing")} *</label>
 								<input
 									type="number"
 									value={customFood.calories}
@@ -926,13 +927,13 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									className="form-input"
 									required
 									disabled={loading}
-									placeholder="例如: 250"
+									placeholder={`${t("foodSearch.example")}: 250`}
 								/>
 							</div>
 
 							<div className="form-row">
 								<div className="form-group">
-									<label className="form-label">蛋白质 (g)</label>
+									<label className="form-label">{t("common.protein")} ({t("common.grams")})</label>
 									<input
 										type="number"
 										step="0.1"
@@ -951,7 +952,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 							<div className="form-row">
 								<div className="form-group">
-									<label className="form-label">脂肪 (g)</label>
+									<label className="form-label">{t("common.fat")} (g)</label>
 									<input
 										type="number"
 										step="0.1"
@@ -964,7 +965,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									/>
 								</div>
 								<div className="form-group">
-									<label className="form-label">碳水化合物 (g)</label>
+									<label className="form-label">{t("common.carbs")} ({t("common.grams")})</label>
 									<input
 										type="number"
 										step="0.1"
@@ -980,7 +981,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 							<div className="form-row">
 								<div className="form-group">
-									<label className="form-label">纤维 (g)</label>
+									<label className="form-label">{t("foodSearch.fiberLabel")}</label>
 									<input
 										type="number"
 										step="0.1"
@@ -993,7 +994,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									/>
 								</div>
 								<div className="form-group">
-									<label className="form-label">糖 (g)</label>
+									<label className="form-label">{t("foodSearch.sugarLabel")}</label>
 									<input
 										type="number"
 										step="0.1"
@@ -1009,7 +1010,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 
 							<div className="form-row">
 								<div className="form-group">
-									<label className="form-label">钠 (mg)</label>
+									<label className="form-label">{t("foodSearch.sodiumLabel")}</label>
 									<input
 										type="number"
 										step="0.1"
@@ -1033,7 +1034,7 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 									className="btn btn-secondary"
 									disabled={loading}
 								>
-									取消
+									{t("common.cancel")}
 								</button>
 								<button
 									type="submit"
@@ -1042,11 +1043,11 @@ const FoodSearch = ({ onLoginRequired }: FoodSearchProps) => {
 								>
 									{loading
 										? editingFood && editingFood.is_custom
-											? "更新中..."
-											: "创建中..."
+											? t("foodSearch.updating")
+											: t("foodSearch.creating")
 										: editingFood && editingFood.is_custom
-											? "更新"
-											: "创建"}
+											? t("foodSearch.update")
+											: t("foodSearch.create")}
 								</button>
 							</div>
 						</form>
@@ -1444,6 +1445,7 @@ const FoodItem = ({
 	onDelete,
 	showEditActions = false,
 }: FoodItemProps) => {
+	const { t } = useTranslation();
 	const [quantity, setQuantity] = React.useState(100);
 	const [showDetails, setShowDetails] = React.useState(false);
 	const [nutritionData, setNutritionData] = React.useState<Food | null>(null);
@@ -1498,7 +1500,7 @@ const FoodItem = ({
 				<div className="food-badges">
 					{food.is_usda && <span className="usda-badge">USDA</span>}
 					{food.brand && <span className="brand-badge">{food.brand}</span>}
-					{food.is_custom && <span className="custom-badge">自定义</span>}
+					{food.is_custom && <span className="custom-badge">{t("foodSearch.custom")}</span>}
 				</div>
 			</div>
 
@@ -1512,14 +1514,14 @@ const FoodItem = ({
 								className="get-nutrition-btn"
 								disabled={loadingNutrition}
 							>
-								{loadingNutrition ? "获取中..." : "获取营养"}
+								{loadingNutrition ? t("foodSearch.getting") : t("foodSearch.getNutrition")}
 							</button>
 						)}
 						<button
 							onClick={() => setShowDetails(!showDetails)}
 							className="details-btn"
 						>
-							{showDetails ? "收起" : "详情"}
+							{showDetails ? t("foodSearch.collapse") : t("foodSearch.details")}
 						</button>
 					</div>
 				</div>
@@ -1527,30 +1529,30 @@ const FoodItem = ({
 				{showDetails && (
 					<div className="nutrition-details">
 						<div className="nutrition-row">
-							<span>蛋白质: {activeFood.protein_per_100g || 0}g</span>
-							<span>脂肪: {activeFood.fat_per_100g || 0}g</span>
-							<span>碳水: {activeFood.carbs_per_100g || 0}g</span>
+							<span>{t("common.protein")}: {activeFood.protein_per_100g || 0}g</span>
+							<span>{t("common.fat")}: {activeFood.fat_per_100g || 0}g</span>
+							<span>{t("common.carbs")}: {activeFood.carbs_per_100g || 0}g</span>
 						</div>
 						<div className="nutrition-row">
-							<span>纤维: {activeFood.fiber_per_100g || 0}g</span>
-							<span>糖: {activeFood.sugar_per_100g || 0}g</span>
-							<span>钠: {activeFood.sodium_per_100g || 0}mg</span>
+							<span>{t("common.fiber")}: {activeFood.fiber_per_100g || 0}g</span>
+							<span>{t("common.sugar")}: {activeFood.sugar_per_100g || 0}g</span>
+							<span>{t("common.sodium")}: {activeFood.sodium_per_100g || 0}mg</span>
 						</div>
 						{food.is_usda && (
 							<div className="usda-details">
 								<div className="nutrition-row">
 									{food.fdc_id && <span>USDA ID: {food.fdc_id}</span>}
-									{food.brand && <span>品牌: {food.brand}</span>}
+									{food.brand && <span>{t("foodSearch.brand")}: {food.brand}</span>}
 								</div>
 								<div className="usda-info">
-									<span className="info-text">✅ 来源于美国农业部营养数据库</span>
+									<span className="info-text">{t("foodSearch.usdaSource")}</span>
 									<span className="readonly-text">
-										🔒 此为USDA官方数据，无法直接编辑
+										{t("foodSearch.usdaReadonly")}
 									</span>
 								</div>
 								<div className="usda-actions">
 									<small className="copy-hint">
-										💡 如需修改营养信息，请点击"复制为自定义"按钮
+										{t("foodSearch.usdaEditTip")}
 									</small>
 								</div>
 							</div>
@@ -1561,7 +1563,7 @@ const FoodItem = ({
 
 			<div className="add-section">
 				<div className="quantity-input">
-					<label>数量 (g):</label>
+					<label>{t("foodSearch.quantityLabel")}</label>
 					<input
 						type="number"
 						value={quantity}
@@ -1577,7 +1579,7 @@ const FoodItem = ({
 						<span className="calc-label">kcal</span>
 					</div>
 					<div className="calc-details">
-						蛋白质: {calculatedProtein}g | 脂肪: {calculatedFat}g | 碳水:{" "}
+						{t("common.protein")}: {calculatedProtein}g | {t("common.fat")}: {calculatedFat}g | {t("common.carbs")}:{" "}
 						{calculatedCarbs}g
 					</div>
 				</div>
@@ -1589,7 +1591,7 @@ const FoodItem = ({
 						}
 						className="btn btn-primary add-btn"
 					>
-						添加
+						{t("foodSearch.add")}
 					</button>
 					{showEditActions ? (
 						<>
@@ -1601,15 +1603,15 @@ const FoodItem = ({
 											isAuthenticated ? onCopy(food) : onLoginRequired()
 										}
 										className="btn btn-info copy-btn"
-										title="复制为自定义食物"
+										title={t("foodSearch.copyAsCustomTitle")}
 									>
-										📋 复制为自定义
+										{t("foodSearch.copyAsCustom")}
 									</button>
 									<span
 										className="readonly-badge"
-										title="USDA食物为只读，不可编辑"
+										title={t("foodSearch.readonlyTitle")}
 									>
-										🔒 只读
+										{t("foodSearch.readonly")}
 									</span>
 								</>
 							) : (
@@ -1618,16 +1620,16 @@ const FoodItem = ({
 									<button
 										onClick={() => onEdit && onEdit(food)}
 										className="btn btn-warning edit-btn"
-										title="编辑食物"
+										title={t("foodSearch.editTitle")}
 									>
-										✏️ 编辑
+										{t("foodSearch.edit")}
 									</button>
 									<button
 										onClick={() => onDelete && onDelete(food)}
 										className="btn btn-danger delete-btn"
-										title="删除食物"
+										title={t("foodSearch.deleteTitle")}
 									>
-										🗑️ 删除
+										{t("foodSearch.delete")}
 									</button>
 								</>
 							)}
@@ -1636,9 +1638,9 @@ const FoodItem = ({
 						<button
 							onClick={() => (isAuthenticated ? onCopy(food) : onLoginRequired())}
 							className="btn btn-secondary copy-btn"
-							title="复制为自定义食物"
+							title={t("foodSearch.copyAsCustomTitle")}
 						>
-							复制
+							{t("foodSearch.copy")}
 						</button>
 					)}
 				</div>
