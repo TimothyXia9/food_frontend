@@ -11,4 +11,4 @@ public/favicon.png
 
 /.env.production
 
-.prettierrc.js
+.prettierrc.json
