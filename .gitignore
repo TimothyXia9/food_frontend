@@ -10,3 +10,5 @@ public/favicon.png
 .prettierrc
 
 /.env.production
+
+.prettierrc.js
