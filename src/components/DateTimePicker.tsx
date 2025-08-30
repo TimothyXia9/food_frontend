@@ -140,11 +140,11 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
 		// Use timezone utility functions for accurate date checking
 		if (isToday(dateStr)) {
-			return `今天 ${timeStr}`;
+			return `${t("dateTime.today")} ${timeStr}`;
 		} else if (isYesterday(dateStr)) {
-			return `昨天 ${timeStr}`;
+			return `${t("dateTime.yesterday")} ${timeStr}`;
 		} else if (isTomorrow(dateStr)) {
-			return `明天 ${timeStr}`;
+			return `${t("dateTime.tomorrow")} ${timeStr}`;
 		} else {
 			// Format as MM-DD if same year, otherwise YYYY-MM-DD
 			const currentYear = new Date().getFullYear();
@@ -405,9 +405,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 									<button
 										key={index}
 										type="button"
-										className={`calendar-day ${
-											day.isCurrentMonth ? "current-month" : "other-month"
-										} ${day.isToday ? "today" : ""} ${day.isSelected ? "selected" : ""}`}
+										className={`calendar-day ${day.isCurrentMonth ? "current-month" : "other-month"
+											} ${day.isToday ? "today" : ""} ${day.isSelected ? "selected" : ""}`}
 										onClick={() => handleCalendarDateSelect(day.fullDate)}
 									>
 										{day.date}
