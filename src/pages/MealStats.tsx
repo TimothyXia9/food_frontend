@@ -428,12 +428,12 @@ const MealStats = ({ onLoginRequired }: MealStatsProps) => {
 										) : (
 											<div className="empty-basket">
 												<div className="empty-icon">🍽️</div>
-												<p>今天还没有添加任何餐食</p>
+												<p>{t("mealStats.noMealsForDate")}</p>
 												<button
 													className="add-first-meal-btn"
 													onClick={() => navigate("/")}
 												>
-													添加第一餐
+													{t("mealStats.addFirstMeal")}
 												</button>
 											</div>
 										)}
