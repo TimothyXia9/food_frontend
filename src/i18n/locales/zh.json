@@ -138,14 +138,11 @@
 		"basketEmpty": "食物篮为空，请从右侧添加食物",
 		"nutritionUpdated": "营养信息已更新",
 		"confirmUpdate": "确认更新",
-		"fatLabel": "脂肪:",
-		"carbsLabel": "碳水:",
 		"clearing": "清空",
 		"updating": "更新中...",
 		"saving": "保存中...",
 		"updateBasket": "更新食物篮",
 		"saveBasket": "保存食物篮",
-		"loadingText": "加载中...",
 		"noCustomFoods": "您还没有创建任何自定义食物。点击上方工具栏中的\"创建自定义食物\"按钮创建您的第一个自定义食物！",
 		"searchResults": "搜索结果",
 		"editFood": "编辑食物: {name}",
@@ -178,7 +175,6 @@
 		"edit": "✏️ 编辑",
 		"deleteTitle": "删除食物",
 		"delete": "🗑️ 删除",
-		"copyTitle": "复制为自定义食物",
 		"copy": "复制"
 	},
 	"imageUpload": {
@@ -306,19 +302,7 @@
 		"carbsNutrient": "碳水化合物",
 		"fiberNutrient": "纤维",
 		"underGoal": "未达标",
-		"overGoal": "超标",
-		"achievementsList": {
-			"streak7Days": "连续记录7天",
-			"streak7DaysDesc": "坚持记录饮食7天",
-			"proteinGoal": "蛋白质达标",
-			"proteinGoalDesc": "单日蛋白质摄入达标",
-			"weightLoss": "体重下降",
-			"weightLossDesc": "相比上周体重下降",
-			"streak30Days": "连续记录30天",
-			"streak30DaysDesc": "坚持记录饮食30天",
-			"perfectWeek": "完美一周",
-			"perfectWeekDesc": "一周内每天都达到目标"
-		}
+		"overGoal": "超标"
 	},
 	"common": {
 		"name": "卡路里追踪器",
@@ -575,7 +559,6 @@
 		"moreFoods": "种食物...",
 		"editMeal": "编辑餐食",
 		"deleteMeal": "删除餐食",
-		"noMealsToday": "今天还没有添加任何餐食",
 		"addFirstMeal": "添加第一餐",
 		"dateRange": "至",
 		"dateRangeSeparator": " 至 ",
@@ -583,10 +566,6 @@
 		"days": "天数",
 		"meals": "餐次",
 		"calories": "卡路里",
-		"caloriesLabel": "卡路里",
-		"proteinLabel": "蛋白质",
-		"fatLabel": "脂肪",
-		"carbsLabel": "碳水化合物",
 		"mealNutritionDistribution": "🍽️ 各餐营养分布",
 		"mealsCount": "餐",
 		"topCalorieSourceFoods": "🥇 当日热量来源食物",
