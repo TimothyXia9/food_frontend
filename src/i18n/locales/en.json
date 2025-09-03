@@ -64,7 +64,16 @@
 		"foodCount": "foods",
 		"analysisCompleteFood": "Analysis Complete",
 		"detectedBarcode": "Detected Barcode",
-		"createdProductInfo": "Created Product Info"
+		"createdProductInfo": "Created Product Info",
+		"addAllToBasket": "Add All to Basket",
+		"addToBasketHint": "Add all recognized foods to your meal basket for review and saving",
+		"noFoodsToAdd": "No foods to add to basket",
+		"recognizedMeal": "Recognized Foods",
+		"addedToBasket": "Added to basket",
+		"foodItems": "food items",
+		"foodsAddedToLibrary": "foods added to your library",
+		"errorCreatingFoods": "Error creating custom foods",
+		"clearRecognitionResults": "Clear recognition results and image"
 	},
 	"foodSearch": {
 		"title": "Food Search",
@@ -639,5 +648,31 @@
 			"dinner": "Dinner",
 			"snack": "Snack"
 		}
+	},
+	"nutrition": {
+		"dataQuality": {
+			"usda": "USDA Data",
+			"default": "Estimated",
+			"unavailable": "Unavailable",
+			"error": "Error",
+			"unknown": "Unknown"
+		},
+		"confidence": {
+			"high": "High Confidence",
+			"medium": "Medium Confidence",
+			"low": "Low Confidence",
+			"unknown": "Unknown Confidence"
+		},
+		"issues": "Issues",
+		"calories": "Calories",
+		"protein": "Protein", 
+		"fat": "Fat",
+		"carbs": "Carbs",
+		"fiber": "Fiber",
+		"sodium": "Sodium",
+		"usdaDescription": "USDA Description",
+		"fdcId": "FDC ID",
+		"dataSource": "Data Source",
+		"portionSize": "Portion Size"
 	}
 }

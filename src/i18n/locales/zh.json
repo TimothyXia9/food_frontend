@@ -64,7 +64,16 @@
 		"foodCount": "种食物",
 		"analysisCompleteFood": "分析完成",
 		"detectedBarcode": "检测到的条形码",
-		"createdProductInfo": "创建的食品信息"
+		"createdProductInfo": "创建的食品信息",
+		"addAllToBasket": "全部添加到篮子",
+		"addToBasketHint": "将所有识别到的食物添加到餐食篮子中以便查看和保存",
+		"noFoodsToAdd": "没有食物可添加到篮子",
+		"recognizedMeal": "识别的食物",
+		"addedToBasket": "已添加到篮子",
+		"foodItems": "种食物",
+		"foodsAddedToLibrary": "种食物已添加到您的食物库",
+		"errorCreatingFoods": "创建自定义食物时出错",
+		"clearRecognitionResults": "清除识别结果和图片"
 	},
 	"foodSearch": {
 		"title": "食物搜索",
@@ -639,5 +648,31 @@
 		"cancellingAnalysis": "正在取消分析...",
 		"about": "约",
 		"grams": "克"
+	},
+	"nutrition": {
+		"dataQuality": {
+			"usda": "USDA官方数据",
+			"default": "估计值",
+			"unavailable": "数据不可用",
+			"error": "数据错误",
+			"unknown": "未知"
+		},
+		"confidence": {
+			"high": "高可信度",
+			"medium": "中等可信度",
+			"low": "低可信度",
+			"unknown": "未知可信度"
+		},
+		"issues": "问题",
+		"calories": "卡路里",
+		"protein": "蛋白质", 
+		"fat": "脂肪",
+		"carbs": "碳水化合物",
+		"fiber": "膳食纤维",
+		"sodium": "钠",
+		"usdaDescription": "USDA描述",
+		"fdcId": "FDC编号",
+		"dataSource": "数据来源",
+		"portionSize": "分量大小"
 	}
 }
