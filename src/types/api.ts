@@ -300,3 +300,51 @@ export interface USDANutritionData {
 export interface CreateFoodFromUSDARequest {
 	fdc_id: number;
 }
+
+// Two-stage food analysis types
+export interface FoodAnalysisStage1 {
+	food_types: Array<{
+		name: string;
+		name_chinese: string;
+		name_english: string;
+		usda_search_term: string;
+		confidence: number;
+		category: string;
+	}>;
+}
+
+export interface FoodAnalysisStage2 {
+	food_portions: Array<{
+		name: string;
+		estimated_grams: number;
+		portion_description?: string;
+		cooking_method?: string;
+	}>;
+}
+
+export interface USDANutritionInfo {
+	food_name: string;
+	usda_description: string;
+	fdc_id: number | null;
+	calories_per_100g: number;
+	protein_per_100g: number;
+	fat_per_100g: number;
+	carbs_per_100g: number;
+	fiber_per_100g: number;
+	sugar_per_100g: number;
+	sodium_per_100g: number;
+	data_quality: "usda" | "default" | "unavailable";
+	data_source?: string;
+}
+
+export interface FoodAnalysisStage3 {
+	nutrition_data: USDANutritionInfo[];
+}
+
+export interface TwoStageAnalysisResult {
+	success: boolean;
+	stage_1: FoodAnalysisStage1;
+	stage_2: FoodAnalysisStage2;
+	stage_3: FoodAnalysisStage3;
+	error?: string;
+}
