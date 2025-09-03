@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getCurrentLocalDate } from "../utils/timezone";
 import ImageUpload from "../components/ImageUpload";
 import BarcodeScanner from "../components/BarcodeScanner";
 import { useNotification } from "../contexts/NotificationContext";
+import { foodService } from "../services/foodService";
 
 interface DashboardProps {
 	onLoginRequired: () => void;
@@ -12,6 +14,7 @@ interface DashboardProps {
 
 const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const { isAuthenticated } = useAuth();
 	const { showSuccess, showError } = useNotification();
 	const todayDate = new Date(getCurrentLocalDate()).toLocaleDateString("zh-CN");
@@ -35,6 +38,36 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	// Barcode scanning state
 	const [showBarcodeScanner, setShowBarcodeScanner] = useState<boolean>(false);
 	const [barcodeResults, setBarcodeResults] = useState<any>(null);
+
+	// Load recognition results from localStorage on component mount
+	useEffect(() => {
+		const loadRecognitionResultsFromStorage = () => {
+			try {
+				const savedResults = localStorage.getItem("dashboardEstimatedPortions");
+				const savedImagePreview = localStorage.getItem("dashboardImagePreview");
+				const savedImageId = localStorage.getItem("dashboardImageId");
+
+				if (savedResults) {
+					const parsedResults = JSON.parse(savedResults);
+					if (parsedResults.length > 0) {
+						setEstimatedPortions(parsedResults);
+					}
+				}
+
+				if (savedImagePreview && savedImagePreview !== "null") {
+					setCurrentImagePreview(savedImagePreview);
+				}
+
+				if (savedImageId && savedImageId !== "null") {
+					setCurrentImageId(parseInt(savedImageId));
+				}
+			} catch (error) {
+				console.error("Error loading recognition results from storage:", error);
+			}
+		};
+
+		loadRecognitionResultsFromStorage();
+	}, []);
 
 	// Cleanup resources
 	useEffect(() => {
@@ -133,10 +166,40 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				}
 				if (data.stage_2?.portions) {
 					setEstimatedPortions(data.stage_2.portions);
+					// Save recognition results to localStorage
+					try {
+						localStorage.setItem(
+							"dashboardEstimatedPortions",
+							JSON.stringify(data.stage_2.portions)
+						);
+						if (currentImagePreview) {
+							localStorage.setItem("dashboardImagePreview", currentImagePreview);
+						}
+						if (currentImageId) {
+							localStorage.setItem("dashboardImageId", currentImageId.toString());
+						}
+					} catch (error) {
+						console.error("Error saving recognition results:", error);
+					}
 				}
 				// 也检查 food_portions 字段
 				if (data.stage_2?.food_portions) {
 					setEstimatedPortions(data.stage_2.food_portions);
+					// Save recognition results to localStorage
+					try {
+						localStorage.setItem(
+							"dashboardEstimatedPortions",
+							JSON.stringify(data.stage_2.food_portions)
+						);
+						if (currentImagePreview) {
+							localStorage.setItem("dashboardImagePreview", currentImagePreview);
+						}
+						if (currentImageId) {
+							localStorage.setItem("dashboardImageId", currentImageId.toString());
+						}
+					} catch (error) {
+						console.error("Error saving recognition results:", error);
+					}
 				}
 				break;
 
@@ -235,13 +298,25 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 		}
 	};
 
-	// 清除当前图片预览
+	// 清除当前图片预览和识别结果
 	const clearCurrentImage = () => {
 		if (currentImagePreview) {
 			URL.revokeObjectURL(currentImagePreview);
 			setCurrentImagePreview(null);
 			setCurrentImageId(null);
 			setEstimatedPortions([]);
+			setDetectedFoods([]);
+			setAnalysisProgress(0);
+			setAnalysisStep("");
+
+			// Clear localStorage
+			try {
+				localStorage.removeItem("dashboardEstimatedPortions");
+				localStorage.removeItem("dashboardImagePreview");
+				localStorage.removeItem("dashboardImageId");
+			} catch (error) {
+				console.error("Error clearing recognition results from storage:", error);
+			}
 		}
 	};
 
@@ -285,6 +360,124 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 	const closeBarcodeScanner = () => {
 		setShowBarcodeScanner(false);
 		setBarcodeResults(null);
+	};
+
+	// 将识别到的食物添加到食物篮
+	const handleAddRecognizedFoodsToBasket = async () => {
+		if (!isAuthenticated) {
+			onLoginRequired();
+			return;
+		}
+
+		if (estimatedPortions.length === 0) {
+			showError(t("dashboard.noFoodsToAdd"));
+			return;
+		}
+
+		// Get nutrition data from localStorage (saved during analysis)
+		const savedNutritionData = (() => {
+			try {
+				const saved = localStorage.getItem("dashboardNutritionData");
+				return saved ? JSON.parse(saved) : [];
+			} catch (error) {
+				console.warn("Failed to load nutrition data from storage:", error);
+				return [];
+			}
+		})();
+
+		// Convert recognized foods to Food format compatible with meal cart
+		const recognizedFoods = estimatedPortions.map((portion, index) => {
+			// Find matching nutrition data
+			const nutritionData = savedNutritionData.find(
+				(nutrition: any) => nutrition.food_name === portion.name
+			);
+
+			return {
+				id: Date.now() + index, // Generate unique ID for recognized foods
+				name: portion.name,
+				// Use real USDA nutrition data if available, otherwise use defaults
+				calories_per_100g: nutritionData?.calories_per_100g || 100,
+				protein_per_100g: nutritionData?.protein_per_100g || 10,
+				fat_per_100g: nutritionData?.fat_per_100g || 5,
+				carbs_per_100g: nutritionData?.carbs_per_100g || 20,
+				fiber_per_100g: nutritionData?.fiber_per_100g || 2,
+				sugar_per_100g: nutritionData?.sugar_per_100g || 5,
+				sodium_per_100g: nutritionData?.sodium_per_100g || 100,
+				serving_size: portion.estimated_grams,
+				serving_unit: "g",
+				is_custom: false,
+				is_usda: nutritionData?.fdc_id ? true : false,
+				fdc_id: nutritionData?.fdc_id || null,
+				description:
+					nutritionData?.usda_description || portion.cooking_method || "",
+				brand: "",
+				barcode: "",
+				image_url: "",
+			};
+		});
+
+		try {
+			// Create custom foods for each recognized food item
+			const createdFoods = [];
+			for (const portion of estimatedPortions) {
+				// Find matching nutrition data
+				const nutritionData = savedNutritionData.find(
+					(nutrition: any) => nutrition.food_name === portion.name
+				);
+
+				const createFoodRequest = {
+					name: portion.name,
+					serving_size: portion.estimated_grams,
+					calories_per_100g: nutritionData?.calories_per_100g || 100,
+					protein_per_100g: nutritionData?.protein_per_100g || 10,
+					fat_per_100g: nutritionData?.fat_per_100g || 5,
+					carbs_per_100g: nutritionData?.carbs_per_100g || 20,
+					fiber_per_100g: nutritionData?.fiber_per_100g || 2,
+					sugar_per_100g: nutritionData?.sugar_per_100g || 5,
+					sodium_per_100g: nutritionData?.sodium_per_100g || 100,
+					usda_fdc_id: nutritionData?.fdc_id || null,
+					description:
+						nutritionData?.usda_description || portion.cooking_method || "",
+				};
+
+				try {
+					const response = await foodService.createCustomFood(createFoodRequest);
+					if (response.success) {
+						createdFoods.push(response.data);
+					}
+				} catch (error) {
+					console.warn(`Failed to create custom food "${portion.name}":`, error);
+					// Continue with the loop even if one food creation fails
+				}
+			}
+
+			// Create meal cart items with estimated quantities
+			const mealCartItems = recognizedFoods.map(food => ({
+				food: food,
+				quantity: food.serving_size, // Use estimated grams as quantity
+			}));
+
+			// Save to localStorage for FoodSearch page to pick up
+			localStorage.setItem("mealCart", JSON.stringify(mealCartItems));
+			localStorage.setItem(
+				"mealName",
+				`${t("dashboard.recognizedMeal")} - ${new Date().toLocaleTimeString()}`
+			);
+			localStorage.setItem("mealTime", new Date().toISOString());
+
+			const successMessage =
+				createdFoods.length > 0
+					? `${t("dashboard.addedToBasket")}: ${estimatedPortions.length} ${t("dashboard.foodItems")}. ${createdFoods.length} ${t("dashboard.foodsAddedToLibrary")}`
+					: `${t("dashboard.addedToBasket")}: ${estimatedPortions.length} ${t("dashboard.foodItems")}`;
+
+			showSuccess(successMessage);
+
+			// Navigate to FoodSearch page where user can review and save the meal
+			navigate("/");
+		} catch (error) {
+			console.error("Error creating custom foods:", error);
+			showError(t("dashboard.errorCreatingFoods"));
+		}
 	};
 
 	// 模拟数据
@@ -466,6 +659,27 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 											</div>
 										</div>
 									))}
+								</div>
+
+								{/* Add to Basket Button */}
+								<div className="add-to-basket-section">
+									<div className="basket-buttons">
+										<button
+											className="btn btn-success add-basket-btn"
+											onClick={handleAddRecognizedFoodsToBasket}
+											disabled={!isAuthenticated}
+										>
+											🛒 {t("dashboard.addAllToBasket")}
+										</button>
+										<button
+											className="btn btn-secondary clear-results-btn"
+											onClick={clearCurrentImage}
+											title={t("dashboard.clearRecognitionResults")}
+										>
+											🗑️ {t("common.clear")}
+										</button>
+									</div>
+									<p className="basket-hint">{t("dashboard.addToBasketHint")}</p>
 								</div>
 							</div>
 						)}
@@ -1399,6 +1613,88 @@ const Dashboard = ({ onLoginRequired }: DashboardProps) => {
 				}
 
 				.add-to-meal-btn:active {
+					transform: translateY(0);
+				}
+
+				/* Add to Basket Button Styles */
+				.add-to-basket-section {
+					margin-top: 1.5rem;
+					padding-top: 1rem;
+					border-top: 1px solid #e9ecef;
+					text-align: center;
+				}
+
+				.add-basket-btn {
+					background: #28a745;
+					color: white;
+					border: none;
+					padding: 0.75rem 1.5rem;
+					border-radius: 6px;
+					font-size: 1rem;
+					font-weight: 500;
+					cursor: pointer;
+					transition: all 0.2s ease;
+					display: inline-flex;
+					align-items: center;
+					gap: 0.5rem;
+					min-width: 180px;
+					justify-content: center;
+				}
+
+				.add-basket-btn:hover {
+					background: #218838;
+					transform: translateY(-1px);
+					box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+				}
+
+				.add-basket-btn:active {
+					transform: translateY(0);
+				}
+
+				.add-basket-btn:disabled {
+					background: #6c757d;
+					cursor: not-allowed;
+					transform: none;
+					box-shadow: none;
+				}
+
+				.basket-hint {
+					margin: 0.5rem 0 0 0;
+					color: #6c757d;
+					font-size: 0.85rem;
+					line-height: 1.4;
+				}
+
+				.basket-buttons {
+					display: flex;
+					gap: 0.75rem;
+					justify-content: center;
+					align-items: center;
+					flex-wrap: wrap;
+				}
+
+				.clear-results-btn {
+					background: #6c757d;
+					color: white;
+					border: none;
+					padding: 0.75rem 1.25rem;
+					border-radius: 6px;
+					font-size: 0.95rem;
+					font-weight: 500;
+					cursor: pointer;
+					transition: all 0.2s ease;
+					display: inline-flex;
+					align-items: center;
+					gap: 0.5rem;
+				}
+
+				.clear-results-btn:hover {
+					background: #5a6268;
+					transform: translateY(-1px);
+					box-shadow: 0 2px 6px rgba(108, 117, 125, 0.3);
+				}
+
+				.clear-results-btn:active {
 					transform: translateY(0);
 				}
 			`}</style>

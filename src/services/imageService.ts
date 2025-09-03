@@ -1,5 +1,10 @@
 import { apiClient } from "../utils/api";
-import { ApiResponse, ImageUpload, ImageRecognition } from "../types/api";
+import {
+	ApiResponse,
+	ImageUpload,
+	ImageRecognition,
+	TwoStageAnalysisResult,
+} from "../types/api";
 
 class ImageService {
 	async uploadImage(
@@ -39,12 +44,13 @@ class ImageService {
 			portions?: any[];
 			stage_1?: any;
 			stage_2?: any;
+			stage_3?: any;
 			error?: string;
 		}) => void,
 		abortController?: AbortController
 	): Promise<{
 		success: boolean;
-		finalResult?: any;
+		finalResult?: TwoStageAnalysisResult;
 		error?: string;
 		cancelled?: boolean;
 	}> {
@@ -355,17 +361,7 @@ class ImageService {
 					};
 				}>;
 			};
-			food_analysis: {
-				success: boolean;
-				stage_1: { food_types: Array<{ name: string; confidence: number }> };
-				stage_2: {
-					food_portions: Array<{
-						name: string;
-						estimated_grams: number;
-						cooking_method?: string;
-					}>;
-				};
-			};
+			food_analysis: TwoStageAnalysisResult;
 		}>
 	> {
 		return apiClient.post<{
@@ -438,17 +434,7 @@ class ImageService {
 					};
 				}>;
 			};
-			food_analysis: {
-				success: boolean;
-				stage_1: { food_types: Array<{ name: string; confidence: number }> };
-				stage_2: {
-					food_portions: Array<{
-						name: string;
-						estimated_grams: number;
-						cooking_method?: string;
-					}>;
-				};
-			};
+			food_analysis: TwoStageAnalysisResult;
 		}>("/images/analyze-with-barcode/", { image_id: imageId });
 	}
 

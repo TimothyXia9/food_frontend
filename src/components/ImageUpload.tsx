@@ -2,12 +2,19 @@ import React, { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { imageService } from "../services/imageService";
 import { useNotification } from "../contexts/NotificationContext";
+import { TwoStageAnalysisResult, USDANutritionInfo } from "../types/api";
+import {
+	validateNutritionData,
+	getDefaultNutritionData,
+	NutritionDataStatus,
+} from "../utils/nutritionValidation";
 
 interface ImageUploadProps {
 	onImageUploaded: (
 		imageId: number,
 		results: any,
-		imagePreview?: string
+		imagePreview?: string,
+		nutritionStatus?: Array<NutritionDataStatus>
 	) => void;
 	onImagePreview?: (imagePreview: string) => void;
 	onStreamingProgress?: (data: {
@@ -37,7 +44,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 	const [analyzing, setAnalyzing] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const abortControllerRef = useRef<AbortController | null>(null);
-	const { showSuccess, showError, showInfo } = useNotification();
+	const { showSuccess, showError, showInfo, showWarning } = useNotification();
 
 	const handleFileSelect = () => {
 		if (disabled || uploading || analyzing) return;
@@ -109,21 +116,40 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 					setAnalyzing(false);
 					onUploadEnd?.();
 
-					// Use streaming analysis results
-					const finalData = streamResult.finalResult;
-					const mockResults = {
+					// Use streaming analysis results with real USDA nutrition data
+					const finalData = streamResult.finalResult as TwoStageAnalysisResult;
+					const nutritionStatuses: Array<NutritionDataStatus> = [];
+
+					const processedResults = {
 						image_id: imageId,
 						processing_status: "completed" as const,
 						streaming_result: finalData,
 						// Maintain backward compatibility
-						keywords:
-							finalData.stage_1?.food_types?.map((food: any) => food.name) || [],
+						keywords: finalData.stage_1?.food_types?.map(food => food.name) || [],
 						results:
-							finalData.stage_1?.food_types?.map((food: any, index: number) => {
+							finalData.stage_1?.food_types?.map((food, index) => {
 								// Find corresponding portion information
 								const portionInfo = finalData.stage_2?.food_portions?.find(
-									(portion: any) => portion.name === food.name
+									portion => portion.name === food.name
 								);
+
+								// Find corresponding nutrition data from stage 3
+								let nutritionData: USDANutritionInfo;
+								if (finalData.stage_3?.nutrition_data?.length > index) {
+									nutritionData = finalData.stage_3.nutrition_data[index];
+								} else {
+									// Fallback to default nutrition data if stage 3 failed
+									nutritionData = getDefaultNutritionData(food.name);
+								}
+
+								// Validate nutrition data quality
+								const nutritionStatus = validateNutritionData(nutritionData);
+								nutritionStatuses.push(nutritionStatus);
+
+								// Show warnings for poor quality data
+								if (nutritionStatus.confidence === "low") {
+									showWarning(`${food.name}: ${nutritionStatus.issues.join(", ")}`);
+								}
 
 								return {
 									id: index + 1,
@@ -136,21 +162,34 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 										portion_description:
 											portionInfo?.portion_description ||
 											`${t("photoRecognition.about")}${portionInfo?.estimated_grams || 100}${t("photoRecognition.grams")}`,
-										calories_per_100g: 100, // Simulated data
-										protein_per_100g: 10,
-										fat_per_100g: 5,
-										carbs_per_100g: 20,
-										fiber_per_100g: 2,
-										sugar_per_100g: 5,
-										sodium_per_100g: 100,
+										// Use real USDA nutrition data
+										calories_per_100g: nutritionData.calories_per_100g,
+										protein_per_100g: nutritionData.protein_per_100g,
+										fat_per_100g: nutritionData.fat_per_100g,
+										carbs_per_100g: nutritionData.carbs_per_100g,
+										fiber_per_100g: nutritionData.fiber_per_100g,
+										sugar_per_100g: nutritionData.sugar_per_100g,
+										sodium_per_100g: nutritionData.sodium_per_100g,
 										serving_size: portionInfo?.estimated_grams || 100,
 										is_custom: false,
+										// Add nutrition data quality information
+										usda_description: nutritionData.usda_description,
+										fdc_id: nutritionData.fdc_id,
+										data_quality: nutritionData.data_quality,
+										data_source: nutritionData.data_source,
 									},
+									// Add nutrition validation status
+									nutritionStatus,
 								};
 							}) || [],
 					};
 
-					onImageUploaded(imageId, mockResults, imagePreviewUrl);
+					onImageUploaded(
+						imageId,
+						processedResults,
+						imagePreviewUrl,
+						nutritionStatuses
+					);
 				} else {
 					throw new Error(
 						streamResult.error || t("photoRecognition.streamAnalysisFailed")
